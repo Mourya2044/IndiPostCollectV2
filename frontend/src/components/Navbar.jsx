@@ -1,15 +1,14 @@
 import { Link } from "react-router-dom";
 import { useAuthStore } from '../store/useAuthStore.js'
 import { LogOut, MessageSquare, LogIn, User } from "lucide-react";
-import { useEffect } from "react";
+// import { useEffect } from "react";
 
 const Navbar = () => {
   const { user, logout } = useAuthStore();
 
-  useEffect(() => {
-    console.log(user);
-    
-  }, [user])
+//   useEffect(() => {
+//     console.log(user);
+//   }, [user])
   
   if (location.pathname === '/login' || location.pathname === '/signup') {
     return null;
