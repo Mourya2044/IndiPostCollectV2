@@ -1,11 +1,14 @@
 import React from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
+import Home from './pages/Home'
 
 
 const AppRoutes = () => {
   return (
-    <div>Routes</div>
+    <Routes> 
+      <Route path="/" element={<Home />} />
+    </Routes>
   )
 }
 
-export default Routes
+export default AppRoutes
