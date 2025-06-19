@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import authRouter from './routes/authRoutes.js';
+import authRouter from './routes/auth.routes.js';
 import cookieParser from 'cookie-parser';
 
 const PORT = process.env.PORT || 3000;
@@ -14,7 +14,9 @@ app.use(cors({
     credentials: true,
 }))
 
+//Routes
 app.use("/api/auth", authRouter)
+
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
