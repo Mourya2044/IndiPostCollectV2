@@ -1,16 +1,25 @@
 import Stamp from "../models/stamp.model.js";
-import User from "../models/user.model.js";
+import cloudinary from "../lib/cloudinary.js";
 
 
 export const createStamp = async (req, res) => {
     try {
-        const { title, country, year, category, description, imageUrl, isForSale, price, isMuseumPiece } = req.body;
+        const { title, country, year, category, description, image, isForSale, price, isMuseumPiece } = req.body;
         const userId = req.user._id;
 
         // Validate required fields
-        if (!title || !country || !year || !category || !description || !imageUrl || price === undefined) {
+        if (!title || !country || !year || !category || !description || !image || price === undefined) {
             return res.status(400).json({ message: "All fields are required" });
         }
+
+        const uploadResponse = await cloudinary.uploader.upload(image, {
+            folder: "stamps",
+            allowed_formats: ["jpg", "png", "webp"],
+            transformation: [
+                { width: 500, height: 500, crop: "limit" }
+            ]
+        });
+        const imageUrl = uploadResponse.secure_url;
 
         const newStamp = new Stamp({
             title,

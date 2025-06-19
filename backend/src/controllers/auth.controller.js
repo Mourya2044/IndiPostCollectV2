@@ -30,10 +30,7 @@ export const loginUser = async (req, res) => {
 
     generateToken(user._id, res);
 
-    res.status(200).json({
-      id: user._id,
-      user
-    });
+    res.status(200).json(user);
   } catch (err) {
     console.log("error in loginUser controller", err.message);
     return res.status(500).json({ message: "Error logging in", error: err.message });
@@ -65,10 +62,7 @@ export const signUpUser = async (req, res) => {
 
     generateToken(user._id, res);
 
-    res.status(201).json({
-      id: user._id,
-      user
-    });
+    res.status(201).json(user);
   } catch (err) {
     console.log("error in signUpUser controller", err.message);
     return res.status(500).json({ message: "Error signing up", error: err.message });

@@ -10,8 +10,6 @@ import {
 
 const stampRouter = express.Router();
 
-stampRouter.use(protect);
-
 stampRouter.post("/new", protect, createStamp);
 stampRouter.patch("/:id", protect, updateStamp);
 stampRouter.delete("/:id", protect, deleteStamp);
