@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react'
 import AuthLayout from '../../components/layouts/AuthLayout';
 import Input from '../../components/inputs/Input';
 import { useNavigate, Link } from 'react-router-dom';
@@ -6,7 +6,15 @@ import { validateEmail } from '../../utils/helper';
 import { useAuthStore } from '../../store/useAuthStore.js';
 
 const SignUp = () => {
-  const { signup } = useAuthStore();
+  const { signup, hideNav, unhideNav } = useAuthStore();
+
+  useEffect(() => {
+      hideNav();
+    
+      return () => {
+        unhideNav()
+      }
+    }, [hideNav, unhideNav]);
 
   const [step, setStep] = useState(1);
   const [fullName, setFullName] = useState('');
