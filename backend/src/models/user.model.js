@@ -10,7 +10,7 @@ const UserSchema = new mongoose.Schema({
   state: { type: String, required: true },
   city: { type: String, required: true },
   pin: { type: Number, required: true },
-});
+}, { timestamps: true });
 
 // Hash password before saving
 UserSchema.pre("save", async function (next) {
