@@ -18,7 +18,7 @@ export const protect = async (req, res, next) => {
 
     next();
   } catch (err) {
-    console.error("Error in auth middleware:", err);
+    console.error("Error in auth middleware:", err.message);
     return res.status(401).json({ message: "Unauthorized: Invalid token", error: err.message });
   }
 };
