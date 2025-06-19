@@ -2,8 +2,16 @@ import User from "../models/user.model.js";
 import jwt from "jsonwebtoken";
 
 // Generate JWT token
-const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "1d" });
+const generateToken = (id, res) => {
+  const token = jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "1d" });
+
+  res.cookie("jwt", token, {
+    maxAge: 24 * 60 * 60 * 1000, // 1 day
+    httpOnly: true,
+    sameSite: "None",
+    secure: process.env.NODE_ENV !== "development"
+  });
+  return token;
 };
 
 export const loginUser = async (req, res) => {
@@ -20,12 +28,14 @@ export const loginUser = async (req, res) => {
       return res.status(401).json({ message: "Invalid Credentials" });
     }
 
+    generateToken(user._id, res);
+
     res.status(200).json({
       id: user._id,
-      user,
-      token: generateToken(user._id),
+      user
     });
   } catch (err) {
+    console.log("error in loginUser controller", err.message);
     return res.status(500).json({ message: "Error logging in", error: err.message });
   }
 };
@@ -53,21 +63,25 @@ export const signUpUser = async (req, res) => {
       pin
     });
 
+    generateToken(user._id, res);
+
     res.status(201).json({
       id: user._id,
-      user,
-      token: generateToken(user._id),
+      user
     });
   } catch (err) {
-    res.status(500).json({ message: "Error signing up", error: err.message });
+    console.log("error in signUpUser controller", err.message);
+    return res.status(500).json({ message: "Error signing up", error: err.message });
   }
 };
 
 export const logoutUser = async (req, res) => {
   try {
+    res.cookie("jwt", "", {maxAge: 0});
     res.status(200).json({ message: "Logout successful" });
   } catch (err) {
-    res.status(500).json({ message: "Logout failed",error: err.message });
+    console.log("error in logoutUser controller", err.message);
+    return res.status(500).json({ message: "Logout failed", error: err.message });
   }
 };
 
@@ -80,6 +94,7 @@ export const getUserInfo = async (req, res) => {
     }
     res.status(200).json(user);
   } catch (err) {
-    res.status(500).json({ message: "Error getting user information", error: err.message });
+    console.log("error in getUserInfo controller", err.message);
+    return res.status(500).json({ message: "Error getting user information", error: err.message });
   }
 };

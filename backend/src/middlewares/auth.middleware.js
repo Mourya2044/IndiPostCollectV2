@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import User from '../models/user.model.js';
 
 export const protect = async (req, res, next) => {
-  let token = req.headers.authorization?.split(" ")[1];
+  let token = req.cookies.jwt;
 
   if (!token) {
     return res.status(401).json({ message: "Unauthorized: No token provided" });
@@ -18,6 +18,7 @@ export const protect = async (req, res, next) => {
 
     next();
   } catch (err) {
-    res.status(401).json({ message: "Unauthorized: Invalid token", error: err.message });
+    console.error("Error in auth middleware:", err);
+    return res.status(401).json({ message: "Unauthorized: Invalid token", error: err.message });
   }
 };
