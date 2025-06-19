@@ -38,9 +38,14 @@ export const loginUser = async (req, res) => {
 };
 
 export const signUpUser = async (req, res) => {
-  const { fullName, email, password, address, district, state, city, pin} = req.body;
+  const { fullName, email, password, address} = req.body;
+  
   //verify all fields
-  if(!fullName || !email || !password || !address || !district || !state || !city || !pin){
+  if (
+    !address.locality || !address.city || !address.district || !address.state || !address.pin) {
+    return res.status(400).json({ message: "All address fields are required" });
+  }
+  if(!fullName || !email || !password || !address ){
     return res.status(400).json({message: "All fields are required"});
   }
   try {
@@ -53,11 +58,13 @@ export const signUpUser = async (req, res) => {
       fullName,
       email,
       password,
-      address,
-      district,
-      state,
-      city,
-      pin
+      address: {
+        locality: address.locality,
+        city: address.city,
+        district: address.district,
+        state: address.state,
+        pin: address.pin
+      }
     });
 
     generateToken(user._id, res);

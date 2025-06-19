@@ -5,11 +5,13 @@ const UserSchema = new mongoose.Schema({
   fullName: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  address: { type: String, required: true },
-  district: { type: String, required: true },
-  state: { type: String, required: true },
-  city: { type: String, required: true },
-  pin: { type: Number, required: true },
+  address: { 
+    locality: {type:String, required: true},
+    district: { type: String, required: true },
+    state: { type: String, required: true },
+    city: { type: String, required: true },
+    pin: { type: Number, required: true }
+   }
 }, { timestamps: true });
 
 // Hash password before saving
