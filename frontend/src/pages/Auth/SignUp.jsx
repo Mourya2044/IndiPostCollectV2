@@ -3,9 +3,12 @@ import AuthLayout from '../../components/layouts/AuthLayout';
 import Input from '../../components/inputs/Input';
 import { useNavigate, Link } from 'react-router-dom';
 import { validateEmail } from '../../utils/helper';
+import { useAuthStore } from '../../store/useAuthStore.js';
 
 const SignUp = () => {
-  const [step,setStep] = useState(1);
+  const { signup } = useAuthStore();
+
+  const [step, setStep] = useState(1);
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -38,6 +41,20 @@ const SignUp = () => {
     setError("");
 
     // TODO: Signup API call here
+    const userData = {
+      fullName,
+      email,
+      password,
+      address: {
+        locality,
+        district,
+        state,
+        city,
+        pin
+      }
+    }
+
+    signup(userData)
 
     // Simulate signup and navigate
     navigate("/login");
@@ -55,72 +72,72 @@ const SignUp = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {step === 1 && (
               <>
-              <Input
-              placeholder="Stamp Kumar"
-              label="Full Name"
-              type="text"
-              value={fullName}
-              onChange={({ target }) => setFullName(target.value)}
-              />
-              <Input
-                value={email}
-                onChange={({ target }) => setEmail(target.value)}
-                label="Email Address"
-                placeholder="philatelist@stamp.com"
-                type="text"
-              />
-              <div className="col-span-2">
-              <Input
-                value={password}
-                onChange={({ target }) => setPassword(target.value)}
-                label="Password"
-                placeholder="Min 8 characters"
-                type="password"
-              />
-            </div>
+                <Input
+                  placeholder="Stamp Kumar"
+                  label="Full Name"
+                  type="text"
+                  value={fullName}
+                  onChange={({ target }) => setFullName(target.value)}
+                />
+                <Input
+                  value={email}
+                  onChange={({ target }) => setEmail(target.value)}
+                  label="Email Address"
+                  placeholder="philatelist@stamp.com"
+                  type="text"
+                />
+                <div className="col-span-2">
+                  <Input
+                    value={password}
+                    onChange={({ target }) => setPassword(target.value)}
+                    label="Password"
+                    placeholder="Min 8 characters"
+                    type="password"
+                  />
+                </div>
               </>
             )}
-            
+
             {step === 2 && (
               <>
-              <Input
-              value={locality}
-              onChange={({ target }) => setLocality(target.value)}
-              label="Locality"
-              placeholder=""
-              type="text"
-            />
-            <Input
-              value={district}
-              onChange={({ target }) => setDistrict(target.value)}
-              label="District"
-              placeholder=""
-              type="text"
-            />
-            <Input
-              value={state}
-              onChange={({ target }) => setState(target.value)}
-              label="State"
-              placeholder=""
-              type="text"
-            />
-            <Input
-              value={city}
-              onChange={({ target }) => setCity(target.value)}
-              label="City"
-              placeholder=""
-              type="text"
-            />
-            <Input
-              value={pin}
-              onChange={({ target }) => setPin(target.value)}
-              label="PIN Code"
-              placeholder=""
-              type="number"
-            />
+                <Input
+                  value={locality}
+                  onChange={({ target }) => setLocality(target.value)}
+                  label="Locality"
+                  placeholder=""
+                  type="text"
+                />
+                <Input
+                  value={district}
+                  onChange={({ target }) => setDistrict(target.value)}
+                  label="District"
+                  placeholder=""
+                  type="text"
+                />
+                <Input
+                  value={state}
+                  onChange={({ target }) => setState(target.value)}
+                  label="State"
+                  placeholder=""
+                  type="text"
+                />
+                <Input
+                  value={city}
+                  onChange={({ target }) => setCity(target.value)}
+                  label="City"
+                  placeholder=""
+                  type="text"
+                />
+                <Input
+                  value={pin}
+                  onChange={({ target }) => setPin(target.value)}
+                  label="PIN Code"
+                  placeholder=""
+                  type="number"
+                />
               </>
             )}
-            
+
           </div>
 
           {error && <p className="text-red-500 text-xs pb-2.5 pt-1">{error}</p>}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import AuthLayout from '../../components/layouts/AuthLayout'
 import Input from '../../components/inputs/Input'
 import { useNavigate, Link } from 'react-router-dom';
@@ -12,7 +12,16 @@ const Login = () => {
   const [error, setError] = useState(null)
 
   const navigate = useNavigate()
-  const { login } = useAuthStore();
+  const { login, hideNav, unhideNav } = useAuthStore();
+
+  useEffect(() => {
+    hideNav();
+  
+    return () => {
+      unhideNav()
+    }
+  }, [hideNav, unhideNav]);
+  
 
   const handleLogin = (e) => {
     e.preventDefault();

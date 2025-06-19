@@ -4,18 +4,18 @@ import { LogOut, MessageSquare, LogIn, User } from "lucide-react";
 // import { useEffect } from "react";
 
 const Navbar = () => {
-  const { user, logout } = useAuthStore();
+  const { user, logout, showNav } = useAuthStore();
 
-//   useEffect(() => {
-//     console.log(user);
-//   }, [user])
-  
-  if (location.pathname === '/login' || location.pathname === '/signup') {
-    return null;
-  }
+  //   useEffect(() => {
+  //     console.log(user);
+  //   }, [user])
+
+  // if (location.pathname === '/login' || location.pathname === '/signup') {
+  //   return null;
+  // }
 
   return (
-    <header
+    showNav && <header
       className="border-b border-base-300 sticky w-full top-0 z-40 
     backdrop-blur-lg bg-base-100/80"
     >
@@ -31,7 +31,7 @@ const Navbar = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            <Link
+            {!user && <Link
               to={"/login"}
               className={`
               btn btn-sm gap-2 transition-colors
@@ -40,7 +40,7 @@ const Navbar = () => {
             >
               <LogIn className="w-4 h-4" />
               <span className="hidden sm:inline">Login</span>
-            </Link>
+            </Link>}
 
             {user && (
               <>
@@ -51,7 +51,7 @@ const Navbar = () => {
 
                 <button className="flex gap-2 items-center" onClick={logout}>
                   <LogOut className="size-5" />
-                  <span className="hidden sm:inline" onClick={()=>logout()}>Logout</span>
+                  <span className="hidden sm:inline" onClick={() => logout()}>Logout</span>
                 </button>
               </>
             )}
