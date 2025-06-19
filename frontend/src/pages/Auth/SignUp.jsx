@@ -44,7 +44,7 @@ const SignUp = () => {
         <form onSubmit={handleSignup}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <Input
-              placeholder="Virat Kohli"
+              placeholder="Stamp Kumar"
               label="Full Name"
               type="text"
               value={fullName}

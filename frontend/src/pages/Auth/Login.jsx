@@ -59,7 +59,7 @@ const Login = () => {
             {error && <p className='text-red-500 text-xs pb-2.5'>{error}</p>}
 
             <button type='submit' className='btn-primary'>Login</button>
-            <p className=''>
+            <p className='text-[13px] mt-3 text-slate-800'>
               Do not have an account?{""}
               <Link className='font-medium text-[#da251c] underline' to="/signup">SignUp</Link>
             </p>
