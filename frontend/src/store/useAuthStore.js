@@ -9,9 +9,7 @@ export const useAuthStore = create((set) => ({
     checkAuth: async () => {
         try {
             const response = await axiosInstance.get('/auth/checkauth');
-            console.log(response);
-            
-            set({user: response.data.user})
+            set({user: response.data})
         } catch (error) {
             console.error("Error in auth", error);
         } finally {
@@ -23,7 +21,7 @@ export const useAuthStore = create((set) => ({
         set({isLoading: true});
         try {
             const response = await axiosInstance.post('/auth/login', { email, password });
-            set({ user: response.data.user });
+            set({ user: response.data });
         } catch (error) {
             console.error("Error logging in:", error);
         } finally {

@@ -4,15 +4,18 @@ import jwt from "jsonwebtoken";
 // Generate JWT token
 const generateToken = (id, res) => {
   const token = jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "1d" });
+  console.log("token", token);
 
   res.cookie("jwt", token, {
-    maxAge: 24 * 60 * 60 * 1000, // 1 day
     httpOnly: true,
-    sameSite: "None",
-    secure: process.env.NODE_ENV !== "development"
+    secure: false,           // no HTTPS in localhost
+    sameSite: "Lax",         // "None" requires HTTPS
+    maxAge: 24 * 60 * 60 * 1000
   });
+
   return token;
 };
+
 
 export const loginUser = async (req, res) => {
   const { email, password } = req.body;
@@ -38,20 +41,20 @@ export const loginUser = async (req, res) => {
 };
 
 export const signUpUser = async (req, res) => {
-  const { fullName, email, password, address} = req.body;
-  
+  const { fullName, email, password, address } = req.body;
+
   //verify all fields
   if (
     !address.locality || !address.city || !address.district || !address.state || !address.pin) {
     return res.status(400).json({ message: "All address fields are required" });
   }
-  if(!fullName || !email || !password || !address ){
-    return res.status(400).json({message: "All fields are required"});
+  if (!fullName || !email || !password || !address) {
+    return res.status(400).json({ message: "All fields are required" });
   }
   try {
-    const existingUser = await User.findOne({email});//If already exists
-    if(existingUser){
-      return res.status(400).json({message: "Email already in use"});
+    const existingUser = await User.findOne({ email });//If already exists
+    if (existingUser) {
+      return res.status(400).json({ message: "Email already in use" });
     }
     //Create user
     const user = await User.create({
@@ -78,7 +81,7 @@ export const signUpUser = async (req, res) => {
 
 export const logoutUser = async (req, res) => {
   try {
-    res.cookie("jwt", "", {maxAge: 0});
+    res.cookie("jwt", "", { maxAge: 0 });
     res.status(200).json({ message: "Logout successful" });
   } catch (err) {
     console.log("error in logoutUser controller", err.message);
@@ -100,11 +103,11 @@ export const getUserInfo = async (req, res) => {
   }
 };
 
-export const checkAuth = async (req,res) => {
-  try{
+export const checkAuth = async (req, res) => {
+  try {
     return res.status(200).json(req.user);
-  }catch(err){
-    console.log("Error checking authentication",err.message)
-    return res.status(500).json({message: "Error checking authentication", error:err.message})
+  } catch (err) {
+    console.log("Error checking authentication", err.message)
+    return res.status(500).json({ message: "Error checking authentication", error: err.message })
   }
 }
