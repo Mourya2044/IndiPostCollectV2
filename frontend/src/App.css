@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+@theme {
+  --primary-color: #244855;
+  --secondary-color: #e64833;
+  --accent-color: #874F41;
+  --text-color: #90AEAD;
+  --light-bg: #fbe9d0;
+}
+
 .input-box {
     @apply w-full flex justify-between gap-3 text-sm text-black bg-slate-100 rounded px-4 py-3 mb-4 mt-3 outline-none border border-slate-300 ;
   }

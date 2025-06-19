@@ -3,6 +3,7 @@ import AuthLayout from '../../components/layouts/AuthLayout'
 import Input from '../../components/inputs/Input'
 import { useNavigate, Link } from 'react-router-dom';
 import { validateEmail } from '../../utils/helper';
+import { useAuthStore } from '../../store/useAuthStore.js';
 
 
 const Login = () => {
@@ -11,6 +12,7 @@ const Login = () => {
   const [error, setError] = useState(null)
 
   const navigate = useNavigate()
+  const { login } = useAuthStore();
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -23,13 +25,20 @@ const Login = () => {
       setError("Please enter password")
       return;
     }
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters");
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters");
       return;
     }
     setError("");
 
     //LOGIN API call
+    login(email, password)
+      .then(() => {
+        navigate("/");
+      })
+      .catch((err) => {
+        setError(err.message);
+      });
   }
 
 
