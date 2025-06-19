@@ -1,10 +1,14 @@
 import React from 'react'
 import AppRoutes from './AppRoutes.jsx'
 import './App.css'
+import Navbar from './components/Navbar.jsx'
 
 const App = () => {
   return (
-    <AppRoutes />
+    <div>
+      <Navbar />
+      <AppRoutes />
+    </div>
   )
 }
 
