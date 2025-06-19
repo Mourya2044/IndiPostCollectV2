@@ -1,1 +1,9 @@
 @import "tailwindcss";
+
+.input-box {
+    @apply w-full flex justify-between gap-3 text-sm text-black bg-slate-100 rounded px-4 py-3 mb-4 mt-3 outline-none border border-slate-300 ;
+  }
+  
+  .btn-primary{
+    @apply bg-[#da251c] justify-center flex w-full rounded text-white text-sm p-1.5 hover:bg-[#da251cf3] hover:text-[#ffd700]
+  }
