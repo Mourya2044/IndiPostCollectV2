@@ -11,6 +11,9 @@ const Navbar = () => {
     
   }, [user])
   
+  if (location.pathname === '/login' || location.pathname === '/signup') {
+    return null;
+  }
 
   return (
     <header
