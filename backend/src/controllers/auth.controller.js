@@ -53,20 +53,33 @@ export const signUpUser = async (req, res) => {
       pin
     });
 
-    res.status(200).json({
+    res.status(201).json({
       id: user._id,
       user,
       token: generateToken(user._id),
     });
   } catch (err) {
-    res.status(500).json({ message: "Error signing in", error: err.message });
+    res.status(500).json({ message: "Error signing up", error: err.message });
   }
 };
 
 export const logoutUser = async (req, res) => {
   try {
     res.status(200).json({ message: "Logout successful" });
-  } catch (error) {
-    res.status(500).json({ error: "Logout failed" });
+  } catch (err) {
+    res.status(500).json({ message: "Logout failed",error: err.message });
+  }
+};
+
+
+export const getUserInfo = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("-password");
+    if (!user) {
+      return res.status(404).json({ message: "User does not exist" });
+    }
+    res.status(200).json(user);
+  } catch (err) {
+    res.status(500).json({ message: "Error getting user information", error: err.message });
   }
 };
