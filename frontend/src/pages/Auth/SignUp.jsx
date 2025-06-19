@@ -38,6 +38,7 @@ const SignUp = () => {
     setError("");
 
     // TODO: Signup API call here
+    
 
     // Simulate signup and navigate
     navigate("/login");
