@@ -92,3 +92,12 @@ export const getUserInfo = async (req, res) => {
     return res.status(500).json({ message: "Error getting user information", error: err.message });
   }
 };
+
+export const checkAuth = async (req,res) => {
+  try{
+    return res.status(200).json(req.user);
+  }catch(err){
+    console.log("Error checking authentication",err.message)
+    return res.status(500).json({message: "Error checking authentication", error:err.message})
+  }
+}
