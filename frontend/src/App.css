@@ -1,17 +1,25 @@
 @import "tailwindcss";
 
 @theme {
-  --primary-color: #244855;
-  --secondary-color: #e64833;
-  --accent-color: #874F41;
-  --text-color: #90AEAD;
-  --light-bg: #fbe9d0;
+  --color-IPCprimary: #244855;
+  --color-IPCsecondary: #e64833;
+  --color-IPCaccent: #874F41;
+  --color-IPCtext: #90AEAD;
+  --color-IPClight-bg: #fbe9d0;
+  
+}
+* {
+  @apply font-serif;
 }
 
 .input-box {
-    @apply w-full flex justify-between gap-3 text-sm text-black bg-slate-100 rounded px-4 py-3 mb-4 mt-3 outline-none border border-slate-300 ;
-  }
-  
-  .btn-primary{
-    @apply bg-[#da251c] justify-center flex w-full rounded text-white text-sm p-1.5 hover:bg-[#da251cf3] hover:text-[#ffd700]
-  }
+  @apply w-full flex justify-between gap-3 text-sm text-black bg-slate-100 rounded px-4 py-3 mb-4 mt-3 outline-none border border-slate-300 ;
+}
+
+.btn-primary {
+  @apply bg-[#da251c] justify-center flex w-full rounded text-white text-sm p-1.5 hover:bg-[#da251cf3] hover:text-[#ffd700];
+}
+
+.nav-menu {
+  @apply flex items-center gap-2 transition-all duration-300 ease-in-out hover:text-xl hover:text-white;
+}
