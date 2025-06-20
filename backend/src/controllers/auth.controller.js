@@ -3,7 +3,7 @@ import UserVerification from "../models/verification.model.js";
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { sendVerificationEmail } from "../../utils/sendEmail.js";
+import { sendVerificationEmail } from "../utils/sendEmail.js";
 
 // Generate JWT token
 const generateToken = (id, res) => {
