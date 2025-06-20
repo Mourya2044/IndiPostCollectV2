@@ -5,7 +5,8 @@ import {
   signUpUser,
   logoutUser,
   getUserInfo,
-  checkAuth
+  checkAuth, 
+  verifyEmail
 } from "../controllers/auth.controller.js";
 
 const authRouter = express.Router();
@@ -15,5 +16,6 @@ authRouter.post("/signup", signUpUser);
 authRouter.get("/me", protect, getUserInfo);
 authRouter.post("/logout", logoutUser);
 authRouter.get("/checkauth",protect,checkAuth);
+authRouter.get("/verify/:userId/:uniqueString",verifyEmail)
 
 export default authRouter;

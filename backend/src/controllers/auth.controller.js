@@ -1,5 +1,9 @@
 import User from "../models/user.model.js";
+import UserVerification from "../models/verification.model.js";
+import { v4 as uuidv4 } from 'uuid';
+import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { sendVerificationEmail } from "../../utils/sendEmail.js";
 
 // Generate JWT token
 const generateToken = (id, res) => {
@@ -30,7 +34,10 @@ export const loginUser = async (req, res) => {
     if (!user || !(await user.comparePasswords(password))) {
       return res.status(401).json({ message: "Invalid Credentials" });
     }
-
+    //is user verified
+    if (!user.verified) {
+      return res.status(403).json({ message: "Please verify your email to login." });
+    }
     generateToken(user._id, res);
 
     res.status(200).json(user);
@@ -45,7 +52,7 @@ export const signUpUser = async (req, res) => {
 
   //verify all fields
   if (
-    !address.locality || !address.city || !address.district || !address.state || !address.pin) {
+    !address || !address.locality || !address.city || !address.district || !address.state || !address.pin) {
     return res.status(400).json({ message: "All address fields are required" });
   }
   if (!fullName || !email || !password || !address) {
@@ -61,6 +68,7 @@ export const signUpUser = async (req, res) => {
       fullName,
       email,
       password,
+      verified: false,
       address: {
         locality: address.locality,
         city: address.city,
@@ -70,9 +78,29 @@ export const signUpUser = async (req, res) => {
       }
     });
 
-    generateToken(user._id, res);
+    //Generate unique verification string
+    const uniqueString = uuidv4() + user._id;
+    const hashedString = await bcrypt.hash(uniqueString,10);
 
-    res.status(201).json(user);
+    await UserVerification.create({
+      userId: user._id,
+      uniqueString: hashedString,
+      createdAt: new Date(),
+      expiresAt: new Date(Date.now() + 6*60*60*1000), //6 hours expiry
+    })
+    
+    //send verification email
+    await sendVerificationEmail(user.email,uniqueString,user._id);
+
+    res.status(201).json({
+      message: "Verification email sent. Please verify your email.",
+      userId: user._id,
+      uniqueString, // ⚠️ Only for testing - REMOVE later
+    });
+
+    /*generateToken(user._id, res);
+
+    res.status(201).json(user);*/
   } catch (err) {
     console.log("error in signUpUser controller", err.message);
     return res.status(500).json({ message: "Error signing up", error: err.message });
@@ -109,5 +137,44 @@ export const checkAuth = async (req, res) => {
   } catch (err) {
     console.log("Error checking authentication", err.message)
     return res.status(500).json({ message: "Error checking authentication", error: err.message })
+  }
+}
+
+
+export const verifyEmail = async (req, res) => {
+  const {userId, uniqueString} = req.params;
+
+  try{
+    const record = await UserVerification.findOne({userId});
+
+  if(!record){
+    return res.status(404).json({message: "Verification record not found or expired"});
+  }
+
+  if(record.expiresAt < Date.now()){
+    await UserVerification.deleteOne({userId});
+    await User.deleteOne({_id: userId});
+    return res.status(400).json({message: "Link expired. Signup again"});
+  }
+
+  const isMatch = await bcrypt.compare(uniqueString,record.uniqueString);
+  if(!isMatch){
+    return res.status(401).json({ message: "Invalid verification link" });
+  }
+
+  const updatedUser = await User.findByIdAndUpdate(
+    userId,
+    { verified: true },
+    { new: true }
+  ).select("-password");
+
+  await UserVerification.deleteOne({userId});
+
+  generateToken(updatedUser._id, res);
+  res.status(200).json(updatedUser);
+  
+  }catch(err){
+    console.error("Error in verifyEmail:", err.message);
+    return res.status(500).json({ message: "Server error", error: err.message });
   }
 }
