@@ -62,10 +62,12 @@ const SignUp = () => {
       }
     }
 
-    signup(userData)
-
-    // Simulate signup and navigate
-    navigate("/login");
+    try {
+      await signup(userData); 
+      navigate("/");
+    } catch (err) {
+      setError("Signup failed");
+    }
   };
 
   return (
@@ -108,6 +110,7 @@ const SignUp = () => {
 
             {step === 2 && (
               <>
+                <div className='col-span-2'>
                 <Input
                   value={locality}
                   onChange={({ target }) => setLocality(target.value)}
@@ -115,6 +118,7 @@ const SignUp = () => {
                   placeholder=""
                   type="text"
                 />
+                </div>
                 <Input
                   value={district}
                   onChange={({ target }) => setDistrict(target.value)}
