@@ -4,6 +4,12 @@ import './App.css'
 import Navbar from './components/Navbar.jsx'
 import { useAuthStore } from './store/useAuthStore.js'
 import Footer from './components/Footer.jsx'
+import {   
+  QueryClient,
+  QueryClientProvider,
+} from '@tanstack/react-query'
+
+const queryClient = new QueryClient();
 
 const App = () => {
   const {checkAuth} = useAuthStore();
@@ -13,11 +19,13 @@ const App = () => {
   
 
   return (
-    <div>
+    <main className="flex flex-col min-h-screen bg-gray-100">
+    <QueryClientProvider client={queryClient}>
       <Navbar />
       <AppRoutes />
       <Footer />
-    </div>
+    </QueryClientProvider>
+    </main>
   )
 }
 

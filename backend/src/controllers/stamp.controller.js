@@ -95,17 +95,17 @@ export const getAllStamps = async (req, res) => {
         const sort = req.query.sort || "asc";
         const sortBy = req.query.sortBy || "createdAt";
         const forSale = req.query.forSale === "true";
-        const isMuseumPiece = req.query.isMuseumPiece === "false";
+        const isMuseumPiece = req.query.isMuseumPiece === "true";
         const search = req.query.search || "";
         const regexsearch = req.query.regexsearch || "";
 
 
         const filter = {
-            ...(categories && { category: { $in: categories } }),
-            ...(forSale && { isForSale: true }),
-            ...(isMuseumPiece && { isMuseumPiece: true }),
-            ...(search && { $text: { $search: search } }),
-            ...(regexsearch && {
+            ...(!!req.query.categories && { category: { $in: categories } }),
+            ...(!!req.query.forSale && { isForSale: forSale }),
+            ...(!!req.query.isMuseumPiece && { isMuseumPiece: isMuseumPiece }),
+            ...(!!req.query.search && { $text: { $search: search } }),
+            ...(!!req.query.regexsearch && {
                 $or: [
                     { title: { $regex: regexsearch, $options: "i" } },
                     { description: { $regex: regexsearch, $options: "i" } },

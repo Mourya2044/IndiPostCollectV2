@@ -17,7 +17,7 @@ export default Hero
 export const Hero2 = () => {
 
   return (
-    <div className="w-full h-[30vh] bg-gradient-to-br from-[#da251c] via-[#b71c1c] to-[#8e0000]">
+    <div className="w-full h-[30vh] bg-gradient-to-br from-[#da251c] via-[#b71c1c] to-[#8e0000] overflow-hidden">
       {/* bg elements */}
       <div className="relative">
         {/* <div className="absolute left-10 w-20 h-20 bg-[#ffeb7b] opacity-50 rounded-full blur-3xl animate-pulse delay-1000" /> */}
