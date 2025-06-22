@@ -4,11 +4,11 @@ import cloudinary from "../lib/cloudinary.js";
 
 export const createStamp = async (req, res) => {
     try {
-        const { title, country, year, category, description, image, isForSale, price, isMuseumPiece } = req.body;
+        const { title, country, year, category, description, image, isForSale, price, isMuseumPiece, availableQuantity } = req.body;
         const userId = req.user._id;
 
         // Validate required fields
-        if (!title || !country || !year || !category || !description || !image || price === undefined) {
+        if (!title || !country || !year || !category || !description || !image || price === undefined || availableQuantity === undefined) {
             return res.status(400).json({ message: "All fields are required" });
         }
 
@@ -25,13 +25,14 @@ export const createStamp = async (req, res) => {
             title,
             country,
             year,
-            category,
+            category: Array.isArray(category) ? category : [category], // Ensure category is an array
             description,
             imageUrl,
             isForSale: isForSale || false,
             price,
             owner: userId,
-            isMuseumPiece: isMuseumPiece || false
+            isMuseumPiece: isMuseumPiece || false,
+            availableQuantity: availableQuantity || 1
         });
 
         await newStamp.save();

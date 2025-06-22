@@ -6,6 +6,7 @@ import SignUp from './pages/Auth/SignUp'
 import { useAuthStore } from './store/useAuthStore'
 import Learn from './pages/LearnPage'
 import MarketplacePage from './pages/MarketplacePage'
+import StampDetailPage from './pages/StampDetailPage'
 
 
 const AppRoutes = () => {
@@ -18,8 +19,9 @@ const AppRoutes = () => {
       <Route path='/login' element={!user ? <Login /> : <Navigate to="/" />} />
       <Route path='/learn' element={<Learn />} />
       <Route path='/community' element={!user ? <div>Community Page</div> : <Navigate to="/login" />} />
-      <Route path='/museum' element={!user ? <div>Museum Page</div> : <Navigate to="/login" />} />
-      <Route path='/marketplace' element={!user ? <MarketplacePage /> : <Navigate to="/login" />} />
+      <Route path='/museum' element={<div>Museum Page</div>} />
+      <Route path='/marketplace' element={<MarketplacePage />} />
+      <Route path='/marketplace/:stampId' element={<StampDetailPage />} />
       <Route path='/events' element={!user ? <div>Events Page</div> : <Navigate to="/login" />} />
       <Route path='/profile' element={user ? <div>Profile Page</div> : <Navigate to="/login" />} />
       <Route path='*' element={<div>404 Not Found</div>} />

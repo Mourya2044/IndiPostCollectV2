@@ -14,19 +14,26 @@ const Hero = () => {
 
 export default Hero
 
-export const Hero2 = () => {
-
+export const HeroMarketplace = () => {
   return (
-    <div className="w-full h-[30vh] bg-gradient-to-br from-[#da251c] via-[#b71c1c] to-[#8e0000] overflow-hidden">
-      {/* bg elements */}
-      <div className="relative">
-        {/* <div className="absolute left-10 w-20 h-20 bg-[#ffeb7b] opacity-50 rounded-full blur-3xl animate-pulse delay-1000" /> */}
-        <div className="absolute left-32 w-40 h-40 bg-[#ffeb7b] opacity-50 rounded-full blur-3xl animate-pulse delay-750" />
-        <div className="absolute right-56 w-60 h-60 bg-[#ffd700] opacity-50 rounded-full blur-3xl animate-pulse delay-1000" />
-      </div>
-      <div className="relative w-full h-full flex items-center justify-center text-white">
-        <h1 className="text-4xl font-bold w-full flex-1 text-center">MARKETPLACE</h1>
+    <div className="w-full p-20 bg-white flex items-center justify-center">
+      <div className="max-w-2xl mx-auto px-6 text-center">
+
+        {/* Headline */}
+        <h1 className="text-5xl md:text-6xl font-light text-gray-900 mb-8 leading-tight">
+          Rare Stamps
+        </h1>
+
+        {/* Subtitle */}
+        <p className="text-lg text-gray-600 mb-12 font-light">
+          Discover and collect authenticated rare stamps from trusted dealers worldwide.
+        </p>
+
+        {/* Single CTA */}
+        <div className="px-8 py-3 bg-black text-white text-sm font-medium hover:bg-gray-800 transition-colors">
+          EXPLORE COLLECTION
+        </div>
       </div>
     </div>
-  )
+  );
 }

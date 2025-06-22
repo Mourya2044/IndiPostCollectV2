@@ -57,7 +57,11 @@ const stampSchema = new mongoose.Schema({
     isMuseumPiece: {
         type: Boolean,
         default: false
-    }
+    },
+    availableQuantity: {
+        type: Number,
+        default: 1
+    },
 }, { timestamps: true });
 
 stampSchema.index({ title: 'text', description: 'text', country: 'text' });
