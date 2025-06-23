@@ -52,8 +52,8 @@ const ProfilePhotoSelector = ({image,setImage}) => {
           />
           <button
             type='button'
-            onClick={handleRemoveImage}
-            className='absolute -top-0 -right-0 bg-[#DA1C1C] text-white p-1 rounded-full shadow-md hover:bg-teal-600 transition'
+            onClick={handleImageRemove}
+            className='absolute bottom-0 right-0 bg-[#DA1C1C] text-white p-1 rounded-full shadow-md hover:bg-[#DA1C1C]transition'
           >
             <LuTrash className='text-sm' />
           </button>

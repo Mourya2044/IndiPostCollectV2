@@ -17,6 +17,7 @@ const ProfilePage = () => {
       <form onSubmit={handleProfilePic}>
         <ProfilePhotoSelector image={profilePic} setImage={setProfilePic}/>
       </form>
+      
     </ProfileLayout>
   )
 }

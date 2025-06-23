@@ -8,6 +8,8 @@ import Learn from './pages/LearnPage'
 import MarketplacePage from './pages/MarketplacePage'
 import StampDetailPage from './pages/StampDetailPage'
 import ProfilePage from './pages/ProfilePage'
+import MuseumPage from './pages/MuseumPage';
+import MuseumStampPage from './pages/MuseumStampPage';
 
 
 const AppRoutes = () => {
