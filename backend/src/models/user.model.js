@@ -5,9 +5,10 @@ const UserSchema = new mongoose.Schema({
   fullName: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  verified: {type:Boolean, required: true},
+  verified: {type: Boolean, required: true},
+  profilePic: {type: String, default: ""},
   address: {
-    locality: {type:String},
+    locality: {type: String},
     district: { type: String},
     state: { type: String},
     city: { type: String},

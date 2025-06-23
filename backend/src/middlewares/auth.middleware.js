@@ -15,6 +15,7 @@ export const protect = async (req, res, next) => {
     if (!req.user) {
       return res.status(401).json({ message: "Unauthorized: User not found" });
     }
+    req.userId = req.user._id;
 
     next();
   } catch (err) {
