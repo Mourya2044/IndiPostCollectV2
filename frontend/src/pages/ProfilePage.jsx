@@ -4,26 +4,39 @@ import ProfilePhotoSelector from "@/components/inputs/ProfilePhotoSelector";
 import ProfileLayout from "@/components/layouts/ProfileLayout";
 
 const ProfilePage = () => {
-  const [profilePic, setProfilePic] = useState(null);
   const [error, setError] = useState(null);
-
-  const { user, getUserInfo } = useAuthStore();
+  const { user, getUserInfo, updateProfilePic } = useAuthStore();
 
   useEffect(() => {
     if (!user) getUserInfo();
   }, []);
 
-  const handleProfilePic = async (e) => {
-    e.preventDefault();
-    setError("");
-    // Image upload logic here
+  const fileToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleFileChange = async (file) => {
+    if (!file) return;
+    try {
+      const base64Image = await fileToBase64(file);
+      await updateProfilePic(base64Image);
+      await getUserInfo(); // refresh user data with updated image
+    } catch (err) {
+      console.error("Upload failed", err);
+      setError("Failed to upload profile picture");
+    }
   };
 
   return (
     <ProfileLayout>
-      <form onSubmit={handleProfilePic} className="w-full max-w-md mx-auto">
-        <ProfilePhotoSelector image={profilePic} setImage={setProfilePic} />
-      </form>
+      <div className="w-full max-w-md mx-auto">
+        <ProfilePhotoSelector setImage={handleFileChange} />
+      </div>
 
       {user && (
         <div className="mt-10 px-4 md:px-16 text-[#3b3b3b]">
@@ -47,6 +60,22 @@ const ProfilePage = () => {
               <span className="font-normal">
                 {user.verified ? "Yes" : "No"}
               </span>
+            </div>
+
+            <div>
+              {user?.profilePic ? (
+                <div className="mt-4 flex justify-center">
+                  <img
+                    src={user.profilePic}
+                    alt="Profile"
+                    className="w-32 h-32 object-cover rounded-full shadow"
+                  />
+                </div>
+              ) : (
+                <p className="text-center text-gray-500 mt-4">
+                  No profile image available
+                </p>
+              )}
             </div>
 
             {user.address && (

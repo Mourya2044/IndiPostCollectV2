@@ -70,17 +70,17 @@ export const useAuthStore = create((set) => ({
         }
     },
 
-    updateProfilePic: async(profilePic) => {
-        set({isLoading: true})
-        try{
-            const response = await axiosInstance.patch('/auth/profile-pic',{profilePic});
-            // directly set user from backend response
-            set({ user: response.data.user });
-        }catch(error) {
-            console.error("Error updating user profile-pic:", error);
+    updateProfilePic: async (image) => {
+        set({ isLoading: true });
+        try {
+          const response = await axiosInstance.patch('/auth/profile-pic', { image });
+          set({ user: response.data.user });
+        } catch (error) {
+          console.error("Error updating profile pic:", error);
         } finally {
-            set({isLoading: false});
+          set({ isLoading: false });
         }
-    }
+      }
+      
 
 }))

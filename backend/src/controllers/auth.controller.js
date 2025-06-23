@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { sendVerificationEmail } from "../utils/sendEmail.js";
+import cloudinary from '../lib/cloudinary.js';
 
 // Generate JWT token
 const generateToken = (id, res) => {
@@ -179,19 +180,37 @@ export const verifyEmail = async (req, res) => {
   }
 }
 
-export const updateProfilePic = async(req,res) => {
-  try{
-    const userId = req.userId;
-    const {profilePicUrl} = req.body;
+export const updateProfilePic = async (req, res) => {
+  try {
+    const { image } = req.body; // This should be a base64 string or image URL
 
-    const user = await User.findByIdAndUpdate(
-      userId,
-      {profilePic: profilePicUrl},
-      {new: true}
-    );
-    res.status(200).json({message: "Profile pic updated"})
-  }catch (err) {
-    console.error("Error updating profile pic:", err);
+    if (!image) {
+      return res.status(400).json({ message: "No image provided" });
+    }
+    console.log("1")
+    const uploadResponse = await cloudinary.uploader.upload(image, {
+      folder: "profile_pics",
+      allowed_formats: ["jpg", "png", "webp"],
+      transformation: [{ width: 500, height: 500, crop: "limit" }]
+    });
+
+    const imageUrl = uploadResponse.secure_url;
+
+    console.log("hello world",imageUrl);
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user._id,
+      { profilePic: imageUrl },
+      { new: true }
+    ).select("-password");
+
+    res.status(200).json({
+      message: "Profile picture updated",
+      user: updatedUser
+    });
+
+  } catch (err) {
+    console.error("Error updating profile picture:", err);
     res.status(500).json({ message: "Server error" });
   }
-}
+};
