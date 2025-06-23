@@ -7,11 +7,11 @@ const UserSchema = new mongoose.Schema({
   password: { type: String, required: true },
   verified: {type:Boolean, required: true},
   address: { 
-    locality: {type:String, required: true},
-    district: { type: String, required: true },
-    state: { type: String, required: true },
-    city: { type: String, required: true },
-    pin: { type: Number, required: true }
+    locality: {type:String},
+    district: { type: String},
+    state: { type: String},
+    city: { type: String},
+    pin: { type: Number}
    }
 }, { timestamps: true });
 
