@@ -34,6 +34,22 @@ const ProfilePage = () => {
 
   return (
     <ProfileLayout>
+      <div>
+        {user?.profilePic ? (
+          <div className="mt-4 flex justify-center">
+            <img
+              src={user.profilePic}
+              alt="Profile"
+              className="w-32 h-32 object-cover rounded-full shadow"
+            />
+          </div>
+        ) : (
+          <p className="text-center text-gray-500 mt-4">
+            No profile image available
+          </p>
+        )}
+      </div>
+
       <div className="w-full max-w-md mx-auto">
         <ProfilePhotoSelector setImage={handleFileChange} />
       </div>
@@ -60,22 +76,6 @@ const ProfilePage = () => {
               <span className="font-normal">
                 {user.verified ? "Yes" : "No"}
               </span>
-            </div>
-
-            <div>
-              {user?.profilePic ? (
-                <div className="mt-4 flex justify-center">
-                  <img
-                    src={user.profilePic}
-                    alt="Profile"
-                    className="w-32 h-32 object-cover rounded-full shadow"
-                  />
-                </div>
-              ) : (
-                <p className="text-center text-gray-500 mt-4">
-                  No profile image available
-                </p>
-              )}
             </div>
 
             {user.address && (

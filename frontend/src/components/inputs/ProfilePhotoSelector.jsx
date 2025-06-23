@@ -1,66 +1,55 @@
-import React, { useRef, useState } from 'react'
-import { LuTrash, LuUpload, LuUser } from 'react-icons/lu'
+import React, { useRef } from 'react';
+import { LuUpload, LuTrash } from 'react-icons/lu';
 
-const ProfilePhotoSelector = ({image,setImage}) => {
-    const inputRef = useRef(null);
-    const [previewUrl,setPreviewUrl] = useState(null);
+const ProfilePhotoSelector = ({ image, setImage }) => {
+  const inputRef = useRef(null);
 
-    const handleImageChange = (e) => {
-        const file = e.target.files[0]
-        if(file){
-            setImage(file)
-            const url = URL.createObjectURL(file)
-            setPreviewUrl(url)
-        }
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImage(file);
     }
+  };
 
-    const handleImageRemove = (e) => {
-        setImage(null)
-        setPreviewUrl(null)
-    }
+  const handleImageRemove = () => {
+    setImage(null);
+  };
 
-    const onChooseFile = () => {
-        inputRef.current.click()
-    }
+  const onChooseFile = () => {
+    inputRef.current.click();
+  };
 
   return (
-    <div className='flex flex-col items-center gap-3 mb-6'>
+    <div className="flex items-center gap-4">
       <input
-        type='file'
-        accept='image/*'
+        type="file"
+        accept="image/*"
         ref={inputRef}
-        className='hidden'
+        className="hidden"
         onChange={handleImageChange}
       />
 
-      {!image ? (
-        <div
-          className='w-24 h-24 flex items-center justify-center bg-[#DA1C1C] rounded-full relative cursor-pointer hover:shadow-md transition'
-          onClick={onChooseFile}
+      <button
+        type="button"
+        onClick={onChooseFile}
+        className="flex items-center gap-2 px-4 py-2 bg-[#DA1C1C] text-white rounded-full hover:bg-[#b71717] transition"
+      >
+        <LuUpload className="text-lg" />
+        {image ? "Change Image" : "Upload Image"}
+      </button>
+
+      {image && (
+        <button
+          type="button"
+          onClick={handleImageRemove}
+          className="flex items-center gap-2 px-4 py-2 bg-gray-400 text-white rounded-full hover:bg-gray-500 transition"
         >
-          <LuUser className='text-4xl text-[#DA1C1C]' />
-          <div className='absolute bottom-0 right-0 bg-[#DA1C1C] text-white p-1 rounded-full'>
-            <LuUpload className='text-sm' />
-          </div>
-        </div>
-      ) : (
-        <div className='relative w-24 h-24'>
-          <img
-            src={previewUrl}
-            alt='profile'
-            className='w-24 h-24 object-cover rounded-full shadow-md'
-          />
-          <button
-            type='button'
-            onClick={handleImageRemove}
-            className='absolute bottom-0 right-0 bg-[#DA1C1C] text-white p-1 rounded-full shadow-md hover:bg-[#DA1C1C]transition'
-          >
-            <LuTrash className='text-sm' />
-          </button>
-        </div>
+          <LuTrash className="text-lg" />
+          Remove
+        </button>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default ProfilePhotoSelector
+export default ProfilePhotoSelector;
