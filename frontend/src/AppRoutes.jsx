@@ -7,7 +7,7 @@ import { useAuthStore } from './store/useAuthStore'
 import Learn from './pages/LearnPage'
 import MarketplacePage from './pages/MarketplacePage'
 import StampDetailPage from './pages/StampDetailPage'
-import Profile from './pages/Profile'
+import ProfilePage from './pages/ProfilePage'
 
 
 const AppRoutes = () => {
