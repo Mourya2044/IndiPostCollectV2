@@ -137,7 +137,7 @@ export default function StampCard({ stamp }) {
                 </div>
 
                 {/* Price */}
-                {stamp.price && (
+                {stamp.isForSale && (
                     <div className="mt-3 pt-3 border-t">
                         <div className="flex items-center justify-between">
                             <span className="text-lg font-bold text-green-600">
@@ -161,8 +161,8 @@ export default function StampCard({ stamp }) {
                             {stamp.price ? 'Buy Now' : 'Contact Seller'}
                         </Button>
                     )}
-                    
-                    <Link to={`/marketplace/${stamp._id}`} className="flex-1">
+
+                    <Link to={`/${stamp.isMuseumPiece ? 'museum' : 'marketplace'}/${stamp._id}`} className="flex-1">
                     <Button variant="outline" size="sm" className={stamp.forSale ? 'flex-1' : 'w-full'}>
                         <Eye className="h-4 w-4 mr-2" />
                         View Details
