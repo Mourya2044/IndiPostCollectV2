@@ -14,24 +14,24 @@ const Hero = () => {
 
 export default Hero
 
-export const HeroMarketplace = () => {
+export const HeroSecondary = ({headline, subtitle, cta}) => {
   return (
     <div className="w-full p-20 bg-white flex items-center justify-center">
       <div className="max-w-2xl mx-auto px-6 text-center">
 
         {/* Headline */}
         <h1 className="text-5xl md:text-6xl font-light text-gray-900 mb-8 leading-tight">
-          Rare Stamps
+          {headline}
         </h1>
 
         {/* Subtitle */}
         <p className="text-lg text-gray-600 mb-12 font-light">
-          Discover and collect authenticated rare stamps from trusted dealers worldwide.
+          {subtitle}
         </p>
 
         {/* Single CTA */}
         <div className="px-8 py-3 bg-black text-white text-sm font-medium hover:bg-gray-800 transition-colors">
-          EXPLORE COLLECTION
+          {cta}
         </div>
       </div>
     </div>

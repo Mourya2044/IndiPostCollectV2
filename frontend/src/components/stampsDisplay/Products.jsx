@@ -5,16 +5,16 @@ import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import FilterDrawer from "./FilterDrawer";
 import StampCard from "./StampCard";
-import LoadingSpinner from "./LoadingSpinner";
+import LoadingSpinner from "../LoadingSpinner.jsx";
 
-export default function Products() {
+export default function Products({isMuseumPiece}) {
     const [filters, setFilters] = useState({
         search: "",
         sort: "",
         sortBy: "",
         categories: [],
-        forSale: true,
-        isMuseumPiece: false,
+        forSale: !isMuseumPiece,
+        isMuseumPiece: isMuseumPiece,
         page: 1,
         limit: 12
     });
@@ -52,8 +52,8 @@ export default function Products() {
             sort: "",
             sortBy: "",
             categories: [],
-            forSale: true,
-            isMuseumPiece: false,
+            forSale: false,
+            isMuseumPiece: true,
             page: 1,
             limit: 12
         });
