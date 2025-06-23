@@ -6,12 +6,12 @@ const UserSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   verified: {type:Boolean, required: true},
-  address: { 
-    locality: {type:String, required: true},
-    district: { type: String, required: true },
-    state: { type: String, required: true },
-    city: { type: String, required: true },
-    pin: { type: Number, required: true }
+  address: {
+    locality: {type:String},
+    district: { type: String},
+    state: { type: String},
+    city: { type: String},
+    pin: { type: Number}
    }
 }, { timestamps: true });
 
