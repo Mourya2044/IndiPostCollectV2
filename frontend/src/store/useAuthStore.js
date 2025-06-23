@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { axiosInstance } from '../lib/axios.js';
+//import { tr } from 'date-fns/locale.js';
 
 export const useAuthStore = create((set) => ({
     user: null,
@@ -71,5 +72,18 @@ export const useAuthStore = create((set) => ({
             set({isLoading: false});
         }
     },
+
+    updateProfilePic: async(profilePic) => {
+        set({isLoading: true})
+        try{
+            const response = await axiosInstance.patch('/auth/profile-pic',{profilePic});
+            // directly set user from backend response
+            set({ user: response.data.user });
+        }catch(error) {
+            console.error("Error updating user profile-pic:", error);
+        } finally {
+            set({isLoading: false});
+        }
+    }
 
 }))

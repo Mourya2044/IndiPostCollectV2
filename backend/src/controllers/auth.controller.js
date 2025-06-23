@@ -178,3 +178,20 @@ export const verifyEmail = async (req, res) => {
     return res.status(500).json({ message: "Server error", error: err.message });
   }
 }
+
+export const updateProfilePic = async(req,res) => {
+  try{
+    const userId = req.userId;
+    const {profilePicUrl} = req.body;
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      {profilePic: profilePicUrl},
+      {new: true}
+    );
+    res.status(200).json({message: "Profile pic updated"})
+  }catch (err) {
+    console.error("Error updating profile pic:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+}
