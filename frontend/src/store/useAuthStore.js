@@ -6,9 +6,12 @@ export const useAuthStore = create((set) => ({
     isCheckingAuth: true,
     isLoading: false,
     showNav: true,
+    showFooter: true,
 
     hideNav: () => {set({showNav: false})},
     unhideNav: () => {set({showNav: true})},
+    hideFooter: () => {set({showFooter: false})},
+    unhideFooter: () => {set({showFooter: true})},
 
     checkAuth: async () => {
         try {

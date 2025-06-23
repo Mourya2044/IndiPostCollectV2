@@ -12,16 +12,18 @@ const Login = () => {
   const [error, setError] = useState(null)
 
   const navigate = useNavigate()
-  const { login, hideNav, unhideNav } = useAuthStore();
+  const { login, hideNav, unhideNav, hideFooter, unhideFooter } = useAuthStore();
 
   useEffect(() => {
     hideNav();
-  
+    hideFooter();
+
     return () => {
       unhideNav()
+      unhideFooter()
     }
-  }, [hideNav, unhideNav]);
-  
+  }, [hideNav, unhideNav, hideFooter, unhideFooter]);
+
 
   const handleLogin = (e) => {
     e.preventDefault();

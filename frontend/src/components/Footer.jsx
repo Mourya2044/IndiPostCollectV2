@@ -4,14 +4,14 @@ import { Link } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore.js';
 
 const Footer = () => {
-  const { showNav } = useAuthStore();
+  const { showFooter } = useAuthStore();
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
-    showNav && <footer className="w-full relative bg-IPCprimary text-white overflow-hidden">
+    showFooter && <footer className="w-full relative bg-IPCprimary text-white overflow-hidden">
 
       <div className="relative z-10">
         {/* Main Footer Content */}
