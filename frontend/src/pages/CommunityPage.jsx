@@ -25,7 +25,7 @@ export default function CommunityPage() {
   }, [hideFooter, unhideFooter]);
 
   return (
-    <SidebarProvider className="h-screen"
+    <SidebarProvider className="h-full w-full"
       style={
         {
           "--sidebar-width": "calc(var(--spacing) * 72)",
