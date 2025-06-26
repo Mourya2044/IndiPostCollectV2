@@ -187,7 +187,6 @@ export const updateProfilePic = async (req, res) => {
     if (!image) {
       return res.status(400).json({ message: "No image provided" });
     }
-    console.log("1")
     const uploadResponse = await cloudinary.uploader.upload(image, {
       folder: "profile_pics",
       allowed_formats: ["jpg", "png", "webp"],
@@ -196,7 +195,6 @@ export const updateProfilePic = async (req, res) => {
 
     const imageUrl = uploadResponse.secure_url;
 
-    console.log("hello world",imageUrl);
 
     const updatedUser = await User.findByIdAndUpdate(
       req.user._id,
