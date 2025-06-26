@@ -10,7 +10,8 @@
   --color-IPCaccent: #874F41;
   --color-IPCtext: #90AEAD;
   --color-IPClight-bg: #fbe9d0;
-
+  --color-Postalprimary-bg: #DA1C1C;
+  --color-Postalsecondary-bg: #ffd700;
 }
 * {
   @apply font-serif;
