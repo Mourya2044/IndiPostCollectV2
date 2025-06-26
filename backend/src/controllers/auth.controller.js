@@ -187,13 +187,20 @@ export const updateProfilePic = async (req, res) => {
     if (!image) {
       return res.status(400).json({ message: "No image provided" });
     }
+
+    await cloudinary.uploader.destroy("profile_pics/"+req.user.profilePic.split("/profile_pics/")[1].replace(/\.(jpg|jpeg|png|webp)$/, ""));
+    
     const uploadResponse = await cloudinary.uploader.upload(image, {
       folder: "profile_pics",
       allowed_formats: ["jpg", "png", "webp"],
       transformation: [{ width: 500, height: 500, crop: "limit" }]
     });
 
+    // console.log("Upload response:", uploadResponse);
+    
     const imageUrl = uploadResponse.secure_url;
+    // console.log("Image URL:", "profile_pics/"+imageUrl.split("/profile_pics/")[1].replace(/\.(jpg|jpeg|png|webp)$/, ""));
+    
 
 
     const updatedUser = await User.findByIdAndUpdate(
