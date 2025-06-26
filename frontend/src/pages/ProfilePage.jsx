@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
 import ProfilePhotoSelector from "@/components/inputs/ProfilePhotoSelector";
 import ProfileLayout from "@/components/layouts/ProfileLayout";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import SmallSpinner from "@/components/SmallSpinner";
 
 const ProfilePage = () => {
   const [error, setError] = useState(null);
@@ -43,9 +45,7 @@ const ProfilePage = () => {
     <ProfileLayout>
       <div>
         {uploading ? (
-          <div className="mt-4 flex justify-center">
-            <p className="text-gray-500">Uploading image...</p>
-          </div>
+          <SmallSpinner message="Uploading image..."/>
         ) : user?.profilePic && user.profilePic.trim() !== "" ? (
           <div className="mt-4 flex justify-center">
             <img
