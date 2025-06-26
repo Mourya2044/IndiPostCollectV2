@@ -25,7 +25,7 @@ const ProfilePage = () => {
     try {
       const base64Image = await fileToBase64(file);
       await updateProfilePic(base64Image);
-      await getUserInfo(); // refresh user data with updated image
+      //await getUserInfo(); // refresh user data with updated image
     } catch (err) {
       console.error("Upload failed", err);
       setError("Failed to upload profile picture");
