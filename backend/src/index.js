@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import connectDB from './lib/db.js';
 import authRouter from './routes/auth.routes.js';
 import stampRouter from './routes/stamp.routes.js';
+import postRouter from './routes/post.routes.js';
 
 const PORT = process.env.PORT || 3000;
 dotenv.config();
@@ -18,11 +19,12 @@ app.use(cookieParser());
 app.use(cors({
     origin: 'http://localhost:5173',
     credentials: true,
-}))
+}));
 
 //Routes
-app.use("/api/auth", authRouter)
-app.use("/api/stamps", stampRouter)
+app.use("/api/auth", authRouter);
+app.use("/api/stamps", stampRouter);
+app.use("/api/posts", postRouter);
 
 
 app.listen(PORT, () => {

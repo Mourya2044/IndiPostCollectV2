@@ -8,6 +8,7 @@ import {
   QueryClient,
   QueryClientProvider,
 } from '@tanstack/react-query'
+import { Toaster } from "@/components/ui/sonner"
 
 const queryClient = new QueryClient();
 
@@ -23,6 +24,7 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <Navbar />
       <AppRoutes />
+      <Toaster richColors />
       <Footer />
     </QueryClientProvider>
     </main>

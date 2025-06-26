@@ -1,19 +1,3 @@
-// {
-//   _id,
-//   title,
-//   country,
-//   year,
-//   category: String[],      // e.g., Wildlife, Historical
-//   description,
-//   imageUrl,
-//   isForSale: Boolean,
-//   price: Number,
-//   owner: ObjectId,       // references User
-//   isMuseumPiece: Boolean,
-//   createdAt,
-//   updatedAt
-// }
-
 import mongoose from 'mongoose';
 
 const stampSchema = new mongoose.Schema({

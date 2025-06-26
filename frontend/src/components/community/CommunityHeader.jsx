@@ -6,6 +6,7 @@ import { SidebarTrigger } from '../ui/sidebar';
 import { Input } from '../ui/input';
 import { Search } from 'lucide-react';
 import { useAuthStore } from '@/store/useAuthStore.js';
+import NewPostDialog from './NewPostDialog';
 
 const CommunityHeader = () => {
   const { user } = useAuthStore();
@@ -29,9 +30,7 @@ const CommunityHeader = () => {
               <Search className="size-4" />
             </Button>
           </div>
-          <Button className="my-auto" variant="outline">
-            New Post
-          </Button>
+          <NewPostDialog />
           </div>
         </div>
       </header>

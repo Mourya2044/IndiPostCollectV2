@@ -12,10 +12,12 @@ import {
 import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
 import { useAuthStore } from '@/store/useAuthStore.js'
-import { Link } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { axiosInstance } from '@/lib/axios.js'
+import LoadingSpinner from '@/components/LoadingSpinner'
 
 const formatTimeAgo = (isoDate) => {
   const now = new Date();
@@ -47,102 +49,55 @@ const formatTimeAgo = (isoDate) => {
 
 const CommunityPostPage = () => {
   const { user, hideFooter, unhideFooter } = useAuthStore();
+  const { postId } = useParams();
+  const [post, setPost] = useState();
+  const [comments, setComments] = useState([]);
+
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     hideFooter();
     return () => unhideFooter();
   }, [unhideFooter, hideFooter]);
 
-
-  const dummyPost = {
-    id: "post_12345",
-    user: {
-      name: "Evelyn Rabbit",
-      avatar: "https://github.com/evilrabbit.png",
-      fallback: "ER",
-    },
-    title: "Exploring the Beauty of Minimal UI Design",
-    description:
-      "Minimalism is not just a design trend but a philosophy. This post explores how less can be more in UI/UX.",
-    postedDate: "2025-06-24T09:00:00Z",
-    images: [
-      "https://placehold.co/800x800?text=UI+Shot+1",
-      "https://placehold.co/500x300?text=UI+Shot+2",
-      "https://placehold.co/500x400?text=UI+Shot+3",
-      "https://placehold.co/200x400?text=UI+Shot+4",
-      "https://placehold.co/600x400?text=UI+Shot+5",
-    ],
-    stats: {
-      likes: [user?.id], // array of user IDs
-      comments: [
-        {
-          user: {
-            name: "Alice Johnson",
-            avatar: "https://i.pravatar.cc/40?img=1",
-            fallback: "AJ"
-          },
-          text: "This design is stunning!",
-          time: "2025-06-26T14:30:00Z"
-        },
-        {
-          user: {
-            name: "Bob Smith",
-            avatar: "https://i.pravatar.cc/40?img=2",
-            fallback: "BS"
-          },
-          text: "I appreciate the clean layout!",
-          time: "2025-06-26T12:15:00Z"
-        },
-        {
-          user: {
-            name: "Charlie Adams",
-            avatar: "https://i.pravatar.cc/40?img=3",
-            fallback: "CA"
-          },
-          text: "Can you share the design file?",
-          time: "2025-06-25T18:45:00Z"
-        },
-        {
-          user: {
-            name: "Diana Park",
-            avatar: "https://i.pravatar.cc/40?img=4",
-            fallback: "DP"
-          },
-          text: "Super useful, thank you!",
-          time: "2025-06-24T09:00:00Z"
-        },
-      ]
-
-    },
+  const fetchPost = async () => {
+    try {
+      const response = await axiosInstance.get(`/posts/${postId}`);
+      setPost(response.data);
+      setComments([]);
+    } catch (error) {
+      console.error("Error fetching post:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-
-  const [post, setPost] = useState(dummyPost);
+  useEffect(() => {
+    fetchPost();
+  });
 
   const handleLike = () => {
     // Logic to handle like action
-    if (post.stats.likes.includes(user?.id)) {
+    if (post.likes.includes(user?.id)) {
       // If user already liked, remove like
       setPost(prevPost => ({
         ...prevPost,
-        stats: {
-          ...prevPost.stats,
-          likes: prevPost.stats.likes.filter(id => id !== user.id)
-        }
+        likes: prevPost.likes.filter(id => id !== user.id)
       }));
-      console.log("Post unliked by user:", post.stats.likes);
+      console.log("Post unliked by user:", post.likes);
 
     } else {
       // If user hasn't liked, add like
       setPost(prevPost => ({
         ...prevPost,
-        stats: {
-          ...prevPost.stats,
-          likes: [...prevPost.stats.likes, user.id]
-        }
+        likes: [...prevPost.likes, user.id]
       }));
-      console.log("Post liked by user:", post.stats.likes);
+      console.log("Post liked by user:", post.likes);
     }
+  }
+
+  if (isLoading) {
+    return <LoadingSpinner message="Loading community post..." />;
   }
 
   return (
@@ -156,7 +111,7 @@ const CommunityPostPage = () => {
                 alt={`@${post.user.name}`}
                 className="object-cover rounded-full"
               />
-              <AvatarFallback>ER</AvatarFallback>
+              <AvatarFallback>{post.user.name.charAt(0)}</AvatarFallback>
             </Avatar>
             <div className="flex flex-col gap-2">
               <CardTitle>{post.user.name}</CardTitle>
@@ -164,7 +119,7 @@ const CommunityPostPage = () => {
                 {post.title}
               </CardDescription>
               <p className="text-xs text-muted-foreground">
-                {`Posted ${formatTimeAgo(post.postedDate)}`}
+                {`Posted ${formatTimeAgo(post.createdAt)}`}
               </p>
             </div>
           </CardHeader>
@@ -204,10 +159,10 @@ const CommunityPostPage = () => {
             <div className="flex items-start gap-4">
               <div className="flex items-center justify-center my-auto gap-1 rounded-full hover:bg-gray-500/10 px-2 py-1 transition-colors duration-300 cursor-pointer">
                 <Heart
-                  className={`text-red-500 size-5 ${post.stats.likes.includes(user?.id) ? "fill-red-500" : ""}`}
+                  className={`text-red-500 size-5 ${post.likes.includes(user?.id) ? "fill-red-500" : ""}`}
                   onClick={handleLike}
                 />
-                <Label>Likes {post.stats.likes.length}</Label>
+                <Label>Likes {post.likes.length}</Label>
               </div>
               <div className="flex items-center justify-center my-auto gap-1 rounded-full hover:bg-gray-500/10 px-2 py-1 transition-colors duration-300 cursor-pointer">
                 <Share2 className="size-5" />
@@ -219,10 +174,10 @@ const CommunityPostPage = () => {
 
           {/* Comments Section */}
           <ScrollArea id="comments-section" className="h-[60vh] w-full">
-            {post.stats.comments.length > 0 ? (
+            {comments.length > 0 ? (
               <div className="flex flex-col gap-2">
                 {/* Comments */}
-                {post.stats.comments.map((comment, index) => (
+                {comments.map((comment, index) => (
                   <div key={index} className="flex gap-3 items-start p-2 border-b border-gray-100">
                     <Avatar className="size-8">
                       <AvatarImage src={comment.user.avatar} className="object-cover rounded-full" />
