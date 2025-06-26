@@ -11,6 +11,7 @@ import ProfilePage from './pages/ProfilePage'
 import MuseumPage from './pages/MuseumPage';
 import MuseumStampPage from './pages/MuseumStampPage';
 import CommunityPage from './pages/CommunityPage'
+import CommunityPostPage from './pages/CommunityPostPage'
 
 
 const AppRoutes = () => {
@@ -22,13 +23,19 @@ const AppRoutes = () => {
       <Route path='/signup' element={!user ? <SignUp /> : <Navigate to="/" />} />
       <Route path='/login' element={!user ? <Login /> : <Navigate to="/" />} />
       <Route path='/learn' element={<Learn />} />
-      <Route path='/community' element={<CommunityPage />} />
+
       <Route path='/museum' element={<MuseumPage />} />
       <Route path='/museum/:stampId' element={<MuseumStampPage />} />
+
       <Route path='/marketplace' element={<MarketplacePage />} />
       <Route path='/marketplace/:stampId' element={<StampDetailPage />} />
+
       <Route path='/events' element={<div>events page</div>} />
       <Route path='/profile' element={<ProfilePage />} />
+
+      <Route path='/community' element={<CommunityPage />} />
+      <Route path='/community/:postId' element={<CommunityPostPage />} />
+
       <Route path='*' element={<div>404 Not Found</div>} />
     </Routes>
   )
