@@ -1,4 +1,5 @@
 import React from 'react';
+import { BubbleEffect } from '../BubbleEffect';
 
 const AuthLayout = ({ children }) => {
   return (
@@ -12,14 +13,13 @@ const AuthLayout = ({ children }) => {
       </div>
 
       {/* Right India Post Design Section */}
-      <div className="hidden md:block md:w-[40vw] bg-gradient-to-br from-red-400 via-Postalprimary-bg to-red-400 relative">
+      <div className="hidden md:block md:w-[40vw] bg-gradient-to-br from-red-900 via-Postalprimary-bg to-red-800 relative">
         {/* Floating bubbles */}
-        <div className="absolute top-10 left-10 w-20 h-20 bg-Postalsecondary-bg opacity-20 rounded-full animate-bounce"></div>
-        <div className="absolute bottom-20 right-16 w-24 h-24 bg-Postalsecondary-bg opacity-20 rounded-full animate-bounce"></div>
-        <div className="absolute top-1/2 left-1/2 w-32 h-32 bg-Postalsecondary-bg opacity-30 rounded-full -translate-x-1/2 -translate-y-1/2 animate-bounce"></div>
+        <BubbleEffect />
+        <BubbleEffect />
 
-        {/* Info Card */}
-        <div className="absolute bottom-12 left-12 bg-white rounded-xl shadow-xl p-6 w-72 text-Postalprimary-bg">
+        {/* Info Card moved to top */}
+        <div className="absolute top-12 left-12 bg-white rounded-xl shadow-xl p-6 w-72 text-Postalprimary-bg z-20">
           <img
             src="/India Post New Logo.png"
             alt="India Post Logo"

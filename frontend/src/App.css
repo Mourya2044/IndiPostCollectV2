@@ -150,3 +150,22 @@
   }
 
 }
+
+.bubble {
+  position: absolute;
+  background-color: rgba(255, 255, 255, 0.25); /* translucent white */
+  border-radius: 50%; /* perfect circle */
+  animation: rise 8s ease-in-out infinite;
+}
+
+@keyframes rise {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-400px) scale(1.2);
+    opacity: 0;
+  }
+}
+
