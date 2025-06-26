@@ -15,7 +15,6 @@ export const protect = async (req, res, next) => {
       return res.status(401).json({ message: "Unauthorized: User not found" });
     }
     req.userId = req.user._id;
-
     next();
   } catch (err) {
     console.error("Error in auth middleware:", err.message);

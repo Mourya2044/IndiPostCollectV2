@@ -10,7 +10,8 @@ const ProfilePage = () => {
 
   useEffect(() => {
     if (!user) getUserInfo();
-  }, []);
+    else console.log("User profilePic:", user.profilePic); // <--- Add this
+  }, [user]);
 
   const fileToBase64 = (file) => {
     return new Promise((resolve, reject) => {
@@ -27,6 +28,7 @@ const ProfilePage = () => {
       setUploading(true);
       const base64Image = await fileToBase64(file);
       await updateProfilePic(base64Image);
+      await getUserInfo();
     } catch (err) {
       console.error("Upload failed", err);
       setError("Failed to upload profile picture");
@@ -42,7 +44,7 @@ const ProfilePage = () => {
           <div className="mt-4 flex justify-center">
             <p className="text-gray-500">Uploading image...</p>
           </div>
-        ) : user?.profilePic ? (
+        ) : user?.profilePic && user.profilePic.trim() !== "" ? (
           <div className="mt-4 flex justify-center">
             <img
               src={user.profilePic}
@@ -51,9 +53,7 @@ const ProfilePage = () => {
             />
           </div>
         ) : (
-          <p className="text-center text-gray-500 mt-4">
-            NONE
-          </p>
+          <p className="text-center text-gray-500 mt-4">NONE</p>
         )}
       </div>
 
