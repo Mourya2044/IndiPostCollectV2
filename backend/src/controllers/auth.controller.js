@@ -13,8 +13,8 @@ const generateToken = (id, res) => {
 
   res.cookie("jwt", token, {
     httpOnly: true,
-    secure: false,           // no HTTPS in localhost
-    sameSite: "Lax",         // "None" requires HTTPS
+    sameSite: process.env.NODE_ENV !== "development" ? "None" : "Strict",
+    secure: process.env.NODE_ENV !== "development",
     maxAge: 24 * 60 * 60 * 1000
   });
 
@@ -81,17 +81,17 @@ export const signUpUser = async (req, res) => {
 
     //Generate unique verification string
     const uniqueString = uuidv4() + user._id;
-    const hashedString = await bcrypt.hash(uniqueString,10);
+    const hashedString = await bcrypt.hash(uniqueString, 10);
 
     await UserVerification.create({
       userId: user._id,
       uniqueString: hashedString,
       createdAt: new Date(),
-      expiresAt: new Date(Date.now() + 6*60*60*1000), //6 hours expiry
+      expiresAt: new Date(Date.now() + 6 * 60 * 60 * 1000), //6 hours expiry
     })
-    
+
     //send verification email
-    await sendVerificationEmail(user.email,uniqueString,user._id);
+    await sendVerificationEmail(user.email, uniqueString, user._id);
 
     res.status(201).json({
       message: "Verification email sent. Please verify your email.",
@@ -143,38 +143,38 @@ export const checkAuth = async (req, res) => {
 
 
 export const verifyEmail = async (req, res) => {
-  const {userId, uniqueString} = req.params;
+  const { userId, uniqueString } = req.params;
 
-  try{
-    const record = await UserVerification.findOne({userId});
+  try {
+    const record = await UserVerification.findOne({ userId });
 
-  if(!record){
-    return res.status(404).json({message: "Verification record not found or expired"});
-  }
+    if (!record) {
+      return res.status(404).json({ message: "Verification record not found or expired" });
+    }
 
-  if(record.expiresAt < Date.now()){
-    await UserVerification.deleteOne({userId});
-    await User.deleteOne({_id: userId});
-    return res.status(400).json({message: "Link expired. Signup again"});
-  }
+    if (record.expiresAt < Date.now()) {
+      await UserVerification.deleteOne({ userId });
+      await User.deleteOne({ _id: userId });
+      return res.status(400).json({ message: "Link expired. Signup again" });
+    }
 
-  const isMatch = await bcrypt.compare(uniqueString,record.uniqueString);
-  if(!isMatch){
-    return res.status(401).json({ message: "Invalid verification link" });
-  }
+    const isMatch = await bcrypt.compare(uniqueString, record.uniqueString);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid verification link" });
+    }
 
-  const updatedUser = await User.findByIdAndUpdate(
-    userId,
-    { verified: true },
-    { new: true }
-  ).select("-password");
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { verified: true },
+      { new: true }
+    ).select("-password");
 
-  await UserVerification.deleteOne({userId});
+    await UserVerification.deleteOne({ userId });
 
-  generateToken(updatedUser._id, res);
-  res.status(200).json(updatedUser);
-  
-  }catch(err){
+    generateToken(updatedUser._id, res);
+    res.status(200).json(updatedUser);
+
+  } catch (err) {
     console.error("Error in verifyEmail:", err.message);
     return res.status(500).json({ message: "Server error", error: err.message });
   }
