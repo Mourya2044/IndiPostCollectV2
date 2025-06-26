@@ -6,6 +6,7 @@ import ProfileLayout from "@/components/layouts/ProfileLayout";
 const ProfilePage = () => {
   const [error, setError] = useState(null);
   const [uploading, setUploading] = useState(false);
+
   const { user, getUserInfo, updateProfilePic } = useAuthStore();
 
   useEffect(() => {
@@ -37,6 +38,7 @@ const ProfilePage = () => {
     }
   };
 
+
   return (
     <ProfileLayout>
       <div>
@@ -58,7 +60,9 @@ const ProfilePage = () => {
       </div>
 
       <div className="w-full max-w-md mx-auto">
-        <ProfilePhotoSelector setImage={handleFileChange} />
+        <ProfilePhotoSelector
+          setImage={handleFileChange}
+        />
       </div>
 
       {user && (

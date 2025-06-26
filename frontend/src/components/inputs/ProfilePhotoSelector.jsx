@@ -1,5 +1,5 @@
-import React, { useRef } from 'react';
-import { LuUpload, LuTrash } from 'react-icons/lu';
+import React, { useRef } from "react";
+import { LuUpload, LuTrash } from "react-icons/lu";
 
 const ProfilePhotoSelector = ({ image, setImage }) => {
   const inputRef = useRef(null);
@@ -20,34 +20,36 @@ const ProfilePhotoSelector = ({ image, setImage }) => {
   };
 
   return (
-    <div className="flex items-center gap-4">
-      <input
-        type="file"
-        accept="image/*"
-        ref={inputRef}
-        className="hidden"
-        onChange={handleImageChange}
-      />
+    <div className="flex justify-center">
+      <div className="flex items-center gap-4 relative">
+        <input
+          type="file"
+          accept="image/*"
+          ref={inputRef}
+          className="hidden"
+          onChange={handleImageChange}
+        />
 
-      <button
-        type="button"
-        onClick={onChooseFile}
-        className="flex items-center gap-2 px-2 py-1 bg-[#DA1C1C] text-white rounded-full hover:bg-[#b71717] transition"
-      >
-        <LuUpload className="text-lg" />
-        {image ? "Change Image" : "Upload Image"}
-      </button>
-
-      {image && (
         <button
           type="button"
-          onClick={handleImageRemove}
-          className="flex items-center gap-2 px-4 py-2 bg-gray-400 text-white rounded-full hover:bg-gray-500 transition"
+          onClick={onChooseFile}
+          className="flex items-center gap-2 px-2 py-1 bg-[#DA1C1C] text-white rounded-full hover:bg-[#b71717] transition"
         >
-          <LuTrash className="text-lg" />
-          Remove
+          <LuUpload className="text-lg " />
+          {image ? "Change Image" : ""}
         </button>
-      )}
+
+        {image && (
+          <button
+            type="button"
+            onClick={handleImageRemove}
+            className="flex items-center gap-2 px-4 py-2 bg-gray-400 text-white rounded-full hover:bg-gray-500 transition"
+          >
+            <LuTrash className="text-lg" />
+            Remove
+          </button>
+        )}
+      </div>
     </div>
   );
 };
