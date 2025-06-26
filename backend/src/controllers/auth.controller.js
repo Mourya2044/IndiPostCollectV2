@@ -182,26 +182,29 @@ export const verifyEmail = async (req, res) => {
 
 export const updateProfilePic = async (req, res) => {
   try {
-    const { image } = req.body; // This should be a base64 string or image URL
+    const { image } = req.body;
 
     if (!image) {
       return res.status(400).json({ message: "No image provided" });
     }
 
-    await cloudinary.uploader.destroy("profile_pics/"+req.user.profilePic.split("/profile_pics/")[1].replace(/\.(jpg|jpeg|png|webp)$/, ""));
-    
+    // 🌟 Safely destroy old image if it exists
+    const profilePic = req.user.profilePic;
+    if (profilePic && profilePic.includes("/profile_pics/")) {
+      const publicId = profilePic
+        .split("/profile_pics/")[1]
+        .replace(/\.(jpg|jpeg|png|webp)$/, "");
+      await cloudinary.uploader.destroy("profile_pics/" + publicId);
+    }
+
+    // Upload new image
     const uploadResponse = await cloudinary.uploader.upload(image, {
       folder: "profile_pics",
       allowed_formats: ["jpg", "png", "webp"],
-      transformation: [{ width: 500, height: 500, crop: "limit" }]
+      transformation: [{ width: 500, height: 500, crop: "limit" }],
     });
 
-    // console.log("Upload response:", uploadResponse);
-    
     const imageUrl = uploadResponse.secure_url;
-    // console.log("Image URL:", "profile_pics/"+imageUrl.split("/profile_pics/")[1].replace(/\.(jpg|jpeg|png|webp)$/, ""));
-    
-
 
     const updatedUser = await User.findByIdAndUpdate(
       req.user._id,
@@ -211,7 +214,7 @@ export const updateProfilePic = async (req, res) => {
 
     res.status(200).json({
       message: "Profile picture updated",
-      user: updatedUser
+      user: updatedUser,
     });
 
   } catch (err) {
