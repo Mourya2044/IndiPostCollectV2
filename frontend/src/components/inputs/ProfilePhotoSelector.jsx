@@ -32,7 +32,7 @@ const ProfilePhotoSelector = ({ image, setImage }) => {
       <button
         type="button"
         onClick={onChooseFile}
-        className="flex items-center gap-2 px-4 py-2 bg-[#DA1C1C] text-white rounded-full hover:bg-[#b71717] transition"
+        className="flex items-center gap-2 px-2 py-1 bg-[#DA1C1C] text-white rounded-full hover:bg-[#b71717] transition"
       >
         <LuUpload className="text-lg" />
         {image ? "Change Image" : "Upload Image"}

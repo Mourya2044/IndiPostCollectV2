@@ -5,6 +5,7 @@ import ProfileLayout from "@/components/layouts/ProfileLayout";
 
 const ProfilePage = () => {
   const [error, setError] = useState(null);
+  const [uploading, setUploading] = useState(false);
   const { user, getUserInfo, updateProfilePic } = useAuthStore();
 
   useEffect(() => {
@@ -23,19 +24,25 @@ const ProfilePage = () => {
   const handleFileChange = async (file) => {
     if (!file) return;
     try {
+      setUploading(true);
       const base64Image = await fileToBase64(file);
       await updateProfilePic(base64Image);
-      //await getUserInfo(); // refresh user data with updated image
     } catch (err) {
       console.error("Upload failed", err);
       setError("Failed to upload profile picture");
+    } finally {
+      setUploading(false);
     }
   };
 
   return (
     <ProfileLayout>
       <div>
-        {user?.profilePic ? (
+        {uploading ? (
+          <div className="mt-4 flex justify-center">
+            <p className="text-gray-500">Uploading image...</p>
+          </div>
+        ) : user?.profilePic ? (
           <div className="mt-4 flex justify-center">
             <img
               src={user.profilePic}
@@ -45,7 +52,7 @@ const ProfilePage = () => {
           </div>
         ) : (
           <p className="text-center text-gray-500 mt-4">
-            No profile image available
+            NONE
           </p>
         )}
       </div>
