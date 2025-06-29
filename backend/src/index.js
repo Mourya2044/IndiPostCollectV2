@@ -28,12 +28,23 @@ app.use("/api/auth", authRouter);
 app.use("/api/stamps", stampRouter);
 app.use("/api/posts", postRouter);
 
-app.get("/", (req, res) => {
-    const clientIp = req.ip;
-    console.log(`Client IP Address: ${clientIp}`);
-    res.send(`Welcome to IndiPost Collect API: ${clientIp}`);
-});
+app.set('trust proxy', true);
 
+app.get("/api/ip-location", async (req, res) => {
+    const ip = req.headers["x-forwarded-for"]?.split(",")[0] || req.ip;
+
+    try {
+        const geoRes = await fetch(`https://ipapi.co/${ip}/json/`);
+        const geoData = await geoRes.json();
+
+        res.json({
+            ip,
+            location: geoData,
+        });
+    } catch (error) {
+        res.status(500).json({ error: "Could not fetch location info" });
+    }
+});
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
