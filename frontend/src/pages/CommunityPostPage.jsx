@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Avatar } from '@radix-ui/react-avatar'
 import { AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Heart, MessageCircle, Send, Share2 } from 'lucide-react'
+import { EllipsisVertical, Heart, MessageCircle, Send, Share2, Trash } from 'lucide-react'
 import { Label } from '@/components/ui/label'
 import {
   Carousel,
@@ -18,6 +18,8 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { axiosInstance } from '@/lib/axios.js'
 import LoadingSpinner from '@/components/LoadingSpinner'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { toast } from 'sonner'
 
 const formatTimeAgo = (isoDate) => {
   const now = new Date();
@@ -64,7 +66,8 @@ const CommunityPostPage = () => {
     try {
       const response = await axiosInstance.get(`/posts/${postId}`);
       setPost(response.data);
-      setComments([]);
+      const commentResponse = await axiosInstance.get(`/posts/${postId}/comments`);
+      setComments(commentResponse.data);
     } catch (error) {
       console.error("Error fetching post:", error);
     } finally {
@@ -76,24 +79,49 @@ const CommunityPostPage = () => {
     fetchPost();
   });
 
-  const handleLike = () => {
-    // Logic to handle like action
-    if (post.likes.includes(user?.id)) {
-      // If user already liked, remove like
-      setPost(prevPost => ({
+  const handleLike = async () => {
+    try {
+      const response = await axiosInstance.put(`/posts/like/${post._id}`);
+      setPost((prevPost) => ({
         ...prevPost,
-        likes: prevPost.likes.filter(id => id !== user.id)
+        likes: response.data.post.likes, // Assuming the response contains the updated likes array
       }));
-      console.log("Post unliked by user:", post.likes);
-
-    } else {
-      // If user hasn't liked, add like
-      setPost(prevPost => ({
-        ...prevPost,
-        likes: [...prevPost.likes, user.id]
-      }));
-      console.log("Post liked by user:", post.likes);
+    } catch (error) {
+      console.error("Error liking the post:", error);
+      toast.error("Failed to like the post. Please try again.");
     }
+  }
+
+  const handleCommentSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      console.log("Submitting comment:", e.target[0].value.trim());
+      const response = await axiosInstance.put(`/posts/comment/${post._id}`, {
+        text: e.target[0].value.trim(),
+      });
+      console.log("Comment response:", response.data);
+      const commentsResponse = await axiosInstance.get(`/posts/${post._id}/comments`);
+      setComments(commentsResponse.data);
+      e.target.reset();
+      toast.success("Comment added successfully!");
+    } catch (error) {
+      console.error("Error submitting comment:", error);
+      toast.error("Failed to submit comment. Please try again.");
+    }
+  }
+
+  const handleDelete = async () => {
+    try {
+      await axiosInstance.delete(`/posts/${post._id}`);
+      toast.success("Post deleted successfully!");
+    } catch (error) {
+      console.error("Error deleting the post:", error);
+      toast.error("Failed to delete post. Please try again.");
+    }
+  }
+
+  if (!post) {
+    return <div className="text-center text-muted-foreground">Loading...</div>;
   }
 
   if (isLoading) {
@@ -107,14 +135,14 @@ const CommunityPostPage = () => {
           <CardHeader className="flex gap-4 w-full items-center">
             <Avatar className={"shrink-0 size-10"}>
               <AvatarImage
-                src={post.user.avatar}
-                alt={`@${post.user.name}`}
+                src={post.userId.profilePic}
+                alt={`@${post.userId.fullName}`}
                 className="object-cover rounded-full"
               />
-              <AvatarFallback>{post.user.name.charAt(0)}</AvatarFallback>
+              <AvatarFallback>{post.userId.fullName.charAt(0)}</AvatarFallback>
             </Avatar>
             <div className="flex flex-col gap-2">
-              <CardTitle>{post.user.name}</CardTitle>
+              <CardTitle>{post.userId.fullName}</CardTitle>
               <CardDescription>
                 {post.title}
               </CardDescription>
@@ -122,6 +150,19 @@ const CommunityPostPage = () => {
                 {`Posted ${formatTimeAgo(post.createdAt)}`}
               </p>
             </div>
+            {user._id == post.userId._id && (
+              <DropdownMenu className="flex-1 justify-end ml-auto">
+                <DropdownMenuTrigger asChild className="ml-auto">
+                  <EllipsisVertical />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onClick={handleDelete}>
+                    <Trash className="mr-2" />
+                    Delete Post
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </CardHeader>
           <Separator />
           {post.images.length > 0 ? (
@@ -159,7 +200,7 @@ const CommunityPostPage = () => {
             <div className="flex items-start gap-4">
               <div className="flex items-center justify-center my-auto gap-1 rounded-full hover:bg-gray-500/10 px-2 py-1 transition-colors duration-300 cursor-pointer">
                 <Heart
-                  className={`text-red-500 size-5 ${post.likes.includes(user?.id) ? "fill-red-500" : ""}`}
+                  className={`text-red-500 size-5 ${post.likes.includes(user._id) ? "fill-red-500" : ""}`}
                   onClick={handleLike}
                 />
                 <Label>Likes {post.likes.length}</Label>
@@ -180,14 +221,14 @@ const CommunityPostPage = () => {
                 {comments.map((comment, index) => (
                   <div key={index} className="flex gap-3 items-start p-2 border-b border-gray-100">
                     <Avatar className="size-8">
-                      <AvatarImage src={comment.user.avatar} className="object-cover rounded-full" />
-                      <AvatarFallback>{comment.user.fallback}</AvatarFallback>
+                      <AvatarImage src={comment.userId.profilePic} className="object-cover rounded-full" />
+                      <AvatarFallback>{comment.userId.fullName[0]}</AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="text-sm font-medium">{comment.user.name}</p>
+                      <p className="text-sm font-medium">{comment.userId.fullName}</p>
                       <p className="text-sm">{comment.text}</p>
                       <p className="text-xs text-muted-foreground">
-                        {formatTimeAgo(comment.time)}
+                        {formatTimeAgo(comment.createdAt)}
                       </p>
                     </div>
                   </div>
@@ -202,10 +243,10 @@ const CommunityPostPage = () => {
           {/* Comment Input */}
           <div className="flex flex-col gap-2">
             <Separator />
-            <div className="flex w-full gap-2">
+            <form onSubmit={handleCommentSubmit} className="flex w-full gap-2">
               <Input placeholder="Add a comment..." />
               <Button type="submit"><Send />Post</Button>
-            </div>
+            </form>
           </div>
         </div>
       </div>

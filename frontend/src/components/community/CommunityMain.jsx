@@ -39,7 +39,7 @@ const CommunityMain = () => {
 
       <div className="flex flex-col gap-4 p-4">
         {posts.map((post) => (
-          <CommunityPostCard key={post._id} post={post} />
+          <CommunityPostCard key={post._id} post_={post} />
         ))}
       </div>
     </div>

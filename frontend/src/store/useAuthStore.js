@@ -19,7 +19,7 @@ export const useAuthStore = create((set) => ({
             const response = await axiosInstance.get('/auth/checkauth');
             set({user: response.data})
         } catch (error) {
-            console.error("Error in auth", error);
+            console.error("No user found:", error);
         } finally {
             set({isCheckingAuth: false});
         }

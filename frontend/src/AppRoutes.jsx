@@ -33,8 +33,8 @@ const AppRoutes = () => {
       <Route path='/events' element={<div>events page</div>} />
       <Route path='/profile' element={<ProfilePage />} />
 
-      <Route path='/community' element={<CommunityPage />} />
-      <Route path='/community/:postId' element={<CommunityPostPage />} />
+      <Route path='/community' element={user ? <CommunityPage />: <Navigate to="/login" />} />
+      <Route path='/community/:postId' element={user ? <CommunityPostPage /> : <Navigate to="/login" />} />
 
       <Route path='*' element={<div>404 Not Found</div>} />
     </Routes>

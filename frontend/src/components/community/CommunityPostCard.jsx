@@ -1,7 +1,7 @@
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card'
 import { Avatar } from '@radix-ui/react-avatar'
 import { AvatarFallback, AvatarImage } from '../ui/avatar'
-import { Heart, MessageCircle, Share2 } from 'lucide-react'
+import { Dot, EllipsisVertical, Heart, MessageCircle, Share2, Trash } from 'lucide-react'
 import { Label } from '../ui/label'
 import {
   Carousel,
@@ -12,6 +12,10 @@ import { Separator } from '../ui/separator'
 import { Badge } from '../ui/badge'
 import { useAuthStore } from '@/store/useAuthStore.js'
 import { Link } from 'react-router-dom'
+import { axiosInstance } from '@/lib/axios.js'
+import { useEffect, useState } from 'react'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu'
+import { toast } from 'sonner'
 
 const formatTimeAgo = (isoDate) => {
   const now = new Date();
@@ -39,30 +43,44 @@ const formatTimeAgo = (isoDate) => {
   }
 };
 
-const CommunityPostCard = ({ post }) => {
+const CommunityPostCard = ({ post_ }) => {
   const { user } = useAuthStore();
 
-  // const [post, setPost] = useState(post_);
+  // console.log("Post Card Rendered", post);
+  // console.log("User Details", user);
+  
 
-  // const handleLike = () => {
-  //   // Logic to handle like action
-  //   if (post.likes.includes(user?.id)) {
-  //     // If user already liked, remove like
-  //     setPost(prevPost => ({
-  //       ...prevPost,
-  //       likes: prevPost.likes.filter(id => id !== user.id)
-  //     }));
-  //     console.log("Post unliked by user:", post.likes);
+  const [post, setPost] = useState(post_);
 
-  //   } else {
-  //     // If user hasn't liked, add like
-  //     setPost(prevPost => ({
-  //       ...prevPost,
-  //       likes: [...prevPost.likes, user.id]
-  //     }));
-  //     console.log("Post liked by user:", post.likes);
-  //   }
-  // }
+  useEffect(() => {
+    setPost(post_);
+  }, [post_]);
+
+  const handleLike = async () => {
+    try {
+      const response = await axiosInstance.put(`/posts/like/${post._id}`);
+      setPost((prevPost) => ({
+        ...prevPost,
+        likes: response.data.post.likes, // Assuming the response contains the updated likes array
+      }));
+    } catch (error) {
+      console.error("Error liking the post:", error);
+    }
+  }
+
+  const handleDelete = async () => {
+    try {
+      await axiosInstance.delete(`/posts/${post._id}`);
+      toast.success("Post deleted successfully!");
+    } catch (error) {
+      console.error("Error deleting the post:", error);
+      toast.error("Failed to delete post. Please try again.");
+    }
+  }
+
+  if (!post) {
+    return <div className="text-center text-muted-foreground">Loading...</div>;
+  }
 
 
   return (
@@ -70,14 +88,14 @@ const CommunityPostCard = ({ post }) => {
       <CardHeader className={"flex gap-4 items-center"}>
         <Avatar className={"shrink-0 size-10"}>
           <AvatarImage
-            src={post.user.avatar}
-            alt={`@${post.user.name}`}
+            src={post.userId.profilePic}
+            alt={`@${post.userId.fullName}`}
             className="object-cover rounded-full"
           />
-          <AvatarFallback>{post.user.name[0]}</AvatarFallback>
+          <AvatarFallback>{post.userId.fullName[0]}</AvatarFallback>
         </Avatar>
         <div className="flex flex-col gap-2">
-          <CardTitle>{post.user.name}</CardTitle>
+          <CardTitle>{post.userId.fullName}</CardTitle>
           <CardTitle className="font-medium">
             {post.title}
           </CardTitle>
@@ -85,6 +103,19 @@ const CommunityPostCard = ({ post }) => {
             {`Posted ${formatTimeAgo(post.createdAt)}`}
           </p>
         </div>
+        {user._id == post.userId._id && (
+          <DropdownMenu className="flex-1 justify-end ml-auto">
+            <DropdownMenuTrigger asChild className="ml-auto">
+              <EllipsisVertical />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onClick={handleDelete}>
+                <Trash className="mr-2" />
+                Delete Post
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </CardHeader>
       <Separator />
       {post.images.length > 0 && (
@@ -114,8 +145,8 @@ const CommunityPostCard = ({ post }) => {
       <CardFooter className="flex items-start gap-4">
         <div className="flex items-center justify-center my-auto gap-1 rounded-full hover:bg-gray-500/10 px-2 py-1 transition-colors duration-300 cursor-pointer">
           <Heart
-            className={`text-red-500 size-5 ${post.likes.includes(user?.id) ? "fill-red-500" : ""}`}
-            // onClick={handleLike}
+            className={`text-red-500 size-5 ${post.likes.includes(user._id) ? "fill-red-500" : ""}`}
+            onClick={handleLike}
           />
           <Label>Likes {post.likes.length}</Label>
         </div>

@@ -9,15 +9,20 @@ import {
   QueryClientProvider,
 } from '@tanstack/react-query'
 import { Toaster } from "@/components/ui/sonner"
+import { Loader } from 'lucide-react'
 
 const queryClient = new QueryClient();
 
 const App = () => {
-  const {checkAuth} = useAuthStore();
+  const {checkAuth, isCheckingAuth} = useAuthStore();
   useEffect(() => {
     checkAuth();
-  }, [checkAuth])
-  
+  }, [checkAuth]);
+
+  if (isCheckingAuth) {
+    return <div className="flex items-center justify-center min-h-screen bg-background"><Loader className='animate-spin' /></div>
+  }
+
 
   return (
     <main className="flex flex-col min-h-screen bg-gray-100">
