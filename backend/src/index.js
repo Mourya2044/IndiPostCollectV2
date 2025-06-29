@@ -34,7 +34,7 @@ app.get("/api/ip-location", async (req, res) => {
     const ip = req.headers["x-forwarded-for"]?.split(",")[0] || req.ip;
 
     try {
-        const geoRes = await fetch(`https://ipapi.co/${ip}/json/`);
+        const geoRes = await fetch(`https://api.ip2location.io/?key=CCB8CF9C3E7B0AD0B36DF4EF2AB7DE3C&ip=${ip}`);
         const geoData = await geoRes.json();
 
         res.json({
