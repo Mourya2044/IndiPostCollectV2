@@ -17,8 +17,8 @@ app.use(express.json({
 app.use(cookieParser());
 
 app.use(cors({
-    origin: process.env.NODE_ENV === "development" 
-        ? "http://localhost:5173" 
+    origin: process.env.NODE_ENV === "development"
+        ? "http://localhost:5173"
         : "https://indi-post-collect-v2.vercel.app",
     credentials: true,
 }));
@@ -27,6 +27,12 @@ app.use(cors({
 app.use("/api/auth", authRouter);
 app.use("/api/stamps", stampRouter);
 app.use("/api/posts", postRouter);
+
+app.get("/", (req, res) => {
+    const clientIp = req.ip;
+    console.log(`Client IP Address: ${clientIp}`);
+    res.send(`Welcome to IndiPost Collect API: ${clientIp}`);
+});
 
 
 app.listen(PORT, () => {
