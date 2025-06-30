@@ -13,7 +13,7 @@ const Input = ({ value, onChange, placeholder, label, type }) => {
 
   return (
     <div className="flex flex-col gap-1 w-full">
-      {label && <label className="text-[12px] text-[#da251c]">{label}</label>}
+      {label && <label className="text-[12px] text-IPCprimary">{label}</label>}
 
       <div className="input-box flex items-center border border-gray-300 rounded-lg px-3 py-2 focus-within:border-[#da251c] transition">
         <input
