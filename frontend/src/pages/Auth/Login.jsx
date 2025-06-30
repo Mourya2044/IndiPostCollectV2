@@ -61,7 +61,7 @@ const Login = () => {
     <div>
       <AuthLayout>
         <div className="lg:w-[70%] h-3/4 md:h-full flex flex-col justify-center">
-          <h3 className="text-2xl font-semibold text-black">Welcome Back</h3>
+          <h3 className="text-2xl font-semibold text-IPCaccent">Welcome Back</h3>
           <p className="text-xs text-slate-700 mt-[5px] mb-6">
             Please enter details in login
           </p>
@@ -102,14 +102,14 @@ const Login = () => {
                   setError("❌ Failed to send reset link.");
                 }
               }}
-              className="font-medium text-IPCprimary underline text-[13px]"
+              className="font-medium text-IPCaccent underline text-[13px] hover:text-IPCsecondary mt-3"
             >
               Forgot password?
             </button>
             <p className="text-[13px] mt-3 text-slate-800">
               Do not have an account?{""}
               <Link
-                className="font-medium text-IPCprimary underline"
+                className="font-medium text-IPCaccent underline"
                 to="/signup"
               >
                 SignUp

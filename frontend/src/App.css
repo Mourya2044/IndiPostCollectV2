@@ -21,7 +21,7 @@
 }
 
 .btn-primary {
-  @apply bg-[#da251c] justify-center flex w-full rounded text-white text-sm p-1.5 hover:bg-[#da251cf3] hover:text-[#ffd700];
+  @apply bg-IPCaccent justify-center flex w-full rounded text-white text-sm p-1.5 hover:bg-IPCtext hover:text-IPCaccent;
 }
 
 .nav-menu {
