@@ -1,7 +1,16 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import { BubbleEffect } from '../BubbleEffect';
 
 const AuthLayout = ({ children }) => {
+  const bubbles = useMemo(()=>{
+    return (
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <BubbleEffect />
+        <BubbleEffect />
+      </div>
+    );  
+  },[]);
+
   return (
     <div className="w-screen h-screen flex flex-col md:flex-row bg-white overflow-hidden">
       {/* Left Form Section */}
@@ -15,8 +24,7 @@ const AuthLayout = ({ children }) => {
       {/* Right India Post Design Section */}
       <div className="hidden md:block md:w-[40vw] bg-gradient-to-br from-red-900 via-Postalprimary-bg to-red-800 relative">
         {/* Floating bubbles */}
-        <BubbleEffect />
-        <BubbleEffect />
+        {bubbles}
 
         {/* Info Card moved to top */}
         <div className="absolute top-12 left-12 bg-white rounded-xl shadow-xl p-6 w-72 text-Postalprimary-bg z-20">
