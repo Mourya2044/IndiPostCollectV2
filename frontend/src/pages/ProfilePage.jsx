@@ -67,7 +67,7 @@ const ProfilePage = () => {
 
       {user && (
         <div className="mt-10 px-4 md:px-16 text-[#3b3b3b]">
-          <h2 className="text-3xl font-bold text-[#DA1C1C] mb-6">
+          <h2 className="text-3xl font-bold text-[#3b3b3b] mb-6">
             User Details
           </h2>
 
