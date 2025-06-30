@@ -80,11 +80,11 @@ const Login = () => {
 
             <button type='submit' className='btn-primary'>Login</button>
             <p className='text-[13px] mt-3 text-slate-800'>
-              <Link className='font-medium text-[#da251c] underline' to="/forget-password">Forget password?</Link>
+              <Link className='font-medium text-IPCprimary underline' to="/forget-password">Forget password?</Link>
             </p>
             <p className='text-[13px] mt-3 text-slate-800'>
               Do not have an account?{""}
-              <Link className='font-medium text-[#da251c] underline' to="/signup">SignUp</Link>
+              <Link className='font-medium text-IPCprimary underline' to="/signup">SignUp</Link>
             </p>
           </form>
         </div>
