@@ -15,6 +15,7 @@ import CommunityPostPage from './pages/CommunityPostPage'
 import VerificationPage from './pages/VerificationPage'
 import ForgetPassword from './pages/ForgetPassword'
 
+
 const AppRoutes = () => {
   const { user } = useAuthStore();
 
