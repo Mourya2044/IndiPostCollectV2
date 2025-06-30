@@ -95,5 +95,17 @@ export const useAuthStore = create((set) => ({
         }finally{
             set({isLoading:false});
         }
+      },
+      
+      resetPassword: async (password, token) => {
+        set({isLoading: true});
+        try{
+            const response = await axiosInstance.post(`/auth/reset-password/${token}`,{password});
+            set({user: response.data.user});
+        }catch(error){
+            console.error('Error forget password')
+        }finally{
+            set({isLoading:false});
+        }
       }
 }))
