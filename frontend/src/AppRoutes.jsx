@@ -18,7 +18,7 @@ import VerificationPage from './pages/VerificationPage'
 import ForgetPassword from './pages/ForgetPassword'
 >>>>>>> Stashed changes
 
-
+import ForgetPassword from './pages/ForgetPassword'
 const AppRoutes = () => {
   const { user } = useAuthStore();
 
