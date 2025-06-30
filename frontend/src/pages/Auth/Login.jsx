@@ -97,9 +97,9 @@ const Login = () => {
 
                 try {
                   await forgetPassword(email);
-                  setError("📩 Reset link sent! Check your email.");
+                  setError("Reset link sent! Check your email.");
                 } catch (err) {
-                  setError("❌ Failed to send reset link.");
+                  setError("Failed to send reset link.");
                 }
               }}
               className="font-medium text-IPCaccent underline text-[13px] hover:text-IPCsecondary mt-3"
