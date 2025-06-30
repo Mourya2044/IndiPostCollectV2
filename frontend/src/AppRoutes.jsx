@@ -12,7 +12,8 @@ import MuseumPage from './pages/MuseumPage';
 import MuseumStampPage from './pages/MuseumStampPage';
 import CommunityPage from './pages/CommunityPage'
 import CommunityPostPage from './pages/CommunityPostPage'
-
+import VerificationPage from './pages/VerificationPage'
+import ForgetPassword from './pages/ForgetPassword'
 
 const AppRoutes = () => {
   const { user } = useAuthStore();
@@ -22,6 +23,8 @@ const AppRoutes = () => {
       <Route path="/" element={<Home />} />
       <Route path='/signup' element={!user ? <SignUp /> : <Navigate to="/" />} />
       <Route path='/login' element={!user ? <Login /> : <Navigate to="/" />} />
+      <Route path="/forget-password" element={<ForgetPassword/>}/>
+
       <Route path='/learn' element={<Learn />} />
 
       <Route path='/museum' element={<MuseumPage />} />
@@ -35,6 +38,8 @@ const AppRoutes = () => {
 
       <Route path='/community' element={user ? <CommunityPage />: <Navigate to="/login" />} />
       <Route path='/community/:postId' element={user ? <CommunityPostPage /> : <Navigate to="/login" />} />
+
+      <Route path='/verify/:userId/:uniqueString' element={<VerificationPage />} />
 
       <Route path='*' element={<div>404 Not Found</div>} />
     </Routes>
