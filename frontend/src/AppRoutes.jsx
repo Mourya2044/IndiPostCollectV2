@@ -12,7 +12,11 @@ import MuseumPage from './pages/MuseumPage';
 import MuseumStampPage from './pages/MuseumStampPage';
 import CommunityPage from './pages/CommunityPage'
 import CommunityPostPage from './pages/CommunityPostPage'
+<<<<<<< Updated upstream
 import VerificationPage from './pages/VerificationPage'
+=======
+import ForgetPassword from './pages/ForgetPassword'
+>>>>>>> Stashed changes
 
 
 const AppRoutes = () => {
@@ -23,6 +27,8 @@ const AppRoutes = () => {
       <Route path="/" element={<Home />} />
       <Route path='/signup' element={!user ? <SignUp /> : <Navigate to="/" />} />
       <Route path='/login' element={!user ? <Login /> : <Navigate to="/" />} />
+      <Route path="/forget-password" element={<ForgetPassword/>}/>
+
       <Route path='/learn' element={<Learn />} />
 
       <Route path='/museum' element={<MuseumPage />} />
