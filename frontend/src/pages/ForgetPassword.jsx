@@ -39,7 +39,7 @@ const ForgetPassword = () => {
           <label className="block mb-2 text-sm font-medium">New Password</label>
           <input
             type="password"
-            className="w-full px-4 py-2 mb-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full px-4 py-2 mb-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-Postalprimary-bg"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -48,7 +48,7 @@ const ForgetPassword = () => {
           <label className="block mb-2 text-sm font-medium">Confirm Password</label>
           <input
             type="password"
-            className="w-full px-4 py-2 mb-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full px-4 py-2 mb-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-Postalprimary-bg"
             value={confirm}
             onChange={(e) => setConfirm(e.target.value)}
             required
