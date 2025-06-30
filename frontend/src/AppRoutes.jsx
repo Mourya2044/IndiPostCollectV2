@@ -12,13 +12,9 @@ import MuseumPage from './pages/MuseumPage';
 import MuseumStampPage from './pages/MuseumStampPage';
 import CommunityPage from './pages/CommunityPage'
 import CommunityPostPage from './pages/CommunityPostPage'
-<<<<<<< Updated upstream
 import VerificationPage from './pages/VerificationPage'
-=======
 import ForgetPassword from './pages/ForgetPassword'
->>>>>>> Stashed changes
 
-import ForgetPassword from './pages/ForgetPassword'
 const AppRoutes = () => {
   const { user } = useAuthStore();
 
