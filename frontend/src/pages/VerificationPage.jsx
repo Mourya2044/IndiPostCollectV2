@@ -1,8 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { axiosInstance } from "@/lib/axios";
-import Link from "daisyui/components/link";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 const VerificationPage = () => {
     const { userId, uniqueString } = useParams();
