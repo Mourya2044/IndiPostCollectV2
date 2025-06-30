@@ -7,6 +7,7 @@ import jwt from "jsonwebtoken";
 import { sendVerificationEmail } from "../utils/sendEmail.js";
 import { sendResetPasswordEmail } from "../utils/sendResetEmail.js";
 import cloudinary from '../lib/cloudinary.js';
+import Token from "../models/token.model.js";
 
 // Generate JWT token
 const generateToken = (id, res) => {
@@ -237,10 +238,15 @@ export const resetPassword = async (req, res) => {
     const resetToken = crypto.randomBytes(32).toString('hex');
 
     const hashedToken = crypto.createHash("sha256").update(resetToken).digest("hex");
-    user.resetPasswordToken=hashedToken;
-    user.resetPasswordExpire=Date.now() + 15*60*1000; //15 mins
 
-    await user.save({validateBeforeSave: false});
+    await Token.deleteMany({ userId: user._id });
+
+    const token = await Token.create({
+      userId: user._id,
+      token: hashedToken,
+      expiresAt: Date.now() + 15 * 60 * 1000, // 15 mins
+    });
+
     const resetUrl = `/forget-password/${resetToken}`
 
     const message = `
