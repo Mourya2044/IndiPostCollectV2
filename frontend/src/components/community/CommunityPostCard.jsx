@@ -128,7 +128,7 @@ const CommunityPostCard = ({ post_ }) => {
                     <Badge variant="secondary" className="absolute top-2 right-2 z-10">
                       {index + 1} / {post.images.length}
                     </Badge>
-                    <img src={image} className='object-fit rounded-md h-[40vh]' alt={`UI Shot ${index + 1}`} />
+                    <img src={image} className='object-fit rounded-md lg:h-[40vh]' alt={`UI Shot ${index + 1}`} />
                   </div>
                 </CarouselItem>
               ))}
@@ -142,7 +142,7 @@ const CommunityPostCard = ({ post_ }) => {
       <CardDescription className="text-sm text-muted-foreground">
         {post.description}
       </CardDescription>
-      <CardFooter className="flex items-start gap-4">
+      <CardFooter className="flex justify-between lg:justify-start gap-4 p-0">
         <div className="flex items-center justify-center my-auto gap-1 rounded-full hover:bg-gray-500/10 px-2 py-1 transition-colors duration-300 cursor-pointer">
           <Heart
             className={`text-red-500 size-5 ${post.likes.includes(user._id) ? "fill-red-500" : ""}`}

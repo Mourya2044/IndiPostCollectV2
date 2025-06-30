@@ -129,8 +129,8 @@ const CommunityPostPage = () => {
   }
 
   return (
-    <Card className="m-2 p-4 shadow-none border-none rounded-none h-[90dvh]">
-      <div className="flex gap-2 items-center">
+    <Card className="m-2 p-4 shadow-none border-none rounded-none h-screen lg:h-[90dvh]">
+      <div className="flex flex-col lg:flex-row gap-2 items-center">
         <div className="flex flex-col gap-2 items-center w-full flex-3/4">
           <CardHeader className="flex gap-4 w-full items-center">
             <Avatar className={"shrink-0 size-10"}>
@@ -166,7 +166,7 @@ const CommunityPostPage = () => {
           </CardHeader>
           <Separator />
           {post.images.length > 0 ? (
-            <Carousel className="w-full h-full flex-3/4 p-2">
+            <Carousel className="w-full h-full flex-3/4 p-2 justify-center items-center">
               <CarouselContent className={`flex gap-2 w-full h-full items-center ${post.images.length <= 1 ? "justify-center" : ""}`}>
                 {post.images.map((image, index) => (
                   <CarouselItem key={index} className="md:basis-auto lg:basis-auto">
@@ -174,7 +174,7 @@ const CommunityPostPage = () => {
                       <Badge variant="secondary" className="absolute top-2 right-2 z-10">
                         {index + 1} / {post.images.length}
                       </Badge>
-                      <img src={image} className='object-fit rounded-md h-[70vh]' alt={`UI Shot ${index + 1}`} />
+                      <img src={image} className='object-fit rounded-md lg:h-[70vh]' alt={`UI Shot ${index + 1}`} />
                     </div>
                   </CarouselItem>
                 ))}
@@ -190,20 +190,32 @@ const CommunityPostPage = () => {
             </div>
           )}
         </div>
-        <div className="flex flex-col justify-between flex-1/4 p-2 h-full border-l border-gray-200">
+        <div className="flex flex-col justify-between w-full flex-1/4 lg:p-2 h-full lg:border-l border-gray-200">
           <div className="flex flex-col gap-2">
             {post.images.length > 0 && (
               <CardDescription className="text-sm text-muted-foreground">
                 {post.description}
               </CardDescription>
             )}
-            <div className="flex items-start gap-4">
+            <div className="flex justify-between gap-4">
               <div className="flex items-center justify-center my-auto gap-1 rounded-full hover:bg-gray-500/10 px-2 py-1 transition-colors duration-300 cursor-pointer">
                 <Heart
                   className={`text-red-500 size-5 ${post.likes.includes(user._id) ? "fill-red-500" : ""}`}
                   onClick={handleLike}
                 />
                 <Label>Likes {post.likes.length}</Label>
+              </div>
+              <div
+                onClick={() => {
+                  const commentsSection = document.getElementById("comments-section");
+                  if (commentsSection) {
+                    commentsSection.scrollIntoView({ behavior: "smooth" });
+                  }
+                }}
+                className="flex items-center justify-center my-auto gap-1 rounded-full hover:bg-gray-500/10 px-2 py-1 transition-colors duration-300 cursor-pointer"
+              >
+                <MessageCircle className="size-5" />
+                <Label>Comments {post.comments}</Label>
               </div>
               <div className="flex items-center justify-center my-auto gap-1 rounded-full hover:bg-gray-500/10 px-2 py-1 transition-colors duration-300 cursor-pointer">
                 <Share2 className="size-5" />
@@ -214,7 +226,7 @@ const CommunityPostPage = () => {
           </div>
 
           {/* Comments Section */}
-          <ScrollArea id="comments-section" className="h-[60vh] w-full">
+          <ScrollArea id="comments-section" className="h-[50vh] lg:h-[60vh] w-full">
             {comments.length > 0 ? (
               <div className="flex flex-col gap-2">
                 {/* Comments */}

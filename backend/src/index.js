@@ -18,7 +18,7 @@ app.use(cookieParser());
 
 app.use(cors({
     origin: process.env.NODE_ENV === "development"
-        ? "http://localhost:5173"
+        ? ["http://localhost:5173", "http://192.168.0.100:5173"]
         : "https://indi-post-collect-v2.vercel.app",
     credentials: true,
 }));

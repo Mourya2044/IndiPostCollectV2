@@ -31,7 +31,7 @@ const AppRoutes = () => {
       <Route path='/marketplace/:stampId' element={<StampDetailPage />} />
 
       <Route path='/events' element={<div>events page</div>} />
-      <Route path='/profile' element={<ProfilePage />} />
+      <Route path='/profile' element={user ? <ProfilePage /> : <Navigate to="/login" />} />
 
       <Route path='/community' element={user ? <CommunityPage />: <Navigate to="/login" />} />
       <Route path='/community/:postId' element={user ? <CommunityPostPage /> : <Navigate to="/login" />} />

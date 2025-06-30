@@ -35,7 +35,10 @@ export const createPost = async (req, res) => {
 
 export const getPosts = async (req, res) => {
   try {
-    const rawposts = await Post.find().sort({ createdAt: -1 }).populate('userId', 'fullName profilePic');
+    // Pagination logic
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const rawposts = await Post.find({}).sort({ createdAt: -1 }).populate('userId', 'fullName profilePic').skip((page - 1) * limit).limit(limit);
 
     // Get comment count grouped by postId
     const commentCounts = await Comment.aggregate([
@@ -54,6 +57,10 @@ export const getPosts = async (req, res) => {
       ...post.toObject(),
       comments: countMap[post._id.toString()] || 0,
     })));
+
+    if (posts.length === 0) {
+      return res.status(404).json({ message: "No posts found" });
+    }
 
     res.status(200).json(posts);
   } catch (error) {
