@@ -17,7 +17,7 @@ export const sendVerificationEmail = async (email, uniqueString, userId) => {
         subject:"Verify your email",
         html:`
             <p>Click the link below to verify your email:</p>
-            <a href="http://localhost:5173/verify/${userId}/${uniqueString}">
+            <a href="http://localhost:3000/verify/${userId}/${uniqueString}">
             Verify Email
             </a>
         `
