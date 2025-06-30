@@ -1,9 +1,11 @@
 import User from "../models/user.model.js";
 import UserVerification from "../models/verification.model.js";
 import { v4 as uuidv4 } from 'uuid';
+import crypto from "crypto";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { sendVerificationEmail } from "../utils/sendEmail.js";
+import { sendResetPasswordEmail } from "../utils/sendResetEmail.js";
 import cloudinary from '../lib/cloudinary.js';
 
 // Generate JWT token
@@ -219,6 +221,40 @@ export const updateProfilePic = async (req, res) => {
 
   } catch (err) {
     console.error("Error updating profile picture:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const resetPassword = async (req, res) => {
+  try{
+    const {email} = req.body;
+
+    const user = await User.findOne({email});
+    if(!user){
+      return res.status(404).json({message: "User not found with this mail"});
+    }
+
+    const resetToken = crypto.randomBytes(32).toString('hex');
+
+    const hashedToken = crypto.createHash("sha256").update(resetToken).digest("hex");
+    user.resetPasswordToken=hashedToken;
+    user.resetPasswordExpire=Date.now() + 15*60*1000; //15 mins
+
+    await user.save({validateBeforeSave: false});
+    const resetUrl = `/forget-password/${resetToken}`
+
+    const message = `
+      You requested a password reset. Click the link below to reset your password:
+      ${resetUrl}
+      This link expires in 15 minutes.
+      If you didn't request this, you can ignore this email.
+    `;
+
+    await sendResetPasswordEmail(user.email, resetToken);
+
+    res.status(200).json({ message: "Reset link sent to your email." });
+  } catch (err){
+    console.error("Error resetting password:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
