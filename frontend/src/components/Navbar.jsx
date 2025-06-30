@@ -96,7 +96,7 @@ const Navbar = () => {
                         alt={`@${user.fullName}`}
                         className="object-cover rounded-full"
                       />
-                      <AvatarFallback>{user.fullName.charAt(0)}</AvatarFallback>
+                      <AvatarFallback>{user.fullName?.charAt(0)}</AvatarFallback>
                     </Avatar>
                     <h1 className="ml-2 my-auto">{user.fullName}</h1>
                     <SheetClose asChild>

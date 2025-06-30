@@ -17,7 +17,7 @@ export const sendVerificationEmail = async (email, uniqueString, userId) => {
         subject:"Verify your email",
         html:`
             <p>Click the link below to verify your email:</p>
-            <a href="http://localhost:3000/verify/${userId}/${uniqueString}">
+            <a href="${process.env.NODE_ENV === 'development' ? "http://localhost:3000" : "https://indipostcollectv2.onrender.com"}/verify/${userId}/${uniqueString}">
             Verify Email
             </a>
         `
