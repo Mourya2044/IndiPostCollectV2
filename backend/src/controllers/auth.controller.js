@@ -264,3 +264,40 @@ export const resetPassword = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+export const handleResetPassword = async (req,res) => {
+  try{
+    const {password} = req.body;
+    const resetToken = req.params.token;
+
+    if (!resetToken) {
+      return res.status(400).json({ message: "Invalid or missing token" });
+    }
+    
+    const hashedToken = crypto.createHash("sha256").update(resetToken).digest("hex");
+
+    const tokenDoc = await Token.findOne({
+      token: hashedToken,
+      expiresAt: { $gt: Date.now() }
+    })
+
+    if (!tokenDoc) {
+      return res.status(400).json({ message: "Invalid or expired token" });
+    }
+
+    const user = await User.findById(tokenDoc.userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    user.password = password;
+    await user.save();
+    console.log(password);
+    await Token.deleteOne({ _id: tokenDoc._id });
+
+    return res.status(200).json({ message: "Password successfully reset" });
+  }catch(err){
+    console.error("Reset error:", err);
+    return res.status(500).json({message: "Server Error"})
+  }
+}

@@ -8,7 +8,8 @@ import {
   checkAuth, 
   verifyEmail,
   updateProfilePic,
-  resetPassword
+  resetPassword,
+  handleResetPassword
 } from "../controllers/auth.controller.js";
 
 const authRouter = express.Router();
@@ -21,5 +22,6 @@ authRouter.get("/checkauth",protect,checkAuth);
 authRouter.post("/verify/:userId/:uniqueString",verifyEmail)
 authRouter.patch("/profile-pic", protect, updateProfilePic);
 authRouter.post("/forget-password", resetPassword);
+authRouter.post("/reset-password/:token", handleResetPassword);
 
 export default authRouter;
