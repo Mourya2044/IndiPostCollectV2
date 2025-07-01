@@ -12,7 +12,7 @@ import Token from "../models/token.model.js";
 // Generate JWT token
 const generateToken = (id, res) => {
   const token = jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "1d" });
-  console.log("token", token);
+  //console.log("token", token);
 
   res.cookie("jwt", token, {
     httpOnly: true,
@@ -292,7 +292,7 @@ export const handleResetPassword = async (req,res) => {
 
     user.password = password;
     await user.save();
-    console.log(password);
+    
     await Token.deleteOne({ _id: tokenDoc._id });
 
     return res.status(200).json({ message: "Password successfully reset" });
