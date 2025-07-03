@@ -1,85 +1,87 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useEffect } from 'react';
 import CommunityHeader from './CommunityHeader';
-import CommunityPostCard from './CommunityPostCard';
-import { axiosInstance } from '@/lib/axios.js';
+import CommunityPostCard from './CommunityPostCard'; // ✅ make sure this is the correct component
 import LoadingSpinner from '../LoadingSpinner';
 import { useInView } from 'react-intersection-observer';
 import { Loader2 } from 'lucide-react';
-
+import { useFetchInfinitePosts } from '@/queries/postsQuery.js';
 
 const CommunityMain = () => {
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    isError,
+    error
+  } = useFetchInfinitePosts();
+
   const { ref: loadingRef, inView } = useInView({
     threshold: 0.1,
-    triggerOnce: true,
   });
 
-  const fetchPosts = useCallback(async () => {
-    if (!hasMore) return;
+  // Debug logs
+  // useEffect(() => {
+  //   console.log("isLoading:", isLoading);
+  //   console.log("isError:", isError);
+  //   console.log("error:", error);
+  //   console.log("data:", data);
+  // }, [data, isLoading, isError, error]);
 
-    setLoading(true);
-    try {
-      const response = await axiosInstance.get("/posts", {
-        params: {
-          page,
-          limit: 10,
-        },
-      });
-
-      if (response.data.length < 10) {
-        setHasMore(false);
-      }
-
-      // Append new posts
-      setPosts((prevPosts) => [ ...prevPosts, ...response.data]);
-      setPage((prevPage) => prevPage + 1);
-    } catch (error) {
-      console.error("Error fetching posts:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, [page, hasMore]);
-
-
+  // Trigger next page when inView
   useEffect(() => {
-    fetchPosts();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-
-  useEffect(() => {
-    if (inView && hasMore) {
-      fetchPosts();
+    if (inView && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inView, hasMore]);
+  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  if (loading) {
+  if (isLoading) {
     return <LoadingSpinner message="Loading community posts..." />;
   }
+
+  if (isError) {
+    return (
+      <div className="flex flex-col items-center justify-center p-12 space-y-4">
+        <Loader2 className="h-8 w-8 text-red-500" />
+        <p className="text-red-600 text-lg">Error loading posts. Please try again later.</p>
+        <p className="text-gray-600 text-sm">{error?.message}</p>
+      </div>
+    );
+  }
+
+  // Optional: Handle empty data
+  const isEmpty = data?.pages?.[0]?.posts?.length === 0;
 
   return (
     <div>
       <CommunityHeader />
 
       <div className="flex flex-col gap-4 p-4">
-        {posts.map((post) => (
-          <CommunityPostCard key={post._id} post_={post} />
-        ))}
-      </div>
-      {hasMore && <div ref={loadingRef} className="flex justify-center items-center p-4">
-        {inView && (
-          <div className="flex flex-col items-center justify-center p-12 space-y-4">
-            <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-            <p className="text-gray-600 text-lg">Loading more posts...</p>
-          </div>
+        {isEmpty ? (
+          <p className="text-center text-gray-500">No posts yet. Be the first to post!</p>
+        ) : (
+          data.pages.map((page) =>
+            page.posts.map((post) => (
+              console.log("Rendering post:", post),
+              <CommunityPostCard key={post._id} post_={post} />
+            ))
+          )
         )}
-      </div>}
-    </div>
-  )
-}
+      </div>
 
-export default CommunityMain
+      {hasNextPage && (
+        <div ref={loadingRef} className="flex justify-center items-center p-4">
+          {isFetchingNextPage && (
+            <div className="flex flex-col items-center space-y-2">
+              <Loader2 className="h-6 w-6 animate-spin text-blue-500" />
+              <p className="text-sm text-gray-600">Loading more posts...</p>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default CommunityMain;

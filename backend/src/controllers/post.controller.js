@@ -35,10 +35,14 @@ export const createPost = async (req, res) => {
 
 export const getPosts = async (req, res) => {
   try {
-    // Pagination logic
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
-    const rawposts = await Post.find({}).sort({ createdAt: -1 }).populate('userId', 'fullName profilePic').skip((page - 1) * limit).limit(limit);
+
+    const rawposts = await Post.find({})
+      .sort({ createdAt: -1 })
+      .populate('userId', 'fullName profilePic')
+      .skip((page - 1) * limit)
+      .limit(limit);
 
     // Get comment count grouped by postId
     const commentCounts = await Comment.aggregate([
@@ -46,28 +50,40 @@ export const getPosts = async (req, res) => {
       { $group: { _id: "$postId", count: { $sum: 1 } } }
     ]);
 
-    // Convert to a map for quick access
     const countMap = {};
     commentCounts.forEach(item => {
       countMap[item._id.toString()] = item.count;
     });
 
-    // Attach commentCount to each post
-    const posts = await Promise.all(rawposts.map(async post => ({
+    const posts = rawposts.map(post => ({
       ...post.toObject(),
       comments: countMap[post._id.toString()] || 0,
-    })));
+    }));
 
+    // Get total posts count for pagination
+    const totalPosts = await Post.countDocuments();
+    const totalPages = Math.ceil(totalPosts / limit);
+
+    // If no posts found, respond with empty array inside object (not 404)
     if (posts.length === 0) {
-      return res.status(404).json({ message: "No posts found" });
+      return res.status(200).json({
+        posts: [],
+        currentPage: page,
+        totalPages,
+      });
     }
 
-    res.status(200).json(posts);
+    res.status(200).json({
+      posts,
+      currentPage: page,
+      totalPages,
+    });
   } catch (error) {
     console.error("Error in getPosts controller:", error.message);
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 export const getPostbyId = async (req, res) => {
   try {

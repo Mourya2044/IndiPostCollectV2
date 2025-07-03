@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Heart, Loader, Share2, ShoppingCart, Tag } from 'lucide-react';
 import { axiosInstance } from '@/lib/axios.js';
 import { useParams } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner'
 
 
 export default function StampDetailPage() {
@@ -10,9 +12,9 @@ export default function StampDetailPage() {
   const [loading, setLoading] = useState(true);
   const [imageError, setImageError] = useState(false);
   const handleImageError = () => {
-        setImageError(true);
-    };
-  
+    setImageError(true);
+  };
+
   const [quantity, setQuantity] = useState(1);
   const [isWishlisted, setIsWishlisted] = useState(false);
 
@@ -26,7 +28,7 @@ export default function StampDetailPage() {
         const response = await axiosInstance.get(`/stamps/${stampId}`);
         setStampDetails(response.data);
         // console.log("Stamp Details:", response.data);
-        
+
       } catch (error) {
         console.error("Error fetching stamp details:", error);
       } finally {
@@ -43,6 +45,20 @@ export default function StampDetailPage() {
       currency: 'USD'
     }).format(price);
   };
+
+  const addToCart = async () => {
+    try {
+      const response = await axiosInstance.post('/cart/add', {
+        stampId,
+        quantity
+      });
+      console.log("Added to cart:", response.data);
+      toast.success("Stamp added to cart successfully!");
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      toast.error("Failed to add to cart. Please try again.");
+    }
+  }
 
   if (loading) {
     return (
@@ -65,7 +81,7 @@ export default function StampDetailPage() {
               <span>Back to Marketplace</span>
             </button> */}
             <div className="flex items-center gap-4">
-              <button 
+              <button
                 onClick={() => setIsWishlisted(!isWishlisted)}
                 className={`p-2 rounded-full transition-colors ${isWishlisted ? 'text-red-500 bg-red-50' : 'text-gray-400 hover:text-red-500'}`}
               >
@@ -82,32 +98,32 @@ export default function StampDetailPage() {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          
+
           {/* Image */}
           <div className="space-y-4">
             <div className="aspect-square bg-white rounded-lg border border-gray-200 overflow-hidden">
               {!imageError && stampDetails?.imageUrl ? (
-                    <img
-                        src={stampDetails?.imageUrl}
-                        alt={stampDetails?.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
-                        onError={handleImageError}
-                        loading="lazy"
-                    />
-                ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gray-200">
-                        <div className="text-center text-gray-500">
-                            <Tag className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                            <p className="text-sm">No Image</p>
-                        </div>
-                    </div>
-                )}
+                <img
+                  src={stampDetails?.imageUrl}
+                  alt={stampDetails?.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                  onError={handleImageError}
+                  loading="lazy"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-gray-200">
+                  <div className="text-center text-gray-500">
+                    <Tag className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                    <p className="text-sm">No Image</p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
           {/* Product Details */}
           <div className="space-y-6">
-            
+
             {/* Title and Categories */}
             <div>
               <div className="flex flex-wrap gap-2 mb-3">
@@ -164,37 +180,13 @@ export default function StampDetailPage() {
             {/* Purchase Options - Only show if for sale */}
             {stampDetails.isForSale && (
               <div className="space-y-4 p-6 bg-white border border-gray-200 rounded-lg">
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center border border-gray-300 rounded-lg">
-                    <button 
-                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      className="px-3 py-2 text-gray-600 hover:text-gray-900"
-                    >
-                      -
-                    </button>
-                    <span className="px-4 py-2 border-x border-gray-300">{quantity}</span>
-                    <button 
-                      onClick={() => setQuantity(quantity + 1)}
-                      className="px-3 py-2 text-gray-600 hover:text-gray-900"
-                    >
-                      +
-                    </button>
-                  </div>
-                  <span className="text-sm text-gray-600">Available: {stampDetails.availableQuantity}</span>
-                </div>
-                
-                <div className="space-y-3">
-                  <button className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center gap-2">
-                    <ShoppingCart size={20} />
-                    Add to Cart
-                  </button>
-                  <button className="w-full bg-gray-900 text-white py-3 rounded-lg font-semibold hover:bg-gray-800 transition-colors">
-                    Buy Now
-                  </button>
-                  <button className="w-full border border-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-colors">
-                    Contact Owner
-                  </button>
-                </div>
+                <Button 
+                  className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+                  onClick={addToCart}
+                >
+                  <ShoppingCart size={20} />
+                  Add to Cart
+                </Button>
               </div>
             )}
 
@@ -202,16 +194,16 @@ export default function StampDetailPage() {
             {!stampDetails.isForSale && (
               <div className="p-6 bg-gray-100 border border-gray-200 rounded-lg text-center">
                 <p className="text-gray-600 mb-4">This stampDetails is not currently for sale</p>
-                <button className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                {/* <button className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
                   Contact Owner
-                </button>
+                </button> */}
               </div>
             )}
           </div>
         </div>
 
         {/* Owner Information */}
-        <div className="mt-12 bg-white p-6 rounded-lg border border-gray-200">
+        {/* <div className="mt-12 bg-white p-6 rounded-lg border border-gray-200">
           <h2 className="text-xl font-semibold mb-4">Owner Information</h2>
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
@@ -224,7 +216,7 @@ export default function StampDetailPage() {
               <p className="text-sm text-gray-600">Verified Member</p>
             </div>
           </div>
-        </div>
+        </div> */}
       </main>
     </div>
   );

@@ -14,6 +14,7 @@ import CommunityPage from './pages/CommunityPage'
 import CommunityPostPage from './pages/CommunityPostPage'
 import VerificationPage from './pages/VerificationPage'
 import ForgetPassword from './pages/ForgetPassword'
+import CartPage from './pages/CartPage'
 
 
 const AppRoutes = () => {
@@ -26,6 +27,7 @@ const AppRoutes = () => {
       <Route path='/login' element={!user ? <Login /> : <Navigate to="/" />} />
       
       <Route path="/forget-password/:token" element={<ForgetPassword/>}/>
+      <Route path='/verify/:userId/:uniqueString' element={<VerificationPage />} />
 
       <Route path='/learn' element={<Learn />} />
 
@@ -41,7 +43,7 @@ const AppRoutes = () => {
       <Route path='/community' element={user ? <CommunityPage />: <Navigate to="/login" />} />
       <Route path='/community/:postId' element={user ? <CommunityPostPage /> : <Navigate to="/login" />} />
 
-      <Route path='/verify/:userId/:uniqueString' element={<VerificationPage />} />
+      <Route path='/cart' element={<CartPage />} />
 
       <Route path='*' element={<div>404 Not Found</div>} />
     </Routes>
