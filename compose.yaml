@@ -1,0 +1,46 @@
+services:
+  web:
+    depends_on: 
+      - api
+    build: ./frontend
+    ports:
+      - 5173:5173
+    environment:
+      VITE_API_URL: http://localhost:8000
+    develop:
+      watch:
+        - path: ./frontend/package.json
+          action: rebuild
+        - path: ./frontend/package-lock.json
+          action: rebuild
+        - path: ./frontend
+          target: /app
+          action: sync
+
+  api: 
+    # depends_on: 
+    #   - db
+    build: ./backend
+    ports: 
+      - 3000:3000
+    environment: 
+      MONGODB_URI: mongodb+srv://mouryasaha2004:NtCURpSeMIUbKBAq@indipostcollectv2data.ehacekz.mongodb.net/data?retryWrites=true&w=majority&appName=indipostcollectv2data
+      JWT_SECRET: lyM6iwoUlkd9l4o8Sgj5/7cZqiXihp0kKJn5t/cyhT4=
+      NODE_ENV: development
+      CLOUDINARY_CLOUD_NAME: ds7pi14yp
+      CLOUDINARY_API_KEY: 879173559126261
+      CLOUDINARY_API_SECRET: ww2uBJ0jWWz2lM8ab5TTTtfUprM
+      AUTH_MAIL: pavel153das@gmail.com
+      AUTH_PASS: qzbqqayfylygrzpv
+    develop:
+      watch:
+        - path: ./backend/package.json
+          action: rebuild
+        - path: ./backend/package-lock.json
+          action: rebuild
+        - path: ./backend
+          target: /app
+          action: sync
+
+volumes:
+  indipostcollect:
