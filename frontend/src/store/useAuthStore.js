@@ -65,7 +65,7 @@ export const useAuthStore = create((set) => ({
         set({isLoading: true});
         try {
             const response = await axiosInstance.get('/auth/me');
-            set({ user: response.data });
+            set({ user: response.message });
         } catch (error) {
             console.error("Error fetching user info:", error);
         } finally {
@@ -83,7 +83,29 @@ export const useAuthStore = create((set) => ({
         } finally {
           set({ isLoading: false });
         }
-      }
+      },
       
-
+      forgetPassword: async (email) => {
+        set({isLoading: true});
+        try{
+            const response = await axiosInstance.post('/auth/forget-password',{email});
+            set({user: response.data.user});
+        }catch(error){
+            console.error('Error forget password')
+        }finally{
+            set({isLoading:false});
+        }
+      },
+      
+      resetPassword: async (password, token) => {
+        set({isLoading: true});
+        try{
+            const response = await axiosInstance.post(`/auth/reset-password/${token}`,{password});
+            set({user: response.data.user});
+        }catch(error){
+            console.error('Error forget password')
+        }finally{
+            set({isLoading:false});
+        }
+      }
 }))

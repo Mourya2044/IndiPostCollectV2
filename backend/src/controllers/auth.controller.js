@@ -1,15 +1,18 @@
 import User from "../models/user.model.js";
 import UserVerification from "../models/verification.model.js";
 import { v4 as uuidv4 } from 'uuid';
+import crypto from "crypto";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { sendVerificationEmail } from "../utils/sendEmail.js";
+import { sendResetPasswordEmail } from "../utils/sendResetEmail.js";
 import cloudinary from '../lib/cloudinary.js';
+import Token from "../models/token.model.js";
 
 // Generate JWT token
 const generateToken = (id, res) => {
   const token = jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "1d" });
-  console.log("token", token);
+  //console.log("token", token);
 
   res.cookie("jwt", token, {
     httpOnly: true,
@@ -222,3 +225,79 @@ export const updateProfilePic = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+export const resetPassword = async (req, res) => {
+  try{
+    const {email} = req.body;
+
+    const user = await User.findOne({email});
+    if(!user){
+      return res.status(404).json({message: "User not found with this mail"});
+    }
+
+    const resetToken = crypto.randomBytes(32).toString('hex');
+
+    const hashedToken = crypto.createHash("sha256").update(resetToken).digest("hex");
+
+    await Token.deleteMany({ userId: user._id });
+
+    const token = await Token.create({
+      userId: user._id,
+      token: hashedToken,
+      expiresAt: Date.now() + 15 * 60 * 1000, // 15 mins
+    });
+
+    const resetUrl = `/forget-password/${resetToken}`
+
+    const message = `
+      You requested a password reset. Click the link below to reset your password:
+      ${resetUrl}
+      This link expires in 15 minutes.
+      If you didn't request this, you can ignore this email.
+    `;
+
+    await sendResetPasswordEmail(user.email, resetToken);
+
+    res.status(200).json({ message: "Reset link sent to your email." });
+  } catch (err){
+    console.error("Error resetting password:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const handleResetPassword = async (req,res) => {
+  try{
+    const {password} = req.body;
+    const resetToken = req.params.token;
+
+    if (!resetToken) {
+      return res.status(400).json({ message: "Invalid or missing token" });
+    }
+    
+    const hashedToken = crypto.createHash("sha256").update(resetToken).digest("hex");
+
+    const tokenDoc = await Token.findOne({
+      token: hashedToken,
+      expiresAt: { $gt: Date.now() }
+    })
+
+    if (!tokenDoc) {
+      return res.status(400).json({ message: "Invalid or expired token" });
+    }
+
+    const user = await User.findById(tokenDoc.userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    user.password = password;
+    await user.save();
+    
+    await Token.deleteOne({ _id: tokenDoc._id });
+
+    return res.status(200).json({ message: "Password successfully reset" });
+  }catch(err){
+    console.error("Reset error:", err);
+    return res.status(500).json({message: "Server Error"})
+  }
+}
