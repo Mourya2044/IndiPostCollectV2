@@ -6,6 +6,7 @@ import connectDB from './lib/db.js';
 import authRouter from './routes/auth.routes.js';
 import stampRouter from './routes/stamp.routes.js';
 import postRouter from './routes/post.routes.js';
+import cartRouter from './routes/cart.routes.js';
 
 const PORT = process.env.PORT || 3000;
 dotenv.config();
@@ -27,6 +28,7 @@ app.use(cors({
 app.use("/api/auth", authRouter);
 app.use("/api/stamps", stampRouter);
 app.use("/api/posts", postRouter);
+app.use("/api/cart", cartRouter);
 
 app.set('trust proxy', true);
 
