@@ -74,7 +74,7 @@ export const removeFromCart = async (req, res) => {
             const items = user.cart.filter(item => item != existingItem);
             user.cart = items;
         } else {
-            existingItem.quantity -= q;
+            existingItem.quantity -= quantity;
         }
 
         await user.save();
@@ -110,14 +110,17 @@ export const getCart = async (req, res) => {
             return res.status(404).json({ message: "User not found" });
         }
 
+        let totalPrice = 0;
+
         const cartItems = await Promise.all(
             user.cart.map(async item => {
                 const stamp = await Stamp.findById(item.productId);
+                totalPrice += stamp.price * item.quantity;
                 return {stamp, quantity: item.quantity};
             })
         );
 
-        res.status(200).json({ cart: cartItems });
+        res.status(200).json({ cart: cartItems, totalPrice });
     } catch (error) {
         console.error("Error in getCart controller:", error.message);
         res.status(500).json({ message: "Internal server error" });
