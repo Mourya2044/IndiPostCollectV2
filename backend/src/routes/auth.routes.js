@@ -9,7 +9,8 @@ import {
   verifyEmail,
   updateProfilePic,
   resetPassword,
-  handleResetPassword
+  handleResetPassword,
+  updateAddress
 } from "../controllers/auth.controller.js";
 
 const authRouter = express.Router();
@@ -23,5 +24,6 @@ authRouter.post("/verify/:userId/:uniqueString",verifyEmail)
 authRouter.patch("/profile-pic", protect, updateProfilePic);
 authRouter.post("/forget-password", resetPassword);
 authRouter.post("/reset-password/:token", handleResetPassword);
+authRouter.patch("/update-address", protect, updateAddress);
 
 export default authRouter;

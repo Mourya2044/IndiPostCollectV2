@@ -4,7 +4,6 @@ import {
     EmbeddedCheckout
 } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
-import { useCallback } from 'react';
 
 const stripePromise = loadStripe("pk_test_51RiUy8R8Zud4gadtoca2rD9c9tOUDuGgTgjanmKCntQBUe05JK81utv7YmcJ6VgBphiTq1w8eYptawjBZw8rKJse00PzYBGnag");
 

@@ -144,7 +144,6 @@ export const checkAuth = async (req, res) => {
   }
 }
 
-
 export const verifyEmail = async (req, res) => {
   const { userId, uniqueString } = req.params;
 
@@ -299,5 +298,30 @@ export const handleResetPassword = async (req,res) => {
   }catch(err){
     console.error("Reset error:", err);
     return res.status(500).json({message: "Server Error"})
+  }
+}
+
+export const updateAddress = async (req, res) => {
+  try {
+    const { address } = req.body;
+
+    if (!address) {
+      return res.status(400).json({ message: "No address provided" });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user._id,
+      { address },
+      { new: true }
+    ).select("-password");
+
+    res.status(200).json({
+      message: "Address updated",
+      user: updatedUser,
+    });
+
+  } catch (err) {
+    console.error("Error updating address:", err);
+    res.status(500).json({ message: "Server error" });
   }
 }

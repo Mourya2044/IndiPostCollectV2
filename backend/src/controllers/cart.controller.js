@@ -1,4 +1,3 @@
-import User from "../models/user.model.js";
 import Stamp from "../models/stamp.model.js";
 
 export const addToCart = async (req, res) => {

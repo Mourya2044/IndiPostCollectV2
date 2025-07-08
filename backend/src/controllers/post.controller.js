@@ -100,6 +100,56 @@ export const getPostbyId = async (req, res) => {
   }
 };
 
+export const getPostsByUserId = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 5;
+    const rawposts = await Post.find({ userId })
+      .sort({ createdAt: -1 })
+      .populate('userId', 'fullName profilePic')
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    const commentCounts = await Comment.aggregate([
+      { $match: { postId: { $in: rawposts.map(post => post._id) } } },
+      { $group: { _id: "$postId", count: { $sum: 1 } } }
+    ]);
+
+    const countMap = {};
+    commentCounts.forEach(item => {
+      countMap[item._id.toString()] = item.count;
+    });
+
+    const posts = rawposts.map(post => ({
+      ...post.toObject(),
+      comments: countMap[post._id.toString()] || 0,
+    }));
+
+    // Get total posts count for pagination
+    const totalPosts = await Post.countDocuments();
+    const totalPages = Math.ceil(totalPosts / limit);
+
+    // If no posts found, respond with empty array inside object (not 404)
+    if (posts.length === 0) {
+      return res.status(200).json({
+        posts: [],
+        currentPage: page,
+        totalPages,
+      });
+    }
+
+    res.status(200).json({
+      posts,
+      currentPage: page,
+      totalPages,
+    });
+  } catch (error) {
+    console.error("Error in getPostsByUserId controller:", error.message);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}
+
 export const getCommentsOfPostbyId = async (req, res) => {
   try {
     const { id } = req.params;

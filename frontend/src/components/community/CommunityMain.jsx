@@ -63,7 +63,6 @@ const CommunityMain = () => {
         ) : (
           data.pages.map((page) =>
             page.posts.map((post) => (
-              console.log("Rendering post:", post),
               <CommunityPostCard key={post._id} post_={post} />
             ))
           )

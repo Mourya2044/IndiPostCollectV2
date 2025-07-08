@@ -8,6 +8,7 @@ import stampRouter from './routes/stamp.routes.js';
 import postRouter from './routes/post.routes.js';
 import cartRouter from './routes/cart.routes.js';
 import stripeRouter from './routes/stripe.routes.js';
+import orderRouter from './routes/order.routes.js';
 
 const PORT = process.env.PORT || 3000;
 dotenv.config();
@@ -31,6 +32,7 @@ app.use("/api/stamps", stampRouter);
 app.use("/api/posts", postRouter);
 app.use("/api/cart", cartRouter);
 app.use('/api/stripe', stripeRouter);
+app.use("/api/orders", orderRouter);
 
 app.set('trust proxy', true);
 
