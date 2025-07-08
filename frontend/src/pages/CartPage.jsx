@@ -59,11 +59,18 @@ const CartPage = () => {
 
   const handleCheckout = async () => {
     try {
+      for(const item of cartItems) {
+        if (item.quantity <= 0) {
+          toast.error("Invalid item quantity.");
+          return;
+        }
+      }
       const res = await axiosInstance.post("/stripe/create-checkout-session", {
-        cartItems: [
-        { name: "Test Stamp A", price: 150, quantity: 1 },
-        { name: "Test Stamp B", price: 200, quantity: 2 },
-      ],
+        cartItems: cartItems.map(item => ({
+          name: item.stamp.title,
+          price: item.stamp.price,
+          quantity: item.quantity
+        })),
       });
 
       if (res.data.url) {
