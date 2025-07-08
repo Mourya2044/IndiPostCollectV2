@@ -42,6 +42,11 @@ const CartPage = () => {
   };
 
   const handleRemoveFromCart = async (stampId, quantity = 0) => {
+    if (cartItems.length === 0) {
+      toast.error("Cart is empty. Add items before checkout.");
+      return;
+    }
+
     try {
       await axiosInstance.post("/cart/remove", { stampId, quantity });
       fetchCart();
@@ -52,27 +57,26 @@ const CartPage = () => {
     }
   };
 
-  const handleCheckout = async (token) => {
+  const handleCheckout = async () => {
     try {
       const res = await axiosInstance.post("/stripe/create-checkout-session", {
-        token,
-        cartItems: cartItems.map((item) => ({
-          name: item.stamp.title,
-          price: item.stamp.price,
-          quantity: item.quantity,
-        })),
+        cartItems: [
+        { name: "Test Stamp A", price: 150, quantity: 1 },
+        { name: "Test Stamp B", price: 200, quantity: 2 },
+      ],
       });
 
-      if (res.status === 200) {
-        window.location.href = "/payment-success";
+      if (res.data.url) {
+        window.location.href = res.data.url; // Redirect to Stripe Checkout
       } else {
-        window.location.href = "/payment-failed";
+        toast.error("Failed to get checkout URL.");
       }
     } catch (err) {
       console.error("Checkout failed:", err);
-      window.location.href = "/payment-failed";
+      toast.error("Checkout failed.");
     }
   };
+
 
   useEffect(() => {
     fetchCart();
@@ -154,20 +158,12 @@ const CartPage = () => {
         <h2 className="text-2xl font-bold mb-4">Cart Summary</h2>
         <p>Total Items: {cartItems.length}</p>
         {/* Add more summary details as needed */}
-        <StripeCheckout
-          stripeKey={import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY}
-          token={handleCheckout}
-          amount={totalPrice * 100}
-          name="IndiPost Cart Checkout"
-          billingAddress
-          shippingAddress
-          currency="INR"
+        <Button
+          className="bg-blue-500 text-white px-4 py-2 rounded mt-4"
+          onClick={handleCheckout}
         >
-          <button className="bg-blue-500 text-white px-4 py-2 rounded mt-4">
-            Pay with Stripe
-          </button>
-        </StripeCheckout>
-
+          Proceed to Payment
+        </Button>
         <p className="text-lg mt-4">Total Price: ₹{totalPrice.toFixed(2)}</p>
       </div>
     </div>
