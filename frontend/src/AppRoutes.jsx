@@ -17,6 +17,8 @@ import ForgetPassword from './pages/ForgetPassword'
 import CartPage from './pages/CartPage'
 import PaymentSuccess from './pages/Payment/PaymentSuccess'
 import PaymentFailed from './pages/Payment/PaymentFailed'
+import CheckoutPage from './pages/CheckoutPage'
+import ReturnPage from './pages/ReturnPage'
 
 
 const AppRoutes = () => {
@@ -46,6 +48,9 @@ const AppRoutes = () => {
       <Route path='/community/:postId' element={user ? <CommunityPostPage /> : <Navigate to="/login" />} />
 
       <Route path='/cart' element={<CartPage />} />
+
+      <Route path='/checkout' element={<CheckoutPage />} />
+      <Route path='/return' element={<ReturnPage />} />
 
       <Route path='/payment-success' element={<PaymentSuccess/>}/>
       <Route path='/payment-failed' element={<PaymentFailed/>}/>

@@ -12,6 +12,7 @@ import { useAuthStore } from "@/store/useAuthStore.js";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Tag, Minus, Plus } from "lucide-react";
+import { Link } from "react-router-dom";
 import StripeCheckout from "react-stripe-checkout";
 
 const CartPage = () => {
@@ -165,12 +166,14 @@ const CartPage = () => {
         <h2 className="text-2xl font-bold mb-4">Cart Summary</h2>
         <p>Total Items: {cartItems.length}</p>
         {/* Add more summary details as needed */}
-        <Button
-          className="bg-blue-500 text-white px-4 py-2 rounded mt-4"
-          onClick={handleCheckout}
-        >
-          Proceed to Payment
-        </Button>
+        <Link to="/checkout">
+          <Button
+            className="bg-blue-500 text-white px-4 py-2 rounded mt-4"
+            // onClick={handleCheckout}
+          >
+            Proceed to Payment
+          </Button>
+        </Link>
         <p className="text-lg mt-4">Total Price: ₹{totalPrice.toFixed(2)}</p>
       </div>
     </div>
