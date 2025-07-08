@@ -40,72 +40,71 @@ const ProfilePage = () => {
     }
   };
 
-
   return (
     <ProfileLayout>
-      <div>
-        {uploading ? (
-          <SmallSpinner message="Uploading image..."/>
-        ) : user?.profilePic && user.profilePic.trim() !== "" ? (
-          <div className="mt-4 flex justify-center">
-            <img
-              src={user.profilePic}
-              alt="Profile"
-              className="w-32 h-32 object-cover rounded-full shadow"
-            />
-          </div>
-        ) : (
-          <p className="text-center text-gray-500 mt-4">NONE</p>
-        )}
-      </div>
+      <div className="flex flex-col md:flex-row justify-between ">
+        <div className="w-full md:w-[48%] flex flex-col items-start pl-0 md:pl-0 ml-0">
+          {user && (
+            <div className="border rounded-4xl p-5">
+              <h2 className="text-3xl font-bold mb-6 text-IPCaccent">User Details</h2>
 
-      <div className="w-full max-w-md mx-auto">
-        <ProfilePhotoSelector
-          setImage={handleFileChange}
-        />
-      </div>
+              <div className="space-y-4 text-lg">
+                <div>
+                  <span className="font-semibold">Full Name:</span>{" "}
+                  <span className="font-normal">{user.fullName}</span>
+                </div>
 
-      {user && (
-        <div className="mt-10 px-4 md:px-16 text-[#3b3b3b]">
-          <h2 className="text-3xl font-bold text-[#3b3b3b] mb-6">
-            User Details
-          </h2>
+                <div>
+                  <span className="font-semibold">Email:</span>{" "}
+                  <span className="font-normal">{user.email}</span>
+                </div>
 
-          <div className="space-y-4 text-lg">
-            <div>
-              <span className="font-semibold">Full Name:</span>{" "}
-              <span className="font-normal">{user.fullName}</span>
-            </div>
+                <div>
+                  <span className="font-semibold">Verified:</span>{" "}
+                  <span className="font-normal">
+                    {user.verified ? "Yes" : "No"}
+                  </span>
+                </div>
 
-            <div>
-              <span className="font-semibold">Email:</span>{" "}
-              <span className="font-normal">{user.email}</span>
-            </div>
-
-            <div>
-              <span className="font-semibold">Verified:</span>{" "}
-              <span className="font-normal">
-                {user.verified ? "Yes" : "No"}
-              </span>
-            </div>
-
-            {user.address && (
-              <div className="pt-4">
-                <h4 className="text-xl font-semibold text-gray-700 mb-2">
-                  Address
-                </h4>
-                <p>
-                  {user.address.locality}, {user.address.city}
-                </p>
-                <p>
-                  {user.address.district}, {user.address.state} -{" "}
-                  {user.address.pin}
-                </p>
+                {user.address && (
+                  <div className="pt-4">
+                    <h4 className="text-xl font-semibold text-gray-700 mb-2">
+                      Address
+                    </h4>
+                    <p>
+                      {user.address.locality}, {user.address.city}
+                    </p>
+                    <p>
+                      {user.address.district}, {user.address.state} -{" "}
+                      {user.address.pin}
+                    </p>
+                  </div>
+                )}
               </div>
+            </div>
+          )}
+        </div>
+
+        <div className="w-full md:w-[40%] flex flex-col items-end">
+          <div className="flex flex-col items-center gap-0.5">
+            {/* Profile Picture */}
+            {uploading ? (
+              <SmallSpinner message="Uploading image..." />
+            ) : user?.profilePic?.trim() !== "" ? (
+              <img
+                src={user.profilePic}
+                alt="Profile"
+                className="w-32 h-32 object-cover rounded-full shadow"
+              />
+            ) : (
+              <p className="text-gray-500">No profile picture</p>
             )}
+
+            {/* Upload Button right below image */}
+            <ProfilePhotoSelector setImage={handleFileChange} />
           </div>
         </div>
-      )}
+      </div>
     </ProfileLayout>
   );
 };
