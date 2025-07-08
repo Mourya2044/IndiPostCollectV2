@@ -65,7 +65,7 @@ export const useAuthStore = create((set) => ({
         set({isLoading: true});
         try {
             const response = await axiosInstance.get('/auth/me');
-            set({ user: response.message });
+            set({ user: response.data });
         } catch (error) {
             console.error("Error fetching user info:", error);
         } finally {
