@@ -19,6 +19,7 @@ import PaymentSuccess from './pages/Payment/PaymentSuccess'
 import PaymentFailed from './pages/Payment/PaymentFailed'
 import CheckoutPage from './pages/CheckoutPage'
 import ReturnPage from './pages/ReturnPage'
+import EventsPage from './pages/EventsPage'
 
 
 const AppRoutes = () => {
@@ -41,7 +42,7 @@ const AppRoutes = () => {
       <Route path='/marketplace' element={<MarketplacePage />} />
       <Route path='/marketplace/:stampId' element={<StampDetailPage />} />
 
-      <Route path='/events' element={<div>events page</div>} />
+      <Route path='/events' element={<EventsPage/>} />
       <Route path='/profile' element={user ? <ProfilePage /> : <Navigate to="/login" />} />
 
       <Route path='/community' element={user ? <CommunityPage />: <Navigate to="/login" />} />
