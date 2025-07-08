@@ -12,9 +12,11 @@ const CheckoutPage = () => {
     const fetchClientSecret = async () => {
         try {
             const response = await axiosInstance.post("/stripe/create-checkout-session");
-            console.log("Response from create-checkout-session:", response.data.clientSecret);
+            console.log("Response from create-checkout-session:", response.data);
 
-            return response.data.clientSecret;
+            // console.log("Client Secret:", response.data.client_secret);
+
+            return response.data.client_secret;
         } catch (error) {
             console.error("Error fetching client secret:", error);
             throw new Error("Failed to fetch client secret");

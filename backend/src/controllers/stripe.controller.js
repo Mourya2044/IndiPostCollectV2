@@ -39,7 +39,11 @@ export const createCheckoutSession = async (req, res) => {
       line_items: cartItems.map(item => ({
         price_data: {
           currency: 'inr',
-          product_data: { name: item.stamp.title },
+          product_data: { 
+            name: item.stamp.title,
+            description: item.stamp.description,
+            images: item.stamp.imagesUrl,
+          },
           unit_amount: item.stamp.price * 100,
         },
         quantity: item.quantity,
@@ -48,7 +52,7 @@ export const createCheckoutSession = async (req, res) => {
       return_url: `${process.env.NODE_ENV === 'development' ? "http://localhost:5173" : "https://indi-post-collect-v2.vercel.app"}/return?session_id={CHECKOUT_SESSION_ID}`,
     });
 
-    res.status(200).send({ clientSecret: session.client_secret });
+    res.status(200).send(session);
   } catch (err) {
     console.error("Stripe session error:", err);
     res.status(500).json({ details: err.message });

@@ -1,20 +1,10 @@
 import { axiosInstance } from "@/lib/axios";
 import React, { useState, useEffect } from "react";
-import {loadStripe} from '@stripe/stripe-js';
-import {
-  EmbeddedCheckoutProvider,
-  EmbeddedCheckout
-} from '@stripe/react-stripe-js';
-import {
-  BrowserRouter as Router,
-  Route,
-  Routes,
-  Navigate
-} from "react-router-dom";
+import { Navigate } from "react-router-dom";
 
 const ReturnPage = () => {
   const [status, setStatus] = useState(null);
-  const [customerEmail, setCustomerEmail] = useState('');
+  // const [customerEmail, setCustomerEmail] = useState('');
 
   useEffect(() => {
     const queryString = window.location.search;
@@ -25,7 +15,7 @@ const ReturnPage = () => {
       const response = await axiosInstance.get(`/stripe/session-status?session_id=${sessionId}`);
       const data = response.data;
       setStatus(data.status);
-      setCustomerEmail(data.customer_email);
+      // setCustomerEmail(data.customer_email);
     };
 
     fetchData();
