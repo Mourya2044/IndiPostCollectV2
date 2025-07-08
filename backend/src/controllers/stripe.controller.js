@@ -13,7 +13,8 @@ export const createCheckoutSession = async (req, res) => {
       })
     );
 
-    
+    user.cart = [];
+    await user.save();    
 
     const session = await stripe.checkout.sessions.create({
       ui_mode: 'embedded',
