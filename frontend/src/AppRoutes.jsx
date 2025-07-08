@@ -47,8 +47,8 @@ const AppRoutes = () => {
 
       <Route path='/cart' element={<CartPage />} />
 
-      <Route path='/paymentsuccess' element={<PaymentSuccess/>}/>
-      <Route path='/paymentfailed' element={<PaymentFailed/>}/>
+      <Route path='/payment-success' element={<PaymentSuccess/>}/>
+      <Route path='/payment-failed' element={<PaymentFailed/>}/>
 
       <Route path='*' element={<div>404 Not Found</div>} />
     </Routes>

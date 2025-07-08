@@ -57,6 +57,7 @@
     "react-intersection-observer": "^9.16.0",
     "react-resizable-panels": "^3.0.3",
     "react-router-dom": "^7.6.2",
+    "react-stripe-checkout": "^2.6.3",
     "recharts": "^2.15.4",
     "sonner": "^2.0.5",
     "tailwind-merge": "^3.3.1",
