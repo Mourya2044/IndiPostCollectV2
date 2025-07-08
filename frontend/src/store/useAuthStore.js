@@ -30,6 +30,19 @@ export const useAuthStore = create((set) => ({
         try {
             const response = await axiosInstance.post('/auth/login', { email, password });
             set({ user: response.data });
+            if (response.status === 401) {
+                setError("Invalid email or password");
+                return {error: "Invalid email or password"};
+            }else if (response.status === 403) {
+                setError("Your account is not verified. Please check your email.");
+                return {error: "Your account is not verified. Please check your email."};
+            } else if (response.status === 500) {
+                setError("Internal server error. Please try again later.");
+                return {error: "Internal server error. Please try again later."};
+            } else if (response.status === 200) {
+                setError("");
+                return response.data;
+            }
         } catch (error) {
             console.error("Error logging in:", error);
         } finally {
@@ -116,7 +129,7 @@ export const useAuthStore = create((set) => ({
 
             const response = await axiosInstance.patch('/auth/update-address', { address });
             console.log("Address updated successfully:", response.data);
-            
+
             set({ user: response.data.user });
         } catch (error) {
             console.error("Error updating address:", error);

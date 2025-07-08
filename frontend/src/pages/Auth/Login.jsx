@@ -30,7 +30,7 @@ const Login = () => {
     };
   }, [hideNav, unhideNav, hideFooter, unhideFooter]);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
 
     if (!validateEmail(email)) {
@@ -47,14 +47,22 @@ const Login = () => {
     }
     setError("");
 
-    //LOGIN API call
-    login(email, password)
-      .then(() => {
-        navigate("/");
-      })
-      .catch((err) => {
-        setError(err.message);
-      });
+    const response = await login(email, password)
+    console.log("Login response:", response);
+
+    if (response.error) {
+      setError(response.error);
+      return;
+    } else {
+      navigate("/");
+    }
+
+    // .then(() => {
+    //   navigate("/");
+    // })
+    // .catch((err) => {
+    //   setError(err.message);
+    // });
   };
 
   return (
