@@ -46,7 +46,9 @@ const ProfilePage = () => {
         <div className="w-full md:w-[48%] flex flex-col items-start pl-0 md:pl-0 ml-0">
           {user && (
             <div className="border rounded-4xl p-5">
-              <h2 className="text-3xl font-bold mb-6 text-IPCaccent">User Details</h2>
+              <h2 className="text-3xl font-bold mb-6 text-IPCaccent">
+                User Details
+              </h2>
 
               <div className="space-y-4 text-lg">
                 <div>
@@ -88,14 +90,23 @@ const ProfilePage = () => {
         <div className="w-full md:w-[40%] flex flex-col items-end">
           <div className="flex flex-col items-center gap-0.5">
             {/* Profile Picture */}
-            {uploading ? (
-              <SmallSpinner message="Uploading image..." />
-            ) : user?.profilePic?.trim() !== "" ? (
-              <img
-                src={user.profilePic}
-                alt="Profile"
-                className="w-32 h-32 object-cover rounded-full shadow"
-              />
+            {user?.profilePic?.trim() !== "" ? (
+              <div className="relative w-48 h-48">
+                <img
+                  src={user.profilePic}
+                  alt="Profile"
+                  className="w-48 h-48 object-cover rounded-full shadow"
+                />
+                {uploading && (
+                  <div className="absolute inset-0 bg-black/30 rounded-full flex items-center justify-center">
+                    <SmallSpinner/>
+                  </div>
+                )}
+              </div>
+            ) : uploading ? (
+              <div className="w-48 h-48 rounded-full flex items-center justify-center bg-gray-200 shadow">
+                <SmallSpinner/>
+              </div>
             ) : (
               <p className="text-gray-500">No profile picture</p>
             )}
