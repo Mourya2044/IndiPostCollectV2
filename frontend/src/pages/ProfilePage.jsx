@@ -6,9 +6,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuthStore } from "@/store/useAuthStore";
 import { Camera } from "lucide-react";
-import ProfilePosts from '@/components/ProfilePosts';
-import ProfileOrders from '@/components/ProfileOrders';
+import ProfilePosts from '@/components/profile/ProfilePosts';
+import ProfileOrders from '@/components/profile/ProfileOrders';
 import { Link } from 'react-router-dom';
+import ProfileEvents from '@/components/profile/ProfileEvents';
 
 const ProfilePage = () => {
   const { user, updateProfilePic, isLoading, updateAddress } = useAuthStore();
@@ -187,6 +188,7 @@ const ProfilePage = () => {
                 </div>
               </CardContent>
             </Card>
+            <ProfileEvents />
             {/* Orders Section */}
             <ProfileOrders userId={user._id} />
           </div>

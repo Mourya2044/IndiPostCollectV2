@@ -1,10 +1,11 @@
-import { Card, CardHeader, CardTitle, CardContent } from "./ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
 import { Package } from "lucide-react";
 import { useState, useEffect } from "react";
-import { Badge } from "./ui/badge";
-import { Separator } from "./ui/separator";
+import { Badge } from "../ui/badge";
+import { Separator } from "../ui/separator";
 import { axiosInstance } from "@/lib/axios";
 import { Link } from "react-router-dom";
+import { ScrollArea } from "../ui/scroll-area";
 
 const ProfileOrders = ({ userId }) => {
   const [orders, setOrders] = useState([]);
@@ -100,7 +101,7 @@ const ProfileOrders = ({ userId }) => {
             <p className="text-muted-foreground">No orders found</p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <ScrollArea className="max-h-80 space-y-4 overflow-y-auto">
             {orders.map((order, index) => (
               <Link key={order._id} to={`/return?session_id=${order.orderId}`} >
                 <div className="cursor-pointer p-2 hover:bg-muted rounded-sm">
@@ -129,7 +130,7 @@ const ProfileOrders = ({ userId }) => {
                 </div>
               </Link>
             ))}
-          </div>
+          </ScrollArea>
         )}
       </CardContent>
     </Card>
