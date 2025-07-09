@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Badge } from "./ui/badge";
 import { Separator } from "./ui/separator";
 import { axiosInstance } from "@/lib/axios";
+import { Link } from "react-router-dom";
 
 const ProfileOrders = ({ userId }) => {
   const [orders, setOrders] = useState([]);
@@ -11,15 +12,15 @@ const ProfileOrders = ({ userId }) => {
 
   const fetchUserOrders = async (userId) => {
     if (!userId) {
-        return [];
+      return [];
     }
     try {
-        const response = await axiosInstance.get(`/orders/user/${userId}`);
-        
-        return response.data;
+      const response = await axiosInstance.get(`/orders/user/${userId}`);
+
+      return response.data;
     } catch (error) {
-        console.error('Error fetching user orders:', error);
-        return [];        
+      console.error('Error fetching user orders:', error);
+      return [];
     }
   };
 
@@ -32,7 +33,7 @@ const ProfileOrders = ({ userId }) => {
       } catch (error) {
         console.error('Error fetching orders:', error);
       } finally {
-        setLoading(false);        
+        setLoading(false);
       }
     };
 
@@ -101,30 +102,32 @@ const ProfileOrders = ({ userId }) => {
         ) : (
           <div className="space-y-4">
             {orders.map((order, index) => (
-              <div key={order._id}>
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <h3 className="font-medium">{getOrderSummary(order.items)}</h3>
-                    <p className="text-sm text-muted-foreground">Order #{order.orderId.slice(-8)}</p>
-                    <div className="mt-1">
-                      {order.items.map((item, itemIndex) => (
-                        <div key={item._id} className="text-xs text-muted-foreground">
-                          {item?.productId.title} × {item?.quantity}
-                          {itemIndex < order.items?.length - 1 && ", "}
-                        </div>
-                      ))}
+              <Link key={order._id} to={`/return?session_id=${order.orderId}`} >
+                <div className="cursor-pointer p-2 hover:bg-muted rounded-sm">
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <h3 className="font-medium">{getOrderSummary(order.items)}</h3>
+                      <p className="text-sm text-muted-foreground">Order #{order.orderId.slice(-8)}</p>
+                      <div className="mt-1">
+                        {order.items.map((item, itemIndex) => (
+                          <div key={item._id} className="text-xs text-muted-foreground">
+                            {item?.productId.title} × {item?.quantity}
+                            {itemIndex < order.items?.length - 1 && ", "}
+                          </div>
+                        ))}
+                      </div>
                     </div>
+                    <Badge variant={getStatusVariant(order.status)}>
+                      {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                    </Badge>
                   </div>
-                  <Badge variant={getStatusVariant(order.status)}>
-                    {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                  </Badge>
+                  <div className="flex justify-between items-center text-sm text-muted-foreground mt-2">
+                    <span>{formatDate(order.createdAt)}</span>
+                    <span className="font-medium text-foreground">₹{order.totalPrice}</span>
+                  </div>
+                  {index < orders.length - 1 && <Separator className="mt-4" />}
                 </div>
-                <div className="flex justify-between items-center text-sm text-muted-foreground mt-2">
-                  <span>{formatDate(order.createdAt)}</span>
-                  <span className="font-medium text-foreground">₹{order.totalPrice}</span>
-                </div>
-                {index < orders.length - 1 && <Separator className="mt-4" />}
-              </div>
+              </Link>
             ))}
           </div>
         )}

@@ -52,11 +52,53 @@ export const updateStamp = async (req, res) => {
         const updates = req.body;
         const userId = req.user._id;
 
-        const updatedStamp = await Stamp.findByIdAndUpdate(
-            id,
-            { $set: updates, },
-            { new: true, runValidators: true }
-        )
+        const stamp = await Stamp.findById(id);
+        if (!stamp) {
+            return res.status(404).json({ message: "Stamp not found" });
+        }
+
+        // Permission check
+        if (req.user.type !== 'admin' && stamp.owner.toString() !== userId.toString()) {
+            return res.status(403).json({ message: "You do not have permission to update this stamp" });
+        }
+
+        // Handle image update
+        if (updates.image && updates.image !== stamp.imageUrl) {
+            const imageURL = stamp.imageUrl;
+            if (imageURL?.includes("/stamps/")) {
+                const publicId = imageURL.split("/stamps/")[1]?.replace(/\.(jpg|jpeg|png|webp)$/, "");
+                await cloudinary.uploader.destroy("stamps/" + publicId);
+            }
+
+            const uploadResponse = await cloudinary.uploader.upload(updates.image, {
+                folder: "stamps",
+                allowed_formats: ["jpg", "png", "webp"],
+                transformation: [{ width: 500, height: 500, crop: "limit" }],
+            });
+
+            stamp.imageUrl = uploadResponse.secure_url;
+        }
+
+        // Update fields
+        const updatableFields = [
+            'title', 'country', 'year', 'description', 'isForSale',
+            'price', 'availableQuantity', 'isMuseumPiece'
+        ];
+
+        updatableFields.forEach(field => {
+            if (updates[field] !== undefined) {
+                stamp[field] = updates[field];
+            }
+        });
+
+        // Handle category separately
+        if (updates.category) {
+            stamp.category = Array.isArray(updates.category)
+                ? updates.category
+                : [updates.category];
+        }
+
+        const updatedStamp = await stamp.save();
 
         return res.status(200).json({
             message: "Stamp updated successfully",
@@ -66,7 +108,8 @@ export const updateStamp = async (req, res) => {
         console.error("Error in updateStamp controller:", error.message);
         res.status(500).json({ message: "Internal server error" });
     }
-}
+};
+
 
 export const deleteStamp = async (req, res) => {
     try {
@@ -77,7 +120,7 @@ export const deleteStamp = async (req, res) => {
         if (!stamp) {
             return res.status(404).json({ message: "Stamp not found" });
         }
-        if (stamp.owner.toString() !== userId.toString()) {
+        if (req.user.type !== 'admin' && stamp.owner.toString() !== userId.toString()) {
             return res.status(403).json({ message: "You do not have permission to delete this stamp" });
         }
         await Stamp.findByIdAndDelete(id);

@@ -7,6 +7,7 @@ const UserSchema = new mongoose.Schema({
   password: { type: String, required: true },
   verified: { type: Boolean, required: true },
   profilePic: { type: String, default: "" },
+  type: { type: String, enum: ["user", "admin"], default: "user" },
   address: {
     locality: { type: String },
     district: { type: String },

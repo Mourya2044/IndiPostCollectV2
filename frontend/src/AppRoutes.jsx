@@ -19,6 +19,7 @@ import PaymentSuccess from './pages/Payment/PaymentSuccess'
 import PaymentFailed from './pages/Payment/PaymentFailed'
 import CheckoutPage from './pages/CheckoutPage'
 import ReturnPage from './pages/ReturnPage'
+import AdminPage from './pages/AdminPage'
 
 
 const AppRoutes = () => {
@@ -54,6 +55,8 @@ const AppRoutes = () => {
 
       <Route path='/payment-success' element={<PaymentSuccess/>}/>
       <Route path='/payment-failed' element={<PaymentFailed/>}/>
+
+      <Route path='/admin' element={user && user.type === 'admin' ? <AdminPage /> : <Navigate to="/" />} />
 
       <Route path='*' element={<div>404 Not Found</div>} />
     </Routes>

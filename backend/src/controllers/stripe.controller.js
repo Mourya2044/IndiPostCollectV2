@@ -58,6 +58,16 @@ export const createCheckoutSession = async (req, res) => {
 export const sessionStatus = async (req, res) => {
   const session = await stripe.checkout.sessions.retrieve(req.query.session_id);
 
+  const order = await Order.findOne({ orderId: session.id });
+  if (!order) {
+    return res.status(404).json({ error: 'Order not found' });
+  }
+
+  if (order.status === 'pending' && session.status === 'complete') {
+    order.status = session.status;
+    await order.save();
+  }
+
   res.send({
     status: session.status,
     customer_email: session.customer_details.email,

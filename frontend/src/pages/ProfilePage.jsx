@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { User, Edit2, Save, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuthStore } from "@/store/useAuthStore";
 import { Camera } from "lucide-react";
 import ProfilePosts from '@/components/ProfilePosts';
 import ProfileOrders from '@/components/ProfileOrders';
+import { Link } from 'react-router-dom';
 
 const ProfilePage = () => {
   const { user, updateProfilePic, isLoading, updateAddress } = useAuthStore();
@@ -63,7 +64,14 @@ const ProfilePage = () => {
         <Card className="mb-6">
           <CardHeader>
             <CardTitle className="text-3xl">Dashboard</CardTitle>
-            <p className="text-muted-foreground">Welcome back, {user.fullName}!</p>
+            <CardDescription className="text-muted-foreground">Welcome back, {user.fullName}!</CardDescription>
+            {user.type === "admin" && (
+              <CardAction className="text-right">
+                <Link to="/admin" className="text-blue-500 hover:underline">
+                  <Button variant="outline">Go to Admin Page</Button>
+                </Link>
+              </CardAction>
+            )}
           </CardHeader>
         </Card>
 
