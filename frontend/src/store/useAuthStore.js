@@ -19,7 +19,7 @@ export const useAuthStore = create((set) => ({
             const response = await axiosInstance.get('/auth/checkauth');
             set({ user: response.data })
         } catch (error) {
-            console.error("No user found:", error);
+            console.log("No user found");
         } finally {
             set({ isCheckingAuth: false });
         }
@@ -27,27 +27,9 @@ export const useAuthStore = create((set) => ({
 
     login: async (email, password) => {
         set({ isLoading: true });
-        try {
-            const response = await axiosInstance.post('/auth/login', { email, password });
-            set({ user: response.data });
-            if (response.status === 401) {
-                setError("Invalid email or password");
-                return {error: "Invalid email or password"};
-            }else if (response.status === 403) {
-                setError("Your account is not verified. Please check your email.");
-                return {error: "Your account is not verified. Please check your email."};
-            } else if (response.status === 500) {
-                setError("Internal server error. Please try again later.");
-                return {error: "Internal server error. Please try again later."};
-            } else if (response.status === 200) {
-                setError("");
-                return response.data;
-            }
-        } catch (error) {
-            console.error("Error logging in:", error);
-        } finally {
-            set({ isLoading: false });
-        }
+        const response = await axiosInstance.post('/auth/login', { email, password });
+        set({ user: response.data });
+        return response;
     },
 
     signup: async (userData) => {

@@ -46,23 +46,20 @@ const Login = () => {
       return;
     }
     setError("");
-
-    const response = await login(email, password)
-    console.log("Login response:", response);
-
-    if (response.error) {
-      setError(response.error);
-      return;
-    } else {
+    try {
+      await login(email, password);
       navigate("/");
+    } catch (error) {
+      if (error.response.status === 401) {
+        setError("Invalid email or password");
+      } else if (error.response.status === 403) {
+        setError("Your account is not verified. Please check your email.");
+      } else if (error.response.status === 500) {
+        setError("Internal server error. Please try again later.");
+      } else {
+        setError("An unexpected error occurred. Please try again.");
+      }
     }
-
-    // .then(() => {
-    //   navigate("/");
-    // })
-    // .catch((err) => {
-    //   setError(err.message);
-    // });
   };
 
   return (
