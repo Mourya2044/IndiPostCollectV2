@@ -9,5 +9,5 @@ const EventSchema = new mongoose.Schema({
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
 },{timestamps: true});
 
-const Event = mongoose.model("ModelSchema",EventSchema);
+const Event = mongoose.model("Event",EventSchema);
 export default Event;
