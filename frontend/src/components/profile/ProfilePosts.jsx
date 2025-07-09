@@ -1,11 +1,12 @@
 import React, { useEffect } from 'react'
-import CommunityPostCard from './community/CommunityPostCard'
+import CommunityPostCard from '../community/CommunityPostCard'
 import { useFetchInfinitePostsofUser } from '@/queries/postsQuery.js';
 import { useInView } from 'react-intersection-observer';
 import { Loader2, MessageSquare } from 'lucide-react';
-import LoadingSpinner from './LoadingSpinner';
+import LoadingSpinner from '../LoadingSpinner';
 import { useAuthStore } from '@/store/useAuthStore';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { ScrollArea } from '../ui/scroll-area';
 
 const ProfilePosts = () => {
   const { user } = useAuthStore();
@@ -50,6 +51,7 @@ const ProfilePosts = () => {
       <CardContent>
 
         {/* Posts List */}
+        <ScrollArea className="max-h-400 overflow-y-auto">
         <div className="space-y-4">
           {isEmpty ? (
             <p className="text-center text-gray-500">No posts yet. Be the first to post!</p>
@@ -71,6 +73,7 @@ const ProfilePosts = () => {
             )}
           </div>
         )}
+        </ScrollArea>
       </CardContent>
     </Card>
   )
