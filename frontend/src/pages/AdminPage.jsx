@@ -73,7 +73,7 @@ const createEvent = async (formData) => {
     name: formData.title,
     description: formData.description,
     image: formData.imageUrl,
-    date: "2025-09-01T10:00:00Z", 
+    date: formData.Date, 
     registrationLink: formData.location || "" 
   };
 
