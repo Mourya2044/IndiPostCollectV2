@@ -20,7 +20,7 @@ const UserSchema = new mongoose.Schema({
       productId: { type: mongoose.Schema.Types.ObjectId, ref: "Stamp", required: true },
       quantity: { type: Number, required: true, min: 1 }
     }
-  ],
+  ]
 }, { timestamps: true });
 
 // Hash password before saving

@@ -4,7 +4,7 @@ import EventRegistration from "../models/eventRegistration.model.js";
 
 export const setupEvent = async (req,res) => {
 
-    const {name, description, image, date, registrationLink} = req.body
+    const {name, description, image, date} = req.body
     const createdBy = req.user._id;
     
     if(!name || !description || !image){
@@ -16,7 +16,6 @@ export const setupEvent = async (req,res) => {
             description,
             image,
             date,
-            registrationLink,
             createdBy
         })
        return res.status(201).json({ message: "Event created successfully", event });
@@ -36,15 +35,22 @@ export const registerEvent = async (req, res) => {
 
   try {
     // Prevent duplicate registration
-    const alreadyRegistered = await EventRegistration.findOne({ user: userId, event: eventId });
+    const alreadyRegistered = await EventRegistration.findOne({ userId: userId, event: eventId });
     if (alreadyRegistered) {
-      return res.status(400).json({ message: "User already registered for this event" });
+      return res.status(200).json({ message: "User already registered for this event" });
     }
 
     const registration = await EventRegistration.create({
       userId: userId,
       event: eventId,
     });
+    const regEvent = await Event.findById({event: eventId});
+    
+    if(regEvent.registeredUsers.includes(userId)){
+      return res.status(200).json({message: "User already registered"});
+    }
+    regEvent.registeredUsers.push(userId);
+    await regEvent.save();
 
     return res.status(201).json({ message: "Successfully registered", registration });
   } catch (err) {

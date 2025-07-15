@@ -10,7 +10,6 @@ const EventsPage = () => {
   const { user, checkAuth } = useAuthStore();
 
   useEffect(() => {
-    checkAuth();
 
     const fetchEvents = async () => {
       try {
@@ -21,19 +20,10 @@ const EventsPage = () => {
       }
     };
 
-    const fetchRegistrations = async () => {
-      try {
-        const res = await axiosInstance.get("/events/registrations");
-        const ids = res.data.registrations.map(r => r.event); // assuming backend returns array of registration objects
-        setRegisteredEventIds(ids);
-      } catch (err) {
-        console.error("Error fetching registrations:", err);
-      }
-    };
-
+    
     fetchEvents();
-    if (user) fetchRegistrations();
-  }, [checkAuth, user]);
+    
+  },[]);
 
   const handleRegister = async (eventId) => {
     try {
