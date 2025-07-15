@@ -37,6 +37,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import StampsManagement from '@/components/admin/StampsManagement';
+import { axiosInstance } from '@/lib/axios';
 
 
 
@@ -67,9 +68,17 @@ const fetchEvents = async () => {
   ];
 };
 
-const createEvent = async (eventData) => {
-  console.log('Creating event:', eventData);
-  return { _id: Date.now().toString(), ...eventData };
+const createEvent = async (formData) => {
+  const payload = {
+    name: formData.title,
+    description: formData.description,
+    image: formData.imageUrl,
+    date: formData.Date, 
+    registrationLink: formData.location || "" 
+  };
+
+  const res = await axiosInstance.post("/events/setup", payload);
+  return res.data.event;
 };
 
 const updateEvent = async (id, eventData) => {
