@@ -77,7 +77,7 @@ const CommunityPostPage = () => {
 
   useEffect(() => {
     fetchPost();
-  });
+  },[postId]);
 
   const handleLike = async () => {
     try {
