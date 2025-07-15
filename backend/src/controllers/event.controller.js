@@ -27,32 +27,27 @@ export const setupEvent = async (req,res) => {
 
 export const registerEvent = async (req, res) => {
   const { eventId } = req.body;
-  const userId = req.user?._id; // assuming you're using JWT auth middleware
+  const userId = req.user?._id;
 
   if (!eventId || !userId) {
     return res.status(400).json({ message: "Event ID and user must be provided" });
   }
 
   try {
-    // Prevent duplicate registration
-    const alreadyRegistered = await EventRegistration.findOne({ userId: userId, event: eventId });
-    if (alreadyRegistered) {
-      return res.status(200).json({ message: "User already registered for this event" });
+    const event = await Event.findById(eventId);
+
+    if (!event) {
+      return res.status(404).json({ message: "Event not found" });
     }
 
-    const registration = await EventRegistration.create({
-      userId: userId,
-      event: eventId,
-    });
-    const regEvent = await Event.findById({event: eventId});
-    
-    if(regEvent.registeredUsers.includes(userId)){
-      return res.status(200).json({message: "User already registered"});
+    if (event.registeredUsers.includes(userId)) {
+      return res.status(400).json({ message: "User already registered for this event" });
     }
-    regEvent.registeredUsers.push(userId);
-    await regEvent.save();
 
-    return res.status(201).json({ message: "Successfully registered", registration });
+    event.registeredUsers.push(userId);
+    await event.save();
+
+    return res.status(201).json({ message: "Successfully registered", event });
   } catch (err) {
     return res.status(500).json({ message: "Error registering for event", error: err.message });
   }

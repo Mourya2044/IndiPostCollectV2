@@ -6,10 +6,10 @@ import { axiosInstance } from '@/lib/axios';
 
 const EventsPage = () => {
   const [events, setEvents] = useState([]);
-  const [registeredEventIds, setRegisteredEventIds] = useState([]);
   const { user, checkAuth } = useAuthStore();
 
   useEffect(() => {
+    checkAuth();
 
     const fetchEvents = async () => {
       try {
@@ -20,16 +20,21 @@ const EventsPage = () => {
       }
     };
 
-    
     fetchEvents();
-    
-  },[]);
+  }, [checkAuth]);
 
   const handleRegister = async (eventId) => {
     try {
-      await axiosInstance.post('/events/register', { eventId });
+      const res = await axiosInstance.post('/events/register', { eventId });
       alert('Registered successfully!');
-      setRegisteredEventIds(prev => [...prev, eventId]); // update UI instantly
+
+      const updatedEvent = res.data.event;
+
+      setEvents(prev =>
+        prev.map(event =>
+          event._id === updatedEvent._id ? updatedEvent : event
+        )
+      );
     } catch (err) {
       console.error("Registration error:", err.response?.data || err.message);
       alert(err.response?.data?.message || 'Registration failed');
@@ -45,7 +50,7 @@ const EventsPage = () => {
       )}
 
       {events.map((event) => {
-        const isRegistered = registeredEventIds.includes(event._id);
+        const isRegistered = event.registeredUsers?.includes(user?._id);
         return (
           <Card key={event._id} className="flex flex-col md:flex-row overflow-hidden shadow-md">
             <div className="md:w-2/5 w-full h-48 md:h-auto">
