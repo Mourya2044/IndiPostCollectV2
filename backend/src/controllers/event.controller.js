@@ -60,3 +60,17 @@ export const getAllEvents = async (req, res) => {
     return res.status(500).json({ message: 'Failed to fetch events', error: err.message });
   }
 };
+
+export const deleteEvent = async (req,res) => {
+    const {eventId} = req.params;
+  try{
+    const event = await Event.findById(eventId);
+    if(!event){
+      return res.status(404).json({ message: "Event Not found"});
+    }
+    await Event.deleteOne({_id: eventId});
+    return res.status(200).json({ message: "Event deleted successfully" });
+  } catch(err){
+    return res.status(500).json({ message: 'Failed to delete events', error: err.message });
+  }
+};
