@@ -342,7 +342,7 @@ const StampsManagement = ({setStats}) => {
             Manage your inventory and product catalog
             {data?.totalItems > 0 && (
               <span className="ml-2">({data.totalItems} total items)</span>
-            )}
+            )} 
           </p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
