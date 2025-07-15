@@ -42,13 +42,13 @@ export const registerEvent = async (req, res) => {
     }
 
     const registration = await EventRegistration.create({
-      user: userId,
+      userId: userId,
       event: eventId,
     });
 
     return res.status(201).json({ message: "Successfully registered", registration });
   } catch (err) {
-    return res.status(500).json({ message: "Error registering for event", err: error.message });
+    return res.status(500).json({ message: "Error registering for event", error: err.message });
   }
 };
 
