@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { axiosInstance } from "@/lib/axios";
+import { useAuthStore } from "@/store/useAuthStore";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
@@ -7,6 +8,7 @@ const VerificationPage = () => {
     const { userId, uniqueString } = useParams();
     const [loading, setLoading] = useState(true);
     const [verified, setVerified] = useState(false);
+    const { checkAuth } = useAuthStore();
 
     const verifyEmail = async () => {
         setLoading(true);
@@ -65,7 +67,7 @@ const VerificationPage = () => {
                     <p className="text-IPCprimary text-sm mt-2 animate-fade-in opacity-70">You can now continue using your account</p>
                     <Link to="/">
                         <Button 
-                            onClick={verifyEmail}
+                            onClick={checkAuth}
                             className="mt-4 px-6 py-2 bg-IPCprimary text-white rounded-lg hover:opacity-90 transition-all duration-200 animate-fade-in"
                         >
                             Go Home

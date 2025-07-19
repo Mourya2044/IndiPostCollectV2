@@ -98,8 +98,8 @@ export const signUpUser = async (req, res) => {
 
     res.status(201).json({
       message: "Verification email sent. Please verify your email.",
-      userId: user._id,
-      uniqueString, // ⚠️ Only for testing - REMOVE later
+      // userId: user._id,
+      // uniqueString, // ⚠️ Only for testing - REMOVE later
     });
 
     /*generateToken(user._id, res);
@@ -243,7 +243,7 @@ export const resetPassword = async (req, res) => {
     const token = await Token.create({
       userId: user._id,
       token: hashedToken,
-      expiresAt: Date.now() + 15 * 60 * 1000, // 15 mins
+      expiresAt: new Date(Date.now() + 15 * 60 * 1000) // 15 mins
     });
 
     const resetUrl = `/forget-password/${resetToken}`

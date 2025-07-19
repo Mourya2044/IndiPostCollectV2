@@ -12,8 +12,8 @@ import MuseumPage from './pages/MuseumPage';
 import MuseumStampPage from './pages/MuseumStampPage';
 import CommunityPage from './pages/CommunityPage'
 import CommunityPostPage from './pages/CommunityPostPage'
-import VerificationPage from './pages/VerificationPage'
-import ForgetPassword from './pages/ForgetPassword'
+import VerificationPage from './pages/Auth/VerificationPage'
+import ForgetPassword from './pages/Auth/ForgetPassword'
 import CartPage from './pages/CartPage'
 import PaymentSuccess from './pages/Payment/PaymentSuccess'
 import PaymentFailed from './pages/Payment/PaymentFailed'

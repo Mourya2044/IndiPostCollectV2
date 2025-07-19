@@ -9,12 +9,12 @@ const SignUp = () => {
   const { signup, hideNav, unhideNav } = useAuthStore();
 
   useEffect(() => {
-      hideNav();
-    
-      return () => {
-        unhideNav()
-      }
-    }, [hideNav, unhideNav]);
+    hideNav();
+
+    return () => {
+      unhideNav()
+    }
+  }, [hideNav, unhideNav]);
 
   const [step, setStep] = useState(1);
   const [fullName, setFullName] = useState('');
@@ -63,8 +63,9 @@ const SignUp = () => {
     }
 
     try {
-      await signup(userData); 
-      navigate("/");
+      await signup(userData);
+      // navigate("/");
+      setStep(3);
     } catch (err) {
       setError("Signup failed");
       console.error("Signup error:", err);
@@ -76,7 +77,7 @@ const SignUp = () => {
       <div className="lg:w-[70%] h-3/4 md:h-full flex flex-col justify-center">
         <h3 className="text-xl font-semibold text-IPCaccent">Create  Account</h3>
         <p className="text-xs text-slate-700 mt-[5px] mb-6">
-          {step === 1 ? "Enter your details to create an account" : "Enter your address"}
+          {step === 1 ? "Enter your details to create an account" : step === 2 ? "Enter your address details" : ""}
         </p>
 
         <form onSubmit={step === 1 ? handleNext : handleSignup}>
@@ -112,13 +113,13 @@ const SignUp = () => {
             {step === 2 && (
               <>
                 <div className='col-span-2'>
-                <Input
-                  value={locality}
-                  onChange={({ target }) => setLocality(target.value)}
-                  label="Locality"
-                  placeholder=""
-                  type="text"
-                />
+                  <Input
+                    value={locality}
+                    onChange={({ target }) => setLocality(target.value)}
+                    label="Locality"
+                    placeholder=""
+                    type="text"
+                  />
                 </div>
                 <Input
                   value={district}
@@ -151,13 +152,20 @@ const SignUp = () => {
               </>
             )}
 
+            {step === 3 && (
+              <p className="col-span-2 text-green-500">Account has been created successfully! Please check your email to verify your account.</p>
+            )}
+
           </div>
 
           {error && <p className="text-red-500 text-xs pb-2.5 pt-1">{error}</p>}
 
-          <button type="submit" className="btn-primary mt-2">
-            {step === 1 ? "Next" : "Sign Up"}
-          </button>
+          {step < 3 && (
+            <button type="submit" className="btn-primary mt-2">
+              {step === 1 ? "Next" : "Sign Up"}
+            </button>
+          )}
+
 
           <p className="text-[13px] mt-3 text-slate-800">
             Already have an account?{" "}

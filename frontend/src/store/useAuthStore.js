@@ -36,7 +36,9 @@ export const useAuthStore = create((set) => ({
         set({ isLoading: true });
         try {
             const response = await axiosInstance.post('/auth/signup', userData);
-            set({ user: response.data });
+            console.log("User signed up successfully:", response.data);
+            
+            // set({ user: response.data });
         } catch (error) {
             console.error("Error signing up:", error);
         } finally {
@@ -98,7 +100,7 @@ export const useAuthStore = create((set) => ({
             const response = await axiosInstance.post(`/auth/reset-password/${token}`, { password });
             set({ user: response.data.user });
         } catch (error) {
-            console.error('Error forget password')
+            throw error;
         } finally {
             set({ isLoading: false });
         }
