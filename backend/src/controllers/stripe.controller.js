@@ -31,7 +31,7 @@ export const createCheckoutSession = async (req, res) => {
         quantity: item.quantity,
       })),
       mode: 'payment',
-      return_url: `${process.env.NODE_ENV === 'development' ? "http://localhost:5173" : "https://indi-post-collect-v2.vercel.app"}/return?session_id={CHECKOUT_SESSION_ID}`,
+      return_url: `${process.env.FRONTEND_URL}/return?session_id={CHECKOUT_SESSION_ID}`,
     });
 
     const newOrder = new Order({

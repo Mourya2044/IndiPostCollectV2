@@ -13,9 +13,7 @@ export const sendResetPasswordEmail = async (email, resetToken) => {
   });
 
   const resetLink = `${
-    process.env.NODE_ENV === "development"
-      ? "http://localhost:5173"
-      : "https://indi-post-collect-v2.vercel.app"
+    process.env.FRONTEND_URL
   }/forget-password/${resetToken}`;
 
   const mailOptions = {

@@ -17,7 +17,7 @@ export const sendVerificationEmail = async (email, uniqueString, userId) => {
         subject:"Verify your email",
         html:`
             <p>Click the link below to verify your email:</p>
-            <a href="${process.env.NODE_ENV === 'development' ? "http://localhost:5173" : "https://indi-post-collect-v2.vercel.app"}/verify/${userId}/${uniqueString}">
+            <a href="${process.env.FRONTEND_URL}/verify/${userId}/${uniqueString}">
             Verify Email
             </a>
         `
