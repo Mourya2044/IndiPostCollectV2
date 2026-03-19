@@ -24,6 +24,8 @@ const CheckoutPage = () => {
 
     const options = { fetchClientSecret };
 
+    if (!stripePromise) return <div>Loading Stripe...</div>;
+    
     return (
         <div id="checkout" className='bg-white'>
             <EmbeddedCheckoutProvider
