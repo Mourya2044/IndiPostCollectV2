@@ -3,6 +3,8 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import connectDB from './lib/db.js';
+import pinoHttp from 'pino-http';
+
 import authRouter from './routes/auth.routes.js';
 import stampRouter from './routes/stamp.routes.js';
 import postRouter from './routes/post.routes.js';
@@ -10,6 +12,7 @@ import cartRouter from './routes/cart.routes.js';
 import stripeRouter from './routes/stripe.routes.js';
 import orderRouter from './routes/order.routes.js';
 import eventRouter from './routes/event.routes.js';
+import aiRouter from "./routes/ai.routes.js"
 
 const PORT = process.env.PORT || 3000;
 dotenv.config();
@@ -25,6 +28,21 @@ app.use(cors({
     credentials: true,
 }));
 
+const isDevelopment = process.env.NODE_ENV !== 'production';
+app.use(pinoHttp({
+    transport: isDevelopment
+        ? {
+            target: 'pino-pretty',
+            options: {
+                colorize: true,
+                translateTime: 'SYS:HH:MM:ss',
+                ignore: 'pid,hostname,req,res,responseTime',
+                messageFormat: '{req.method} {req.url} | Status: {res.statusCode} | Time: {responseTime}ms'
+            }
+        }
+        : undefined
+}));
+
 //Routes
 app.use("/api/auth", authRouter);
 app.use("/api/stamps", stampRouter);
@@ -32,7 +50,8 @@ app.use("/api/posts", postRouter);
 app.use("/api/cart", cartRouter);
 app.use('/api/stripe', stripeRouter);
 app.use("/api/orders", orderRouter);
-app.use("/api/events",eventRouter);
+app.use("/api/events", eventRouter);
+app.use("/api/ai", aiRouter);
 
 app.set('trust proxy', true);
 

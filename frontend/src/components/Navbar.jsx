@@ -28,6 +28,7 @@ const Navbar = () => {
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center gap-8">
             <Link to="/learn" className="nav-menu">Learn</Link>
+            <Link to="/ai-assistant" className="nav-menu">AI Assistant</Link>
             <Link to="/community" className="nav-menu">Community</Link>
             <Link to="/museum" className="nav-menu">Museum</Link>
             <Link to="/marketplace" className="nav-menu">Marketplace</Link>
@@ -83,6 +84,7 @@ const Navbar = () => {
               <div className="p-4 flex items-start gap-4 flex-col">
                 <SheetClose asChild><Link to="/" className="nav-menu border-b-2 border-IPCtext w-full">Home</Link></SheetClose>
                 <SheetClose asChild><Link to="/learn" className="nav-menu border-b-2 border-IPCtext w-full">Learn</Link></SheetClose>
+                <SheetClose asChild><Link to="/ai-assistant" className="nav-menu border-b-2 border-IPCtext w-full">AI Assistant</Link></SheetClose>
                 <SheetClose asChild><Link to="/community" className="nav-menu border-b-2 border-IPCtext w-full">Community</Link></SheetClose>
                 <SheetClose asChild><Link to="/museum" className="nav-menu border-b-2 border-IPCtext w-full">Museum</Link></SheetClose>
                 <SheetClose asChild><Link to="/marketplace" className="nav-menu border-b-2 border-IPCtext w-full">Marketplace</Link></SheetClose>

@@ -21,6 +21,7 @@ import CheckoutPage from './pages/CheckoutPage'
 import ReturnPage from './pages/ReturnPage'
 import AdminPage from './pages/AdminPage'
 import EventsPage from './pages/EventsPage'
+import AIAssistantPage from './pages/AIAssistantPage'
 
 
 const AppRoutes = () => {
@@ -36,6 +37,7 @@ const AppRoutes = () => {
       <Route path='/verify/:userId/:uniqueString' element={<VerificationPage />} />
 
       <Route path='/learn' element={<Learn />} />
+      <Route path='/ai-assistant' element={user ? <AIAssistantPage /> : <Navigate to="/login" />} />
 
       <Route path='/museum' element={<MuseumPage />} />
       <Route path='/museum/:stampId' element={<MuseumStampPage />} />
