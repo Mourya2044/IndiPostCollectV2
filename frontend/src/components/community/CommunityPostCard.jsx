@@ -20,7 +20,7 @@ import { toast } from 'sonner'
 const formatTimeAgo = (isoDate) => {
   const now = new Date();
   const posted = new Date(isoDate);
-  const diffInSeconds = Math.floor((now - posted) / 1000);
+  const diffInSeconds = Math.floor((posted - now) / 1000);
 
   const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
 
@@ -48,7 +48,7 @@ const CommunityPostCard = ({ post_ }) => {
 
   // console.log("Post Card Rendered", post);
   // console.log("User Details", user);
-  
+
 
   const [post, setPost] = useState(post_);
 
