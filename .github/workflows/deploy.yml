@@ -58,3 +58,8 @@ jobs:
             npm ci --omit=dev
             # Restart backend using PM2, or start it if it's not running
             pm2 restart indipostcollect-backend || pm2 start src/index.js --name indipostcollect-backend
+
+            # --- Update & Reload Nginx ---
+            sudo cp ~/IndiPostCollectV2/nginx.conf /etc/nginx/sites-available/indipostcollect
+            sudo ln -sf /etc/nginx/sites-available/indipostcollect /etc/nginx/sites-enabled/
+            sudo systemctl reload nginx
