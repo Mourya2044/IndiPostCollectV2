@@ -271,8 +271,8 @@ const AIAssistantPage = () => {
     setMessages(prev => [...prev, { sender: 'ai', text: '' }]);
 
     try {
-      const serverUrl = import.meta.env.VITE_SERVER_URL || 'http://localhost:3000';
-      const response = await fetch(`${serverUrl}/api/ai/chat`, {
+      const serverUrl = import.meta.env.VITE_SERVER_URL || 'http://localhost:3000/api';
+      const response = await fetch(`${serverUrl}/ai/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: promptToSend, sessionId: sessionId }),
