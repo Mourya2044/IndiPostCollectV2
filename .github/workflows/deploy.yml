@@ -35,7 +35,7 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           source: "frontend/dist/"
-          target: "/home/ubuntu/indipostpollectv2/frontend/dist"
+          target: "/home/ubuntu/indipostcollectv2/frontend/dist"
           strip_components: 2
 
       # --- Deploy Backend & Restart Process on EC2 ---
