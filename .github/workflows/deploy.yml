@@ -46,20 +46,20 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # Navigate to the repository directory
-            cd ~/indiPostCollectV2
-            
-            # Pull latest changes from git
+            # 1. Navigate to the base directory and pull fresh code
+            cd /home/ubuntu/indipostcollectv2
             git pull origin main
             
-            # --- Deploy Backend ---
-            cd backend
-            # Install production dependencies
-            npm ci --omit=dev
-            # Restart backend using PM2, or start it if it's not running
-            pm2 restart indipostcollect-backend || pm2 start src/index.js --name indipostcollect-backend
+            # 2. Navigate explicitly using the full path to avoid folder skipping bugs
+            cd /home/ubuntu/indipostcollectv2/backend
+            
+            # 3. Clean production module install
+            npm install --omit=dev
+            
+            # 4. Restart backend utilizing the absolute file path
+            pm2 restart indipostcollect-backend || pm2 start /home/ubuntu/indipostcollectv2/backend/src/index.js --name indipostcollect-backend
 
-            # --- Update & Reload Nginx ---
-            sudo cp ~/indipostcollectv2/nginx.conf /etc/nginx/sites-available/indipostcollect
+            # 5. Reload routing infrastructure
+            sudo cp /home/ubuntu/indipostcollectv2/nginx.conf /etc/nginx/sites-available/indipostcollect
             sudo ln -sf /etc/nginx/sites-available/indipostcollect /etc/nginx/sites-enabled/
             sudo nginx -t && sudo systemctl reload nginx
