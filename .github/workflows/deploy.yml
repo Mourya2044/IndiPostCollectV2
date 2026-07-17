@@ -34,7 +34,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "frontend/dist/*"
+          source: "frontend/dist/"
           target: "/home/ubuntu/IndiPostCollectV2/frontend/dist"
           strip_components: 2
 

@@ -465,7 +465,7 @@ const AIAssistantPage = () => {
                 <ChevronRight size={14} className={`transition-transform ${isInfoOpen ? 'rotate-90' : ''}`} />
               </button>
               {isInfoOpen && (
-                <div className="p-2.5 bg-white border-t border-IPCaccent/15 max-h-[140px] overflow-y-auto leading-relaxed text-gray-700">
+                <div className="p-2.5 bg-white border-t border-IPCaccent/15 max-h-35 overflow-y-auto leading-relaxed text-gray-700">
                   {formatText(data.description)}
                 </div>
               )}
