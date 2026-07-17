@@ -28,6 +28,26 @@ jobs:
           npm ci
           npm run build
 
+      # --- Dynamic Security Group Whitelisting ---
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-south-1
+
+      - name: Get Runner IP
+        id: ip
+        run: echo "ipv4=$(curl -s https://api.ipify.org)" >> $GITHUB_OUTPUT
+
+      - name: Whitelist Runner IP in Security Group
+        run: |
+          aws ec2 authorize-security-group-ingress \
+            --group-id sg-0d189d7d40e41877f \
+            --protocol tcp \
+            --port 22 \
+            --cidr ${{ steps.ip.outputs.ipv4 }}/32
+
       - name: Copy Frontend Build to EC2
         uses: appleboy/scp-action@v1
         with:
@@ -63,3 +83,12 @@ jobs:
             sudo cp /home/ubuntu/indipostcollectv2/nginx.conf /etc/nginx/sites-available/indipostcollect
             sudo ln -sf /etc/nginx/sites-available/indipostcollect /etc/nginx/sites-enabled/
             sudo -n nginx -t && sudo -n systemctl restart nginx
+
+      - name: Revoke Runner IP from Security Group
+        if: always()
+        run: |
+          aws ec2 revoke-security-group-ingress \
+            --group-id sg-0d189d7d40e41877f \
+            --protocol tcp \
+            --port 22 \
+            --cidr ${{ steps.ip.outputs.ipv4 }}/32
