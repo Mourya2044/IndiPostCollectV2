@@ -62,4 +62,4 @@ jobs:
             # 5. Reload routing infrastructure
             sudo cp /home/ubuntu/indipostcollectv2/nginx.conf /etc/nginx/sites-available/indipostcollect
             sudo ln -sf /etc/nginx/sites-available/indipostcollect /etc/nginx/sites-enabled/
-            sudo nginx -t && sudo systemctl reload nginx
+            sudo -n nginx -t && sudo -n systemctl restart nginx
