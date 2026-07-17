@@ -35,7 +35,7 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           source: "frontend/dist/"
-          target: "/home/ubuntu/IndiPostCollectV2/frontend/dist"
+          target: "/home/ubuntu/indiPostCollectV2/frontend/dist"
           strip_components: 2
 
       # --- Deploy Backend & Restart Process on EC2 ---
@@ -47,7 +47,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             # Navigate to the repository directory
-            cd ~/IndiPostCollectV2
+            cd ~/indiPostCollectV2
             
             # Pull latest changes from git
             git pull origin main
@@ -60,6 +60,6 @@ jobs:
             pm2 restart indipostcollect-backend || pm2 start src/index.js --name indipostcollect-backend
 
             # --- Update & Reload Nginx ---
-            sudo cp ~/IndiPostCollectV2/nginx.conf /etc/nginx/sites-available/indipostcollect
+            sudo cp ~/indiPostCollectV2/nginx.conf /etc/nginx/sites-available/indipostcollect
             sudo ln -sf /etc/nginx/sites-available/indipostcollect /etc/nginx/sites-enabled/
             sudo systemctl reload nginx
