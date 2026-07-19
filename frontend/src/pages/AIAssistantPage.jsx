@@ -1,17 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { axiosInstance } from '../lib/axios';
-import { 
-  Camera, 
-  Upload, 
-  Send, 
-  Sparkles, 
-  Plus, 
-  ChevronRight, 
-  Globe, 
-  Calendar, 
-  Tag, 
-  Award, 
-  Bot, 
+import {
+  Camera,
+  Upload,
+  Send,
+  Sparkles,
+  Plus,
+  ChevronRight,
+  Globe,
+  Calendar,
+  Tag,
+  Award,
+  Bot,
   Info,
   Loader2,
   Trash2,
@@ -34,12 +34,13 @@ import {
   SidebarTrigger,
   SidebarInset,
 } from "@/components/ui/sidebar";
+import { useAuthStore } from '@/store/useAuthStore';
 
 const AIAssistantPage = () => {
+  const { user } = useAuthStore();
   // Sidebar and Session states
   const [sessions, setSessions] = useState([]);
   const [sessionId, setSessionId] = useState('');
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isLoadingSessions, setIsLoadingSessions] = useState(false);
   const [editingSessionId, setEditingSessionId] = useState(null);
   const [editingTitleText, setEditingTitleText] = useState('');
@@ -123,7 +124,7 @@ const AIAssistantPage = () => {
       const formatted = (response.data || []).map(msg => {
         const sender = msg.type === 'human' ? 'user' : 'ai';
         const content = msg.data?.content || '';
-        
+
         // Check if content looks like a stamp analysis result (JSON)
         if (content.startsWith('STAMP_ANALYSIS_DATA:')) {
           try {
@@ -217,8 +218,13 @@ const AIAssistantPage = () => {
   };
 
   const handleSendChat = async (textToSend) => {
+    if (!user.verified) {
+      toast.error('Please verify your email to use AI Assistant.');
+      return;
+    }
+
     const text = textToSend || inputText;
-    
+
     // Guard: Require either text or file
     if (!text.trim() && !selectedFile) return;
 
@@ -244,7 +250,7 @@ const AIAssistantPage = () => {
 
         if (scanResponse.data && scanResponse.data.data) {
           const stampInfo = scanResponse.data.data;
-          
+
           // Save the scan result to database history implicitly by writing a structured log message
           const stampLog = `STAMP_ANALYSIS_DATA:${JSON.stringify(stampInfo)}`;
           await axiosInstance.post('/ai/chat', { message: stampLog, sessionId }, { headers: { 'Content-Type': 'application/json' } });
@@ -297,7 +303,7 @@ const AIAssistantPage = () => {
         try {
           const errData = await response.json();
           errMsg = errData.error || errData.message || errMsg;
-        } catch (_) {}
+        } catch (_) { }
         throw new Error(errMsg);
       }
 
@@ -338,7 +344,7 @@ const AIAssistantPage = () => {
           }
         }
       }
-      
+
       // Refresh session list to update titles or last updated times
       fetchSessions();
     } catch (error) {
@@ -418,7 +424,7 @@ const AIAssistantPage = () => {
       if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
         return <li key={i} className="ml-5 list-disc my-1 text-gray-700">{parseLineWithHtml(trimmed.substring(2))}</li>;
       }
-      
+
       const numListMatch = trimmed.match(/^(\d+)\.\s(.*)$/);
       if (numListMatch) {
         return <li key={i} className="ml-5 list-decimal my-1 text-gray-700">{parseLineWithHtml(numListMatch[2])}</li>;
@@ -478,7 +484,7 @@ const AIAssistantPage = () => {
 
           {data.description && (
             <div className="border border-IPCaccent/15 rounded-lg overflow-hidden mt-1 text-xs">
-              <button 
+              <button
                 onClick={() => setIsInfoOpen(!isInfoOpen)}
                 className="w-full flex items-center justify-between p-2 bg-IPCaccent/5 font-semibold text-IPCprimary"
               >
@@ -516,8 +522,8 @@ const AIAssistantPage = () => {
           <h3 className="font-bold text-sm flex items-center gap-1.5 text-IPCtext">
             <History size={16} /> Chat Sessions
           </h3>
-          <button 
-            onClick={startNewSession} 
+          <button
+            onClick={startNewSession}
             className="p-1.5 hover:bg-white/10 rounded-lg text-IPCtext hover:text-white transition-colors"
             title="New chat"
           >
@@ -579,7 +585,7 @@ const AIAssistantPage = () => {
                             >
                               <Edit size={12} />
                             </button>
-                            <button 
+                            <button
                               onClick={(e) => deleteSession(e, sess.sessionId)}
                               className="p-1 hover:bg-black/25 rounded text-inherit transition-colors"
                               title="Delete chat"
@@ -599,7 +605,7 @@ const AIAssistantPage = () => {
       </Sidebar>
 
       <SidebarInset className="flex-1 flex flex-col bg-white/40 backdrop-blur-md relative h-[calc(100vh-3.5rem)] overflow-hidden">
-        
+
         {/* Top bar */}
         <div className="h-14 bg-white/70 border-b border-gray-200 px-4 flex items-center justify-between shrink-0 backdrop-blur">
           <div className="flex items-center gap-3">
@@ -631,135 +637,134 @@ const AIAssistantPage = () => {
         ) : (
           <>
 
-        {/* Message Feed */}
-        <div ref={chatFeedRef} className="flex-1 overflow-y-auto p-4 lg:p-6 bg-gray-50/50 flex flex-col gap-4">
-          {messages.map((msg, index) => (
-            <div
-              key={index}
-              className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-            >
-              {msg.isStampCard ? (
-                <StampResultCard data={msg.stampData} />
-              ) : (
+            {/* Message Feed */}
+            <div ref={chatFeedRef} className="flex-1 overflow-y-auto p-4 lg:p-6 bg-gray-50/50 flex flex-col gap-4">
+              {messages.map((msg, index) => (
                 <div
-                  className={`max-w-[75%] rounded-2xl px-4 py-3 shadow-sm ${
-                    msg.sender === 'user'
-                      ? 'bg-IPCaccent text-white rounded-br-none'
-                      : 'bg-white border border-gray-150 text-gray-800 rounded-bl-none font-serif'
-                  }`}
+                  key={index}
+                  className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
-                  {msg.sender === 'ai' && msg.text === '' ? (
-                    <div className="flex items-center gap-1.5 py-1">
-                      <span className="w-2.5 h-2.5 bg-IPCsecondary rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                      <span className="w-2.5 h-2.5 bg-IPCsecondary rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                      <span className="w-2.5 h-2.5 bg-IPCsecondary rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                    </div>
-                  ) : msg.sender === 'user' ? (
-                    <p className="whitespace-pre-wrap leading-relaxed text-sm">{msg.text}</p>
+                  {msg.isStampCard ? (
+                    <StampResultCard data={msg.stampData} />
                   ) : (
-                    <div className="text-sm leading-relaxed">
-                      {formatText(msg.text)}
+                    <div
+                      className={`max-w-[75%] rounded-2xl px-4 py-3 shadow-sm ${msg.sender === 'user'
+                        ? 'bg-IPCaccent text-white rounded-br-none'
+                        : 'bg-white border border-gray-150 text-gray-800 rounded-bl-none font-serif'
+                        }`}
+                    >
+                      {msg.sender === 'ai' && msg.text === '' ? (
+                        <div className="flex items-center gap-1.5 py-1">
+                          <span className="w-2.5 h-2.5 bg-IPCsecondary rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                          <span className="w-2.5 h-2.5 bg-IPCsecondary rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                          <span className="w-2.5 h-2.5 bg-IPCsecondary rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                        </div>
+                      ) : msg.sender === 'user' ? (
+                        <p className="whitespace-pre-wrap leading-relaxed text-sm">{msg.text}</p>
+                      ) : (
+                        <div className="text-sm leading-relaxed">
+                          {formatText(msg.text)}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
-              )}
-            </div>
-          ))}
-        </div>
-
-        {/* Suggested Questions */}
-        {messages.length <= 1 && (
-          <div className="px-6 py-3 bg-gray-50/80 border-t border-gray-150 shrink-0">
-            <p className="text-[11px] text-gray-500 mb-2 font-semibold uppercase tracking-wider">Suggested topics:</p>
-            <div className="flex flex-wrap gap-2">
-              {quickPrompts.map((prompt, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => handleSendChat(prompt)}
-                  className="text-xs bg-white hover:bg-IPCaccent/15 border border-gray-200 hover:border-IPCaccent text-IPCprimary font-medium py-1.5 px-3 rounded-full transition-all cursor-pointer shadow-sm"
-                >
-                  {prompt}
-                </button>
               ))}
             </div>
-          </div>
-        )}
 
-        {/* Chat Input Container */}
-        <div className="p-4 border-t border-gray-200 bg-white/80 shrink-0 backdrop-blur">
-          
-          {/* AI Usage Indicator */}
-          {aiUsage && (
-            <div className="flex justify-between items-center mb-2 px-1 text-[11px] text-gray-500 font-medium font-serif">
-              <span className="flex items-center gap-1">
-                <Sparkles size={12} className="text-IPCsecondary animate-pulse" />
-                Daily AI Usage: {aiUsage.count} / {aiUsage.limit} queries
-              </span>
-              <span>
-                Resets daily
-              </span>
-            </div>
-          )}
-
-          {/* File Upload Preview bar */}
-          {previewUrl && (
-            <div className="mb-3 p-2 bg-gray-50 rounded-xl border border-gray-200 flex items-center justify-between animate-fade-in">
-              <div className="flex items-center gap-3">
-                <img src={previewUrl} alt="Upload preview" className="w-12 h-12 object-contain bg-white rounded border border-gray-200" />
-                <div>
-                  <span className="text-xs font-semibold text-IPCprimary block">Stamp Attachment Ready</span>
-                  <input
-                    type="text"
-                    placeholder="User note context (optional)..."
-                    value={userNote}
-                    onChange={(e) => setUserNote(e.target.value)}
-                    className="text-[11px] text-black bg-transparent border-none outline-none w-56 placeholder-gray-400 mt-0.5"
-                  />
+            {/* Suggested Questions */}
+            {messages.length <= 1 && (
+              <div className="px-6 py-3 bg-gray-50/80 border-t border-gray-150 shrink-0">
+                <p className="text-[11px] text-gray-500 mb-2 font-semibold uppercase tracking-wider">Suggested topics:</p>
+                <div className="flex flex-wrap gap-2">
+                  {quickPrompts.map((prompt, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => handleSendChat(prompt)}
+                      className="text-xs bg-white hover:bg-IPCaccent/15 border border-gray-200 hover:border-IPCaccent text-IPCprimary font-medium py-1.5 px-3 rounded-full transition-all cursor-pointer shadow-sm"
+                    >
+                      {prompt}
+                    </button>
+                  ))}
                 </div>
               </div>
-              <button 
-                onClick={clearAttachment} 
-                className="p-1 hover:bg-gray-200 rounded-full text-gray-500 transition-colors"
-              >
-                <X size={16} />
-              </button>
-            </div>
-          )}
+            )}
 
-          {/* Input control */}
-          <div className="flex gap-2 items-center bg-gray-50 border border-gray-300 rounded-2xl px-4 py-2 focus-within:border-IPCaccent focus-within:ring-1 focus-within:ring-IPCaccent transition-all">
-            <button
-              onClick={() => fileInputRef.current.click()}
-              className="p-2 text-IPCaccent hover:text-IPCprimary hover:bg-gray-200/50 rounded-full transition-colors cursor-pointer"
-              title="Add stamp image"
-            >
-              <Paperclip size={18} />
-            </button>
-            <input 
-              type="file" 
-              ref={fileInputRef}
-              onChange={handleFileChange}
-              accept="image/*"
-              className="hidden"
-            />
-            <input
-              type="text"
-              placeholder={isScanning ? "AI is recognizing your stamp..." : "Message AI assistant or ask about stamp..."}
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && !isChatLoading && !isScanning && handleSendChat()}
-              disabled={isChatLoading || isScanning}
-              className="flex-1 bg-transparent border-none outline-none py-1.5 text-sm text-black placeholder-gray-400"
-            />
-            <button
-              onClick={() => handleSendChat()}
-              disabled={isChatLoading || isScanning || (!inputText.trim() && !selectedFile)}
-              className="p-2 bg-IPCaccent hover:bg-IPCprimary text-white rounded-xl transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shadow"
-            >
-              {isScanning ? <Loader2 className="animate-spin" size={16} /> : <Send size={16} />}
-            </button>
-          </div>
-        </div>
+            {/* Chat Input Container */}
+            <div className="p-4 border-t border-gray-200 bg-white/80 shrink-0 backdrop-blur">
+
+              {/* AI Usage Indicator */}
+              {aiUsage && (
+                <div className="flex justify-between items-center mb-2 px-1 text-[11px] text-gray-500 font-medium font-serif">
+                  <span className="flex items-center gap-1">
+                    <Sparkles size={12} className="text-IPCsecondary animate-pulse" />
+                    Daily AI Usage: {aiUsage.count} / {aiUsage.limit} queries
+                  </span>
+                  <span>
+                    Resets daily
+                  </span>
+                </div>
+              )}
+
+              {/* File Upload Preview bar */}
+              {previewUrl && (
+                <div className="mb-3 p-2 bg-gray-50 rounded-xl border border-gray-200 flex items-center justify-between animate-fade-in">
+                  <div className="flex items-center gap-3">
+                    <img src={previewUrl} alt="Upload preview" className="w-12 h-12 object-contain bg-white rounded border border-gray-200" />
+                    <div>
+                      <span className="text-xs font-semibold text-IPCprimary block">Stamp Attachment Ready</span>
+                      <input
+                        type="text"
+                        placeholder="User note context (optional)..."
+                        value={userNote}
+                        onChange={(e) => setUserNote(e.target.value)}
+                        className="text-[11px] text-black bg-transparent border-none outline-none w-56 placeholder-gray-400 mt-0.5"
+                      />
+                    </div>
+                  </div>
+                  <button
+                    onClick={clearAttachment}
+                    className="p-1 hover:bg-gray-200 rounded-full text-gray-500 transition-colors"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+              )}
+
+              {/* Input control */}
+              <div className="flex gap-2 items-center bg-gray-50 border border-gray-300 rounded-2xl px-4 py-2 focus-within:border-IPCaccent focus-within:ring-1 focus-within:ring-IPCaccent transition-all">
+                <button
+                  onClick={() => fileInputRef.current.click()}
+                  className="p-2 text-IPCaccent hover:text-IPCprimary hover:bg-gray-200/50 rounded-full transition-colors cursor-pointer"
+                  title="Add stamp image"
+                >
+                  <Paperclip size={18} />
+                </button>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileChange}
+                  accept="image/*"
+                  className="hidden"
+                />
+                <input
+                  type="text"
+                  placeholder={isScanning ? "AI is recognizing your stamp..." : "Message AI assistant or ask about stamp..."}
+                  value={inputText}
+                  onChange={(e) => setInputText(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && !isChatLoading && !isScanning && handleSendChat()}
+                  disabled={isChatLoading || isScanning}
+                  className="flex-1 bg-transparent border-none outline-none py-1.5 text-sm text-black placeholder-gray-400"
+                />
+                <button
+                  onClick={() => handleSendChat()}
+                  disabled={isChatLoading || isScanning || (!inputText.trim() && !selectedFile)}
+                  className="p-2 bg-IPCaccent hover:bg-IPCprimary text-white rounded-xl transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shadow"
+                >
+                  {isScanning ? <Loader2 className="animate-spin" size={16} /> : <Send size={16} />}
+                </button>
+              </div>
+            </div>
 
           </>
         )}
