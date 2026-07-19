@@ -20,7 +20,12 @@ const UserSchema = new mongoose.Schema({
       productId: { type: mongoose.Schema.Types.ObjectId, ref: "Stamp", required: true },
       quantity: { type: Number, required: true, min: 1 }
     }
-  ]
+  ],
+  aiUsage: {
+    count: { type: Number, default: 0 },
+    limit: { type: Number, default: 10 },
+    resetAt: { type: Date, default: () => new Date() }
+  }
 }, { timestamps: true });
 
 // Hash password before saving

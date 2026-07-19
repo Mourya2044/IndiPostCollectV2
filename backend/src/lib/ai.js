@@ -10,6 +10,7 @@ export const aiModel = new ChatOpenRouter({
     model: "openai/gpt-4o-mini",
     openRouterApiKey: process.env.OPENROUTER_API_KEY,
     temperature: 0.7,
+    maxTokens: 1000, // Enforce maximum output tokens per request
 });
 
 export class ArchivedMongoHistory {

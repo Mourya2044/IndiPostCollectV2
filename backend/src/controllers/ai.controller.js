@@ -1,5 +1,6 @@
-import { recognizeStamps, chatWithAiService } from "../services/ai.service.js";
+import { recognizeStamps, chatWithAiService, checkAndIncrementAiUsage } from "../services/ai.service.js";
 import ChatSession from "../models/aichatsession.model.js";
+import User from "../models/user.model.js";
 import crypto from "crypto";
 
 
@@ -17,6 +18,15 @@ export const recognizeStampsController = async (req, res) => {
     const { userNote } = req.body;
 
     try {
+        // Enforce daily limit check
+        const usageCheck = await checkAndIncrementAiUsage(req.userId);
+        if (!usageCheck.allowed) {
+            return res.status(429).json({
+                message: "Rate limit exceeded",
+                error: `You have reached your daily limit of ${usageCheck.limit} AI requests. Please try again tomorrow.`
+            });
+        }
+
         // 2. AI Service call
         const result = await recognizeStamps(image, mimeType, userNote);
 
@@ -55,6 +65,14 @@ export const chatWithAiController = async (req, res) => {
         const sessionExists = await ChatSession.findOne({ sessionId, userId: req.userId });
         if (!sessionExists) {
             return res.status(404).json({ error: "Chat session does not exist." });
+        }
+
+        // Enforce daily limit check
+        const usageCheck = await checkAndIncrementAiUsage(req.userId);
+        if (!usageCheck.allowed) {
+            return res.status(429).json({
+                error: `You have reached your daily limit of ${usageCheck.limit} AI requests. Please try again tomorrow.`
+            });
         }
 
         // 1. Set explicit Server-Sent Events (SSE) network wrappers
@@ -182,6 +200,26 @@ export const updateChatSessionTitleController = async (req, res) => {
         console.error("Error updating session title:", err);
         return res.status(500).json({
             message: "Error updating session title",
+            error: err.message
+        });
+    }
+};
+
+export const getAiUsageController = async (req, res) => {
+    try {
+        const user = await User.findById(req.userId);
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+        return res.status(200).json({
+            count: user.aiUsage?.count || 0,
+            limit: user.aiUsage?.limit || 10,
+            resetAt: user.aiUsage?.resetAt || new Date()
+        });
+    } catch (err) {
+        console.error("Error getting AI usage stats:", err);
+        return res.status(500).json({
+            message: "Error getting AI usage stats",
             error: err.message
         });
     }

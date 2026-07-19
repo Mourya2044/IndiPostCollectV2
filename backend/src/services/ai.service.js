@@ -1,6 +1,7 @@
 import { aiModel } from "../lib/ai.js";
 import { HumanMessage } from "@langchain/core/messages";
 import { ArchivedMongoHistory } from "../lib/ai.js";
+import User from "../models/user.model.js";
 
 import { success, z } from "zod";
 
@@ -132,3 +133,37 @@ export const chatWithAiService = async (userMessage, sessionId, userId) => {
         }
     }
 }
+
+export const checkAndIncrementAiUsage = async (userId) => {
+    const user = await User.findById(userId);
+    if (!user) {
+        throw new Error("User not found");
+    }
+
+    // Default values if not set
+    if (!user.aiUsage) {
+        user.aiUsage = { count: 0, limit: 10, resetAt: new Date() };
+    }
+
+    const now = new Date();
+    const resetTime = new Date(user.aiUsage.resetAt);
+
+    // Check if 24 hours have passed since last reset
+    if (now - resetTime > 24 * 60 * 60 * 1000) {
+        user.aiUsage.count = 0;
+        user.aiUsage.resetAt = now;
+    }
+
+    if (user.aiUsage.count >= user.aiUsage.limit) {
+        return {
+            allowed: false,
+            limit: user.aiUsage.limit,
+            resetAt: user.aiUsage.resetAt
+        };
+    }
+
+    user.aiUsage.count += 1;
+    await user.save();
+
+    return { allowed: true };
+};

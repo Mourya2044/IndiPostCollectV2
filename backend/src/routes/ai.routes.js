@@ -11,7 +11,8 @@ import {
     getChatSessionsController,
     getChatSessionMessagesController,
     deleteChatSessionController,
-    updateChatSessionTitleController
+    updateChatSessionTitleController,
+    getAiUsageController
 } from "../controllers/ai.controller.js";
 
 const aiRouter = express.Router();
@@ -20,6 +21,7 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 // Mount the new routes under /api/ai/...
+aiRouter.get("/usage", protect, getAiUsageController);
 aiRouter.post("/recognize", protect, upload.single("image"), recognizeStampsController);
 aiRouter.post("/chat", protect, chatWithAiController);
 aiRouter.post("/new-chat", protect, newChatSessionController);

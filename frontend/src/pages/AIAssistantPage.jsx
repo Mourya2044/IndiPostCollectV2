@@ -58,6 +58,17 @@ const AIAssistantPage = () => {
   const chatFeedRef = useRef(null);
   const fileInputRef = useRef(null);
 
+  const [aiUsage, setAiUsage] = useState(null);
+
+  const fetchAiUsage = async () => {
+    try {
+      const response = await axiosInstance.get('/ai/usage');
+      setAiUsage(response.data);
+    } catch (err) {
+      console.error("Error fetching AI usage:", err);
+    }
+  };
+
   // Auto-scroll chat
   useEffect(() => {
     if (chatFeedRef.current) {
@@ -78,9 +89,10 @@ const AIAssistantPage = () => {
     }
   };
 
-  // Load chat sessions on mount
+  // Load chat sessions and usage on mount
   useEffect(() => {
     fetchSessions();
+    fetchAiUsage();
   }, []);
 
   // Fetch session on selection
@@ -261,6 +273,7 @@ const AIAssistantPage = () => {
         return;
       } finally {
         setIsScanning(false);
+        fetchAiUsage();
       }
     } else {
       // Standard text message
@@ -279,7 +292,14 @@ const AIAssistantPage = () => {
         credentials: 'include',
       });
 
-      if (!response.ok) throw new Error('Failed to get streaming response');
+      if (!response.ok) {
+        let errMsg = 'Failed to get AI response';
+        try {
+          const errData = await response.json();
+          errMsg = errData.error || errData.message || errMsg;
+        } catch (_) {}
+        throw new Error(errMsg);
+      }
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
@@ -323,7 +343,7 @@ const AIAssistantPage = () => {
       fetchSessions();
     } catch (error) {
       console.error('Chat session error:', error);
-      toast.error('Failed to get AI response.');
+      toast.error(error.message || 'Failed to get AI response.');
       setMessages(prev => {
         const updated = [...prev];
         if (updated[updated.length - 1]?.text === '') {
@@ -333,6 +353,7 @@ const AIAssistantPage = () => {
       });
     } finally {
       setIsChatLoading(false);
+      fetchAiUsage();
     }
   };
 
@@ -667,6 +688,19 @@ const AIAssistantPage = () => {
         {/* Chat Input Container */}
         <div className="p-4 border-t border-gray-200 bg-white/80 shrink-0 backdrop-blur">
           
+          {/* AI Usage Indicator */}
+          {aiUsage && (
+            <div className="flex justify-between items-center mb-2 px-1 text-[11px] text-gray-500 font-medium font-serif">
+              <span className="flex items-center gap-1">
+                <Sparkles size={12} className="text-IPCsecondary animate-pulse" />
+                Daily AI Usage: {aiUsage.count} / {aiUsage.limit} queries
+              </span>
+              <span>
+                Resets daily
+              </span>
+            </div>
+          )}
+
           {/* File Upload Preview bar */}
           {previewUrl && (
             <div className="mb-3 p-2 bg-gray-50 rounded-xl border border-gray-200 flex items-center justify-between animate-fade-in">
