@@ -1,17 +1,20 @@
 import { Button } from "@/components/ui/button";
 import { axiosInstance } from "@/lib/axios";
 import { useAuthStore } from "@/store/useAuthStore";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
 
 const VerificationPage = () => {
     const { userId, uniqueString } = useParams();
     const [loading, setLoading] = useState(true);
     const [verified, setVerified] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
     const { checkAuth } = useAuthStore();
+    const hasAttempted = useRef(false);
 
     const verifyEmail = async () => {
         setLoading(true);
+        setErrorMessage("");
         
         try {
             const response = await axiosInstance.post(`/auth/verify/${userId}/${uniqueString}`);
@@ -19,9 +22,12 @@ const VerificationPage = () => {
                 setVerified(true);
                 console.log("Email verified successfully:", response.data);
             } else {
-                console.error("Email verification failed:", response.data.message);
+                setErrorMessage(response.data?.message || "Verification failed");
+                console.error("Email verification failed:", response.data?.message);
             }
         } catch (error) {
+            const msg = error.response?.data?.message || "Error verifying email. The link may have expired.";
+            setErrorMessage(msg);
             console.error("Error verifying email:", error);            
         } finally {
             setLoading(false);
@@ -29,8 +35,11 @@ const VerificationPage = () => {
     }
 
     useEffect(() => {
-        verifyEmail();
-    });
+        if (!hasAttempted.current && userId && uniqueString) {
+            hasAttempted.current = true;
+            verifyEmail();
+        }
+    }, [userId, uniqueString]);
 
     return (
         <div className='h-screen bg-IPClight-bg flex items-center justify-center'>
@@ -90,14 +99,26 @@ const VerificationPage = () => {
                         </div>
                     </div>
                     <p className="text-red-600 text-lg font-semibold mt-6 animate-fade-in">Email verification failed!</p>
-                    <p className="text-IPCprimary text-sm mt-2 animate-fade-in opacity-70">Please try again or contact support</p>
+                    <p className="text-slate-600 text-sm mt-2 animate-fade-in text-center max-w-sm">
+                        {errorMessage || "Please try again or request a new verification email from the login page."}
+                    </p>
                     
-                    <Button 
-                        onClick={verifyEmail}
-                        className="mt-4 px-6 py-2 bg-IPCprimary text-white rounded-lg hover:opacity-90 transition-all duration-200 animate-fade-in"
-                    >
-                        Try Again
-                    </Button>
+                    <div className="flex gap-3 mt-5">
+                        <Button 
+                            onClick={verifyEmail}
+                            className="px-5 py-2 bg-IPCprimary text-white rounded-lg hover:opacity-90 transition-all duration-200 animate-fade-in"
+                        >
+                            Try Again
+                        </Button>
+                        <Link to="/login">
+                            <Button 
+                                variant="outline"
+                                className="px-5 py-2 border border-IPCprimary text-IPCprimary hover:bg-IPCaccent/10 rounded-lg transition-all duration-200 animate-fade-in"
+                            >
+                                Go to Login
+                            </Button>
+                        </Link>
+                    </div>
                 </div>
             )}
             

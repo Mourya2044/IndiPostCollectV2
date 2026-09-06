@@ -63,26 +63,45 @@ export const signUpUser = async (req, res) => {
     return res.status(400).json({ message: "All fields are required" });
   }
   try {
-    const existingUser = await User.findOne({ email });//If already exists
+    const existingUser = await User.findOne({ email });
+    let user;
+
     if (existingUser) {
-      return res.status(400).json({ message: "Email already in use" });
-    }
-    //Create user
-    const user = await User.create({
-      fullName,
-      email,
-      password,
-      verified: false,
-      address: {
+      if (existingUser.verified) {
+        return res.status(400).json({ message: "Email already in use" });
+      }
+      // If the user already registered but is not yet verified, refresh their info and send a new link
+      existingUser.fullName = fullName;
+      existingUser.password = password; // Trigger pre-save hook for password hash
+      existingUser.address = {
         locality: address.locality,
         city: address.city,
         district: address.district,
         state: address.state,
         pin: address.pin
-      }
-    });
+      };
+      user = await existingUser.save();
 
-    //Generate unique verification string
+      // Clean up previous verification tokens
+      await UserVerification.deleteMany({ userId: user._id });
+    } else {
+      // Create user
+      user = await User.create({
+        fullName,
+        email,
+        password,
+        verified: false,
+        address: {
+          locality: address.locality,
+          city: address.city,
+          district: address.district,
+          state: address.state,
+          pin: address.pin
+        }
+      });
+    }
+
+    // Generate unique verification string
     const uniqueString = uuidv4() + user._id;
     const hashedString = await bcrypt.hash(uniqueString, 10);
 
@@ -90,21 +109,24 @@ export const signUpUser = async (req, res) => {
       userId: user._id,
       uniqueString: hashedString,
       createdAt: new Date(),
-      expiresAt: new Date(Date.now() + 6 * 60 * 60 * 1000), //6 hours expiry
-    })
-
-    //send verification email
-    await sendVerificationEmail(user.email, uniqueString, user._id);
-
-    res.status(201).json({
-      message: "Verification email sent. Please verify your email.",
-      // userId: user._id,
-      // uniqueString, // ⚠️ Only for testing - REMOVE later
+      expiresAt: new Date(Date.now() + 6 * 60 * 60 * 1000), // 6 hours expiry
     });
 
-    /*generateToken(user._id, res);
+    // Send verification email
+    try {
+      await sendVerificationEmail(user.email, uniqueString, user._id);
+    } catch (emailErr) {
+      console.error("Error sending verification email in signUpUser:", emailErr);
+      return res.status(500).json({
+        message: "Account created, but failed to send verification email. Please click resend verification email.",
+        error: emailErr.message
+      });
+    }
 
-    res.status(201).json(user);*/
+    res.status(201).json({
+      message: "Verification email sent. Please check your inbox or spam folder.",
+    });
+
   } catch (err) {
     console.log("error in signUpUser controller", err.message);
     return res.status(500).json({ message: "Error signing up", error: err.message });
@@ -324,4 +346,50 @@ export const updateAddress = async (req, res) => {
     console.error("Error updating address:", err);
     res.status(500).json({ message: "Server error" });
   }
-}
+};
+
+export const resendVerification = async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ message: "Email is required" });
+  }
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found with this email" });
+    }
+
+    if (user.verified) {
+      return res.status(400).json({ message: "Email is already verified. You can log in directly." });
+    }
+
+    // Delete existing tokens for this user
+    await UserVerification.deleteMany({ userId: user._id });
+
+    // Generate fresh unique verification string
+    const uniqueString = uuidv4() + user._id;
+    const hashedString = await bcrypt.hash(uniqueString, 10);
+
+    await UserVerification.create({
+      userId: user._id,
+      uniqueString: hashedString,
+      createdAt: new Date(),
+      expiresAt: new Date(Date.now() + 6 * 60 * 60 * 1000), // 6 hours expiry
+    });
+
+    await sendVerificationEmail(user.email, uniqueString, user._id);
+
+    return res.status(200).json({
+      message: "Verification email resent successfully. Please check your inbox or spam folder.",
+    });
+  } catch (err) {
+    console.error("Error in resendVerification controller:", err.message);
+    return res.status(500).json({
+      message: "Failed to resend verification email. Please try again later.",
+      error: err.message,
+    });
+  }
+};

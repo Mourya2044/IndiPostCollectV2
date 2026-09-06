@@ -37,10 +37,23 @@ export const useAuthStore = create((set) => ({
         try {
             const response = await axiosInstance.post('/auth/signup', userData);
             console.log("User signed up successfully:", response.data);
-
-            // set({ user: response.data });
+            return response.data;
         } catch (error) {
             console.error("Error signing up:", error);
+            throw error;
+        } finally {
+            set({ isLoading: false });
+        }
+    },
+
+    resendVerification: async (email) => {
+        set({ isLoading: true });
+        try {
+            const response = await axiosInstance.post('/auth/resend-verification', { email });
+            return response.data;
+        } catch (error) {
+            console.error("Error resending verification:", error);
+            throw error;
         } finally {
             set({ isLoading: false });
         }
