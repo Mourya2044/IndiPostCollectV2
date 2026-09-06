@@ -21,6 +21,17 @@ const UserSchema = new mongoose.Schema({
       quantity: { type: Number, required: true, min: 1 }
     }
   ],
+  wishlist: [
+    { type: mongoose.Schema.Types.ObjectId, ref: "Stamp" }
+  ],
+  album: [
+    {
+      stamp: { type: mongoose.Schema.Types.ObjectId, ref: "Stamp", required: true },
+      acquiredDate: { type: Date, default: Date.now },
+      notes: { type: String, default: "" },
+      source: { type: String, default: "Collector Mount" }
+    }
+  ],
   aiUsage: {
     count: { type: Number, default: 0 },
     limit: { type: Number, default: 10 },

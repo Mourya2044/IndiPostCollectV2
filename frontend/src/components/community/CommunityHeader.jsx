@@ -1,39 +1,46 @@
 import React from 'react'
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { SidebarTrigger } from '../ui/sidebar';
-import { Input } from '../ui/input';
-import { Search } from 'lucide-react';
-import { useAuthStore } from '@/store/useAuthStore.js';
-import NewPostDialog from './NewPostDialog';
+import { SidebarTrigger } from '../ui/sidebar'
+import { Search } from 'lucide-react'
+import { useAuthStore } from '@/store/useAuthStore.js'
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import NewPostDialog from './NewPostDialog'
 
 const CommunityHeader = () => {
-  const { user } = useAuthStore();
+  const { user } = useAuthStore()
 
   return (
-    <header className="flex shrink-0 items-center gap-2 border-b ">
-        <div className="flex w-full items-center gap-5 p-3 justify-between">
-          <SidebarTrigger className="ml-1 size-10" />
-          <Separator
-            orientation="vertical"
-            className="mx-2 data-[orientation=vertical]:h-4"
+    <header className="flex shrink-0 items-center border-b border-border bg-background sticky top-16 z-20">
+      <div className="flex w-full items-center gap-3 px-4 py-2.5">
+        {/* Sidebar toggle */}
+        <SidebarTrigger className="text-muted-foreground hover:text-IPCprimary transition-colors" />
+
+        <div className="w-px h-5 bg-border" />
+
+        {/* User avatar */}
+        <Avatar className="shrink-0 size-8 border border-border overflow-hidden rounded-full">
+          <AvatarImage src={user?.profilePic} alt={user?.fullName} className="object-cover" />
+          <AvatarFallback className="text-xs bg-IPCprimary/10 text-IPCprimary font-semibold">
+            {user?.fullName?.split(" ").map((w) => w[0]).join("")}
+          </AvatarFallback>
+        </Avatar>
+
+        {/* Search */}
+        <div className="flex flex-1 items-center border border-border bg-background focus-within:border-IPCprimary focus-within:ring-1 focus-within:ring-IPCprimary transition-all max-w-sm">
+          <input
+            type="search"
+            placeholder="Search community…"
+            className="flex-1 px-3 py-2 text-sm bg-transparent outline-none placeholder:text-muted-foreground"
           />
-          <Avatar className={"shrink-0 size-15"}>
-            <AvatarImage src={user?.profilePic} alt={user?.name} className="object-cover rounded-full" />
-            <AvatarFallback>{user?.fullName.split(" ").map((word) => word[0]).join("")}</AvatarFallback>
-          </Avatar>
-          <div className="flex w-full justify-between items-center gap-2">
-          <div className="flex w-full max-w-sm items-center gap-2 border rounded-2xl bg-transparent px-2 py-1.5 shadow-sm focus-within:border-ring focus-within:ring-ring/50 focus-within:ring-[3px]">
-            <Input type="search" placeholder="Search" className={"border-none shadow-none focus-visible:ring-0 w-full"}/>
-            <Button type="submit" variant="ghost">
-              <Search className="size-4" />
-            </Button>
-          </div>
-          <NewPostDialog />
-          </div>
+          <button className="px-3 h-full text-muted-foreground hover:text-IPCprimary transition-colors border-l border-border py-2">
+            <Search className="h-3.5 w-3.5" />
+          </button>
         </div>
-      </header>
+
+        <div className="ml-auto">
+          <NewPostDialog />
+        </div>
+      </div>
+    </header>
   )
 }
 

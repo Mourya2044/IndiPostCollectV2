@@ -1,13 +1,11 @@
 import { useState } from "react";
 import { useStamps } from "../../queries/stampsQuery.js";
-import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Search, X, ChevronLeft, ChevronRight } from "lucide-react";
 import FilterDrawer from "./FilterDrawer";
 import StampCard from "./StampCard";
 import LoadingSpinner from "../LoadingSpinner.jsx";
 
-export default function Products({isMuseumPiece}) {
+export default function Products({ isMuseumPiece }) {
     const [filters, setFilters] = useState({
         search: "",
         sort: "",
@@ -23,27 +21,18 @@ export default function Products({isMuseumPiece}) {
     const [searchInput, setSearchInput] = useState("");
 
     const handleSearch = () => {
-        setFilters(prev => ({ 
-            ...prev, 
-            search: searchInput,
-            page: 1 // Reset to first page on new search
-        }));
+        setFilters(prev => ({ ...prev, search: searchInput, page: 1 }));
     };
 
     const handleSearchInputChange = (value) => {
         setSearchInput(value);
-        // Optional: Real-time search with debouncing
         if (!value.trim()) {
             setFilters(prev => ({ ...prev, search: "", page: 1 }));
         }
     };
 
     const handleFilterChange = (newFilters) => {
-        setFilters(prev => ({ 
-            ...prev, 
-            ...newFilters,
-            page: 1 // Reset to first page when filters change
-        }));
+        setFilters(prev => ({ ...prev, ...newFilters, page: 1 }));
     };
 
     const handleClearFilters = () => {
@@ -52,8 +41,13 @@ export default function Products({isMuseumPiece}) {
             sort: "",
             sortBy: "",
             categories: [],
-            forSale: false,
-            isMuseumPiece: true,
+            condition: [],
+            minPrice: "",
+            maxPrice: "",
+            minYear: "",
+            maxYear: "",
+            forSale: !isMuseumPiece,
+            isMuseumPiece: isMuseumPiece,
             page: 1,
             limit: 12
         });
@@ -62,154 +56,193 @@ export default function Products({isMuseumPiece}) {
 
     const handlePageChange = (newPage) => {
         setFilters(prev => ({ ...prev, page: newPage }));
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    const handleKeyPress = (e) => {
-        if (e.key === 'Enter') {
-            handleSearch();
+    const activeChips = [
+        filters.search && { key: 'search', label: `"${filters.search}"` },
+        filters.sort && filters.sortBy && { key: 'sort', label: `${filters.sortBy} (${filters.sort})` },
+        filters.historicalPeriod && {
+            key: 'period',
+            label: filters.historicalPeriod === 'pre-independence'
+                ? 'Period: Pre-Independence (≤1947)'
+                : 'Period: Post-1947 Republic'
+        },
+        ...(filters.categories || []).map(c => ({ key: `cat-${c}`, label: c })),
+        ...(filters.condition || []).map(c => ({ key: `cond-${c}`, label: `Condition: ${c}` })),
+        (filters.minPrice || filters.maxPrice) && {
+            key: 'price',
+            label: `Price: ₹${filters.minPrice || '0'} – ₹${filters.maxPrice || '∞'}`
+        },
+        (filters.minYear || filters.maxYear) && {
+            key: 'year',
+            label: `Year: ${filters.minYear || 'Any'} – ${filters.maxYear || 'Now'}`
+        },
+    ].filter(Boolean);
+
+    const removeChip = (key) => {
+        if (key === 'search') { setFilters(p => ({ ...p, search: '', page: 1 })); setSearchInput(''); }
+        else if (key === 'sort') setFilters(p => ({ ...p, sort: '', sortBy: '', page: 1 }));
+        else if (key === 'period') setFilters(p => ({ ...p, historicalPeriod: '', page: 1 }));
+        else if (key.startsWith('cat-')) {
+            const cat = key.replace('cat-', '');
+            setFilters(p => ({ ...p, categories: (p.categories || []).filter(c => c !== cat), page: 1 }));
+        }
+        else if (key.startsWith('cond-')) {
+            const cond = key.replace('cond-', '');
+            setFilters(p => ({ ...p, condition: (p.condition || []).filter(c => c !== cond), page: 1 }));
+        }
+        else if (key === 'price') {
+            setFilters(p => ({ ...p, minPrice: '', maxPrice: '', page: 1 }));
+        }
+        else if (key === 'year') {
+            setFilters(p => ({ ...p, minYear: '', maxYear: '', page: 1 }));
         }
     };
 
     return (
-        <section className="w-full">
-            {/* Header and Filters */}
-            <div className="flex flex-col sm:flex-row justify-between items-center gap-4 p-4 bg-gray-50 border-b">
-                <div className="flex items-center gap-4">
-                    <FilterDrawer 
-                        filters={filters}
-                        onFilterChange={handleFilterChange}
-                        onClearFilters={handleClearFilters}
-                    />
-                    <span className="text-sm text-gray-600">
-                        {data?.total ? `${data.total} stamps found` : ''}
-                    </span>
-                </div>
-                
-                <div className="flex items-center gap-2 w-full sm:w-auto">
-                    <div className="relative flex-1 sm:w-80">
-                        <Input
+        <section id="collection" className="w-full">
+
+            {/* ── Toolbar ── */}
+            <div className="sticky top-16 z-30 bg-background border-b border-border">
+                <div className="max-w-7xl mx-auto px-6 py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                    
+                    {/* Left: filter + count */}
+                    <div className="flex items-center gap-4">
+                        <FilterDrawer
+                            filters={filters}
+                            onFilterChange={handleFilterChange}
+                            onClearFilters={handleClearFilters}
+                        />
+                        {data?.total != null && (
+                            <span className="text-xs text-muted-foreground">
+                                <span className="font-semibold text-foreground">{data.total}</span> stamps
+                            </span>
+                        )}
+                    </div>
+
+                    {/* Right: search */}
+                    <div className="relative w-full sm:w-72">
+                        <input
                             type="search"
-                            placeholder="Search by title or description..."
-                            className="pr-10"
+                            placeholder="Search stamps..."
                             value={searchInput}
                             onChange={(e) => handleSearchInputChange(e.target.value)}
-                            onKeyPress={handleKeyPress}
+                            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                            className="w-full pl-4 pr-10 py-2 text-sm bg-background border border-border focus:outline-none focus:border-IPCprimary focus:ring-1 focus:ring-IPCprimary transition-all placeholder:text-muted-foreground"
                         />
-                        <Button
-                            size="sm"
-                            variant="ghost"
-                            className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 p-0"
+                        <button
                             onClick={handleSearch}
+                            className="absolute right-0 top-0 h-full px-3 text-muted-foreground hover:text-IPCprimary transition-colors"
                         >
                             <Search className="h-4 w-4" />
-                        </Button>
+                        </button>
                     </div>
                 </div>
+
+                {/* Active filter chips */}
+                {activeChips.length > 0 && (
+                    <div className="max-w-7xl mx-auto px-6 pb-3 flex flex-wrap items-center gap-2">
+                        <span className="text-[10px] text-muted-foreground uppercase tracking-widest mr-1">Active:</span>
+                        {activeChips.map(chip => (
+                            <button
+                                key={chip.key}
+                                onClick={() => removeChip(chip.key)}
+                                className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider border border-IPCprimary text-IPCprimary hover:bg-IPCprimary hover:text-white transition-all"
+                            >
+                                {chip.label}
+                                <X className="h-3 w-3" />
+                            </button>
+                        ))}
+                        <button
+                            onClick={handleClearFilters}
+                            className="text-[10px] text-muted-foreground hover:text-IPCsecondary uppercase tracking-widest transition-colors ml-1"
+                        >
+                            Clear all
+                        </button>
+                    </div>
+                )}
             </div>
 
-            {/* Active Filters Display */}
-            {(filters.search || filters.sort || filters.categories.length > 0 || 
-              filters.forSale !== undefined || filters.isMuseumPiece !== undefined) && (
-                <div className="p-4 bg-blue-50 border-b">
-                    <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-sm font-medium text-gray-700">Active filters:</span>
-                        
-                        {filters.search && (
-                            <span className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">
-                                Search: "{filters.search}"
-                            </span>
-                        )}
-                        
-                        {filters.sort && (
-                            <span className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">
-                                Sort: {filters.sortBy} ({filters.sort})
-                            </span>
-                        )}
-                        
-                        {filters.categories.length > 0 && (
-                            <span className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">
-                                Categories: {filters.categories.join(', ')}
-                            </span>
-                        )}
-                        
-                        {/* {filters.forSale !== undefined && (
-                            <span className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">
-                                For Sale: {filters.forSale ? 'Yes' : 'No'}
-                            </span>
-                        )}
-                        
-                        {filters.isMuseumPiece !== undefined && (
-                            <span className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">
-                                Museum Piece: {filters.isMuseumPiece ? 'Yes' : 'No'}
-                            </span>
-                        )} */}
-                        
-                        <Button 
-                            size="sm" 
-                            variant="outline" 
-                            onClick={handleClearFilters}
-                            className="text-xs"
-                        >
-                            Clear All
-                        </Button>
+            {/* ── Error ── */}
+            {error && (
+                <div className="max-w-7xl mx-auto px-6 py-4">
+                    <div className="border border-IPCsecondary/30 bg-IPCsecondary/5 px-4 py-3 text-sm text-IPCsecondary">
+                        Error loading stamps: {error.message}
                     </div>
                 </div>
             )}
 
-            {/* Error State */}
-            {error && (
-                <div className="p-4 m-4 bg-red-50 border border-red-200 rounded-lg">
-                    <p className="text-red-600">Error loading stamps: {error.message}</p>
+            {/* ── Loading ── */}
+            {isFetching && (
+                <div className="flex items-center justify-center py-24">
+                    <LoadingSpinner />
                 </div>
             )}
 
-            {/* Loading State */}
-            {isFetching && <LoadingSpinner />}
-
-            {/* Products Grid */}
+            {/* ── Grid ── */}
             {!isFetching && data?.stamps && (
                 <>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-4">
-                        {data.stamps.length > 0 ? (
-                            data.stamps.map((stamp) => (
-                                <StampCard key={stamp.id} stamp={stamp} />
-                            ))
-                        ) : (
-                            <div className="col-span-full text-center py-12">
-                                <p className="text-gray-500 text-lg">No stamps found matching your criteria</p>
-                                <Button 
-                                    variant="outline" 
-                                    onClick={handleClearFilters}
-                                    className="mt-4"
-                                >
-                                    Clear Filters
-                                </Button>
+                    {data.stamps.length > 0 ? (
+                        <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-px bg-border">
+                            {data.stamps.map((stamp) => (
+                                <div key={stamp._id} className="bg-background">
+                                    <StampCard stamp={stamp} />
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="flex flex-col items-center justify-center py-28 gap-5 text-center">
+                            <div className="w-16 h-16 border-2 border-border flex items-center justify-center text-muted-foreground">
+                                <Search className="h-6 w-6" />
                             </div>
-                        )}
-                    </div>
+                            <div>
+                                <p className="text-base font-semibold text-foreground">No stamps found</p>
+                                <p className="text-sm text-muted-foreground mt-1">Try adjusting your filters or search terms.</p>
+                            </div>
+                            <button
+                                onClick={handleClearFilters}
+                                className="px-5 py-2 border border-IPCprimary text-IPCprimary text-xs font-semibold uppercase tracking-widest hover:bg-IPCprimary hover:text-white transition-all"
+                            >
+                                Clear Filters
+                            </button>
+                        </div>
+                    )}
 
-                    {/* Pagination */}
+                    {/* ── Pagination ── */}
                     {data.stamps.length > 0 && data.totalPages > 1 && (
-                        <div className="flex justify-center items-center gap-2 p-4 border-t">
-                            <Button
-                                variant="outline"
+                        <div className="max-w-7xl mx-auto px-6 py-8 border-t border-border flex items-center justify-between gap-4">
+                            <button
                                 disabled={filters.page <= 1}
                                 onClick={() => handlePageChange(filters.page - 1)}
+                                className="inline-flex items-center gap-2 px-4 py-2 border border-border text-xs font-semibold uppercase tracking-widest hover:border-IPCprimary hover:text-IPCprimary transition-all disabled:opacity-30 disabled:cursor-not-allowed"
                             >
-                                Previous
-                            </Button>
-                            
-                            <span className="px-4 py-2 text-sm">
-                                Page {filters.page} of {data.totalPages}
-                            </span>
-                            
-                            <Button
-                                variant="outline"
+                                <ChevronLeft className="h-3.5 w-3.5" /> Prev
+                            </button>
+
+                            <div className="flex items-center gap-1">
+                                {Array.from({ length: data.totalPages }, (_, i) => i + 1).map(page => (
+                                    <button
+                                        key={page}
+                                        onClick={() => handlePageChange(page)}
+                                        className={`w-8 h-8 text-xs font-semibold transition-all ${
+                                            page === filters.page
+                                                ? 'bg-IPCprimary text-white'
+                                                : 'border border-border hover:border-IPCprimary hover:text-IPCprimary'
+                                        }`}
+                                    >
+                                        {page}
+                                    </button>
+                                ))}
+                            </div>
+
+                            <button
                                 disabled={filters.page >= data.totalPages}
                                 onClick={() => handlePageChange(filters.page + 1)}
+                                className="inline-flex items-center gap-2 px-4 py-2 border border-border text-xs font-semibold uppercase tracking-widest hover:border-IPCprimary hover:text-IPCprimary transition-all disabled:opacity-30 disabled:cursor-not-allowed"
                             >
-                                Next
-                            </Button>
+                                Next <ChevronRight className="h-3.5 w-3.5" />
+                            </button>
                         </div>
                     )}
                 </>

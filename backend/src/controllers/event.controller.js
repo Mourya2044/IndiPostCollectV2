@@ -1,6 +1,6 @@
-import { error } from "console";
 import Event from "../models/event.model.js";
 import EventRegistration from "../models/eventRegistration.model.js";
+import { sendEventReminderEmail } from "../lib/mailer.js";
 
 export const setupEvent = async (req,res) => {
 
@@ -46,6 +46,16 @@ export const registerEvent = async (req, res) => {
 
     event.registeredUsers.push(userId);
     await event.save();
+
+    if (req.user?.email) {
+      sendEventReminderEmail({
+        to: req.user.email,
+        fullName: req.user.fullName,
+        eventTitle: event.name,
+        eventDate: event.date ? new Date(event.date).toLocaleDateString(undefined, { dateStyle: 'full' }) : 'Upcoming',
+        location: event.description?.slice(0, 100) || 'IndiPostCollect Philatelic Society Hall'
+      }).catch(e => console.error('Async event email error:', e.message));
+    }
 
     return res.status(201).json({ message: "Successfully registered", event });
   } catch (err) {

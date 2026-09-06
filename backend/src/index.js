@@ -13,6 +13,9 @@ import stripeRouter from './routes/stripe.routes.js';
 import orderRouter from './routes/order.routes.js';
 import eventRouter from './routes/event.routes.js';
 import aiRouter from "./routes/ai.routes.js"
+import wishlistRouter from "./routes/wishlist.routes.js";
+import albumRouter from "./routes/album.routes.js";
+import reviewRouter from "./routes/review.routes.js";
 
 const PORT = process.env.PORT || 3000;
 dotenv.config();
@@ -52,6 +55,9 @@ app.use('/api/stripe', stripeRouter);
 app.use("/api/orders", orderRouter);
 app.use("/api/events", eventRouter);
 app.use("/api/ai", aiRouter);
+app.use("/api/wishlist", wishlistRouter);
+app.use("/api/album", albumRouter);
+app.use("/api/reviews", reviewRouter);
 
 app.set('trust proxy', true);
 

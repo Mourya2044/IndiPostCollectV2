@@ -1,123 +1,92 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Package,
-  Calendar,
-  Plus,
-  Edit2,
-  Trash2,
-  Search,
-  Save,
-  Users,
-  DollarSign,
-  TrendingUp,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger
-} from '@/components/ui/dialog';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
+import React, { useState } from 'react';
+import { Package, Calendar, TrendingUp, DollarSign, Truck } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import StampsManagement from '@/components/admin/StampsManagement';
 import EventManagement from '@/components/admin/EventManagement';
+import OrdersManagement from '@/components/admin/OrdersManagement';
+import AnalyticsDashboard from '@/components/admin/AnalyticsDashboard';
 
-// Main Admin Dashboard Component
 const AdminPage = () => {
   const [stats, setStats] = useState({
-    totalItems: 156,
-    totalEvents: 12,
-    totalOrders: 89,
-    revenue: 45320
+    totalItems: 0,
+    totalEvents: 0,
+    totalOrders: 0,
+    revenue: 0
   });
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
-          <p className="text-gray-600">Manage your items, events, and monitor your business</p>
+    <div className="min-h-screen bg-background p-6">
+      <div className="max-w-7xl mx-auto space-y-8">
+        
+        {/* ── Header ── */}
+        <div className="border-b border-border pb-6">
+          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-IPCsecondary mb-2">Control Panel</p>
+          <h1 className="text-3xl font-light text-foreground">Admin Dashboard</h1>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Items</p>
-                  <p className="text-2xl font-bold">{stats.totalItems}</p>
-                </div>
-                <Package className="w-8 h-8 text-blue-500" />
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Events</p>
-                  <p className="text-2xl font-bold">{stats.totalEvents}</p>
-                </div>
-                <Calendar className="w-8 h-8 text-green-500" />
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Orders</p>
-                  <p className="text-2xl font-bold">{stats.totalOrders}</p>
-                </div>
-                <TrendingUp className="w-8 h-8 text-purple-500" />
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Revenue</p>
-                  <p className="text-2xl font-bold">${(stats.revenue / 100).toFixed(2)}</p>
-                </div>
-                <DollarSign className="w-8 h-8 text-orange-500" />
-              </div>
-            </CardContent>
-          </Card>
+        {/* ── Stats Cards ── */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-px bg-border">
+          <div className="bg-background p-6 flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Total Items</p>
+              <Package className="w-4 h-4 text-IPCprimary" />
+            </div>
+            <p className="text-3xl font-light text-foreground">{stats.totalItems}</p>
+          </div>
+          <div className="bg-background p-6 flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Total Events</p>
+              <Calendar className="w-4 h-4 text-IPCprimary" />
+            </div>
+            <p className="text-3xl font-light text-foreground">{stats.totalEvents}</p>
+          </div>
+          <div className="bg-background p-6 flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Total Orders</p>
+              <TrendingUp className="w-4 h-4 text-IPCprimary" />
+            </div>
+            <p className="text-3xl font-light text-foreground">{stats.totalOrders}</p>
+          </div>
+          <div className="bg-background p-6 flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Revenue</p>
+              <DollarSign className="w-4 h-4 text-IPCprimary" />
+            </div>
+            <p className="text-3xl font-light text-foreground">₹{Number(stats.revenue || 0).toLocaleString('en-IN')}</p>
+          </div>
         </div>
 
-        {/* Main Content */}
+        {/* ── Main Content ── */}
         <Tabs defaultValue="items" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="items">Items Management</TabsTrigger>
-            <TabsTrigger value="events">Events Management</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 border border-border bg-muted/20 p-1">
+            <TabsTrigger value="items" className="rounded-none uppercase tracking-widest text-xs font-semibold data-[state=active]:bg-IPCprimary data-[state=active]:text-white data-[state=active]:shadow-none transition-colors">
+              Items Management
+            </TabsTrigger>
+            <TabsTrigger value="events" className="rounded-none uppercase tracking-widest text-xs font-semibold data-[state=active]:bg-IPCprimary data-[state=active]:text-white data-[state=active]:shadow-none transition-colors">
+              Events Management
+            </TabsTrigger>
+            <TabsTrigger value="orders" className="rounded-none uppercase tracking-widest text-xs font-semibold data-[state=active]:bg-IPCprimary data-[state=active]:text-white data-[state=active]:shadow-none transition-colors">
+              Orders & Dispatch
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="rounded-none uppercase tracking-widest text-xs font-semibold data-[state=active]:bg-IPCprimary data-[state=active]:text-white data-[state=active]:shadow-none transition-colors">
+              Visual Analytics
+            </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="items">
+          <TabsContent value="items" className="border border-border bg-background p-6">
             <StampsManagement setStats={setStats} />
           </TabsContent>
 
-          <TabsContent value="events">
+          <TabsContent value="events" className="border border-border bg-background p-6">
             <EventManagement setStats={setStats} />
+          </TabsContent>
+
+          <TabsContent value="orders" className="border border-border bg-background p-6">
+            <OrdersManagement setStats={setStats} />
+          </TabsContent>
+
+          <TabsContent value="analytics" className="border border-border bg-background p-6">
+            <AnalyticsDashboard />
           </TabsContent>
         </Tabs>
       </div>

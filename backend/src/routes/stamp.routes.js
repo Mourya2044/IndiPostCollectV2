@@ -4,6 +4,7 @@ import {
   createStamp,
   deleteStamp,
   getAllStamps,
+  getStampFilterMeta,
   getStampById,
   updateStamp,
 } from "../controllers/stamp.controller.js";
@@ -14,6 +15,7 @@ stampRouter.post("/new", protect, createStamp);
 stampRouter.patch("/:id", protect, updateStamp);
 stampRouter.delete("/:id", protect, deleteStamp);
 
+stampRouter.get("/meta/filters", getStampFilterMeta);
 stampRouter.get("/", getAllStamps);
 stampRouter.get("/:id", getStampById);
 

@@ -1,139 +1,100 @@
-import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
-import { Package } from "lucide-react";
+import { Package, ArrowRight } from "lucide-react";
 import { useState, useEffect } from "react";
-import { Badge } from "../ui/badge";
-import { Separator } from "../ui/separator";
 import { axiosInstance } from "@/lib/axios";
 import { Link } from "react-router-dom";
-import { ScrollArea } from "../ui/scroll-area";
 
 const ProfileOrders = ({ userId }) => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchUserOrders = async (userId) => {
-    if (!userId) {
-      return [];
-    }
-    try {
-      const response = await axiosInstance.get(`/orders/user/${userId}`);
-
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching user orders:', error);
-      return [];
-    }
-  };
-
   useEffect(() => {
-    const loadOrders = async () => {
+    const fetchUserOrders = async () => {
+      if (!userId) return;
       try {
         setLoading(true);
-        const ordersData = await fetchUserOrders(userId);
-        setOrders(ordersData);
+        const response = await axiosInstance.get(`/orders/user/${userId}`);
+        setOrders(response.data);
       } catch (error) {
-        console.error('Error fetching orders:', error);
+        console.error('Error fetching user orders:', error);
       } finally {
         setLoading(false);
       }
     };
-
-    loadOrders();
+    fetchUserOrders();
   }, [userId]);
 
-  const getStatusVariant = (status) => {
+  const getStatusColor = (status) => {
     switch (status.toLowerCase()) {
-      case 'delivered':
-        return 'default';
-      case 'shipped':
-        return 'secondary';
-      case 'pending':
-        return 'outline';
-      case 'cancelled':
-        return 'destructive';
-      default:
-        return 'outline';
+      case 'delivered': return 'bg-IPCprimary/10 text-IPCprimary border-IPCprimary/20';
+      case 'shipped': return 'bg-amber-100 text-amber-800 border-amber-200';
+      case 'pending': return 'bg-muted text-muted-foreground border-border';
+      case 'cancelled': return 'bg-IPCsecondary/10 text-IPCsecondary border-IPCsecondary/20';
+      default: return 'bg-muted text-muted-foreground border-border';
     }
-  };
-
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString();
   };
 
   const getOrderSummary = (items) => {
-    if (items.length === 1) {
-      return `${items[0].productId.title} (x${items[0].quantity})`;
-    }
+    if (items.length === 1) return `${items[0].productId.title} (x${items[0].quantity})`;
     return `${items.length} items`;
   };
 
   if (loading) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <Package className="w-5 h-5 mr-2" />
-            Recent Orders
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-            <p className="mt-2 text-muted-foreground">Loading orders...</p>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="border border-border bg-background p-8 flex flex-col items-center justify-center gap-3">
+        <div className="h-5 w-5 animate-spin rounded-full border-b-2 border-IPCprimary"></div>
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Loading Orders…</p>
+      </div>
     );
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center">
-          <Package className="w-5 h-5 mr-2" />
-          Recent Orders
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
+    <div className="border border-border bg-background flex flex-col max-h-[400px]">
+      <div className="px-6 py-4 border-b border-border flex items-center gap-2 shrink-0">
+        <Package className="h-4 w-4 text-IPCprimary" />
+        <h2 className="text-sm font-semibold uppercase tracking-widest text-foreground">Recent Orders</h2>
+      </div>
+      
+      <div className="flex-1 overflow-y-auto">
         {orders.length === 0 ? (
-          <div className="text-center py-8">
-            <Package className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <p className="text-muted-foreground">No orders found</p>
+          <div className="p-12 text-center text-sm text-muted-foreground">
+            <Package className="h-8 w-8 text-muted-foreground/30 mx-auto mb-3" />
+            No orders found.
           </div>
         ) : (
-          <ScrollArea className="max-h-80 space-y-4 overflow-y-auto">
-            {orders.map((order, index) => (
-              <Link key={order._id} to={`/return?session_id=${order.orderId}`} >
-                <div className="cursor-pointer p-2 hover:bg-muted rounded-sm">
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <h3 className="font-medium">{getOrderSummary(order.items)}</h3>
-                      <p className="text-sm text-muted-foreground">Order #{order.orderId.slice(-8)}</p>
-                      <div className="mt-1">
-                        {order.items.map((item, itemIndex) => (
-                          <div key={item._id} className="text-xs text-muted-foreground">
-                            {item?.productId.title} × {item?.quantity}
-                            {itemIndex < order.items?.length - 1 && ", "}
-                          </div>
-                        ))}
-                      </div>
+          <div className="flex flex-col divide-y divide-border">
+            {orders.map((order) => (
+              <Link key={order._id} to={`/order/${order._id}`} className="group p-5 hover:bg-muted/30 transition-colors block">
+                <div className="flex justify-between items-start mb-2">
+                  <div>
+                    <h3 className="text-sm font-semibold text-foreground group-hover:text-IPCprimary transition-colors">{getOrderSummary(order.items)}</h3>
+                    <p className="text-[10px] uppercase tracking-widest text-muted-foreground mt-1">Order #{order.orderId.slice(-8)}</p>
+                  </div>
+                  <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-1 border ${getStatusColor(order.status)}`}>
+                    {order.status}
+                  </span>
+                </div>
+                
+                <div className="mt-3">
+                  {order.items.map((item, itemIndex) => (
+                    <div key={item._id} className="text-xs text-muted-foreground line-clamp-1">
+                      {item?.productId.title} × {item?.quantity}
                     </div>
-                    <Badge variant={getStatusVariant(order.status)}>
-                      {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                    </Badge>
+                  ))}
+                </div>
+
+                <div className="flex justify-between items-center text-xs mt-4 pt-3 border-t border-border/50">
+                  <span className="text-muted-foreground">{new Date(order.createdAt).toLocaleDateString()}</span>
+                  <div className="flex items-center gap-3">
+                    <span className="font-semibold text-foreground">₹{order.totalPrice.toFixed(2)}</span>
+                    <ArrowRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-IPCprimary transition-colors translate-x-0 group-hover:translate-x-1" />
                   </div>
-                  <div className="flex justify-between items-center text-sm text-muted-foreground mt-2">
-                    <span>{formatDate(order.createdAt)}</span>
-                    <span className="font-medium text-foreground">₹{order.totalPrice}</span>
-                  </div>
-                  {index < orders.length - 1 && <Separator className="mt-4" />}
                 </div>
               </Link>
             ))}
-          </ScrollArea>
+          </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 

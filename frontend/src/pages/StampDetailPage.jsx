@@ -1,223 +1,293 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Heart, Loader, Share2, ShoppingCart, Tag } from 'lucide-react';
+import { ArrowLeft, Heart, Share2, ShoppingCart, Tag, Loader, Plus, Minus, BookOpen } from 'lucide-react';
 import { axiosInstance } from '@/lib/axios.js';
-import { useParams } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { toast } from 'sonner'
-
+import { useParams, Link } from 'react-router-dom';
+import { toast } from 'sonner';
+import { useWishlistStore } from '@/store/useWishlistStore';
+import { useAlbumStore } from '@/store/useAlbumStore';
+import StampReviewsSection from '@/components/reviews/StampReviewsSection';
 
 export default function StampDetailPage() {
-  const { stampId } = useParams();
-  const [stampDetails, setStampDetails] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [imageError, setImageError] = useState(false);
-  const handleImageError = () => {
-    setImageError(true);
-  };
+    const { stampId } = useParams();
+    const { isInWishlist, toggleWishlist } = useWishlistStore();
+    const { isMounted, mountStamp } = useAlbumStore();
+    const [stampDetails, setStampDetails] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [imageError, setImageError] = useState(false);
+    const [quantity, setQuantity] = useState(1);
+    const isWishlisted = isInWishlist(stampId);
+    const mountedInAlbum = isMounted(stampId);
+    const [addingToCart, setAddingToCart] = useState(false);
+    const [mountingAlbum, setMountingAlbum] = useState(false);
 
-  const [quantity, setQuantity] = useState(1);
-  const [isWishlisted, setIsWishlisted] = useState(false);
+    useEffect(() => {
+        const fetchStampDetails = async () => {
+            try {
+                setLoading(true);
+                if (!stampId) return;
+                const response = await axiosInstance.get(`/stamps/${stampId}`);
+                setStampDetails(response.data);
+            } catch (error) {
+                console.error("Error fetching stamp details:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchStampDetails();
+    }, [stampId]);
 
-  useEffect(() => {
-    const fetchStampDetails = async () => {
-      try {
-        setLoading(true);
-        if (!stampId) {
-          return;
+    const formatPrice = (price) =>
+        new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(price);
+
+    const addToCart = async () => {
+        setAddingToCart(true);
+        try {
+            await axiosInstance.post('/cart/add', { stampId, quantity });
+            toast.success("Added to cart!");
+        } catch (error) {
+            console.error("Error adding to cart:", error);
+            toast.error("Failed to add to cart. Please try again.");
+        } finally {
+            setAddingToCart(false);
         }
-        const response = await axiosInstance.get(`/stamps/${stampId}`);
-        setStampDetails(response.data);
-        // console.log("Stamp Details:", response.data);
-
-      } catch (error) {
-        console.error("Error fetching stamp details:", error);
-      } finally {
-        setLoading(false);
-      }
     };
 
-    fetchStampDetails();
-  }, [stampId]);
-
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(price);
-  };
-
-  const addToCart = async () => {
-    try {
-      const response = await axiosInstance.post('/cart/add', {
-        stampId,
-        quantity
-      });
-      console.log("Added to cart:", response.data);
-      toast.success("Stamp added to cart successfully!");
-    } catch (error) {
-      console.error("Error adding to cart:", error);
-      toast.error("Failed to add to cart. Please try again.");
+    if (loading) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-screen gap-4 bg-background">
+                <Loader className="animate-spin text-IPCprimary" size={32} />
+                <span className="text-sm text-muted-foreground tracking-widest uppercase">Loading stamp…</span>
+            </div>
+        );
     }
-  }
 
-  if (loading) {
+    if (!stampDetails) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-screen gap-4 bg-background">
+                <p className="text-muted-foreground">Stamp not found.</p>
+                <Link to="/marketplace" className="text-xs uppercase tracking-widest text-IPCprimary hover:underline">
+                    ← Back to Marketplace
+                </Link>
+            </div>
+        );
+    }
+
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader className="animate-spin text-blue-600" size={40} />
-        <span className="ml-2 text-gray-600">Loading...</span>
-      </div>
+        <div className="min-h-screen bg-background">
+
+            {/* ── Page breadcrumb bar ── */}
+            <div className="border-b border-border bg-background sticky top-16 z-20">
+                <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
+                    <Link
+                        to="/marketplace"
+                        className="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-muted-foreground hover:text-IPCprimary transition-colors"
+                    >
+                        <ArrowLeft className="h-3.5 w-3.5" /> Marketplace
+                    </Link>
+                    <div className="flex items-center gap-3">
+                        <button
+                            type="button"
+                            onClick={() => toggleWishlist(stampDetails)}
+                            className={`p-2 border transition-all ${isWishlisted ? 'border-IPCsecondary text-IPCsecondary bg-IPCsecondary/5' : 'border-border text-muted-foreground hover:border-IPCsecondary hover:text-IPCsecondary'}`}
+                            title={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+                        >
+                            <Heart size={16} className={`transition-transform active:scale-125 ${isWishlisted ? 'fill-IPCsecondary' : ''}`} />
+                        </button>
+                        <button className="p-2 border border-border text-muted-foreground hover:border-IPCprimary hover:text-IPCprimary transition-all">
+                            <Share2 size={16} />
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {/* ── Main Grid ── */}
+            <main className="max-w-6xl mx-auto px-6 py-12">
+                <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-12">
+
+                    {/* Left: Image */}
+                    <div className="space-y-4">
+                        <div className="relative aspect-square border border-border overflow-hidden bg-muted">
+                            {!imageError && stampDetails.imageUrl ? (
+                                <img
+                                    src={stampDetails.imageUrl}
+                                    alt={stampDetails.title}
+                                    className="w-full h-full object-cover"
+                                    onError={() => setImageError(true)}
+                                    loading="lazy"
+                                />
+                            ) : (
+                                <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-muted-foreground">
+                                    <Tag className="h-12 w-12 opacity-30" />
+                                    <p className="text-sm">No image available</p>
+                                </div>
+                            )}
+
+                            {/* Status badge */}
+                            {stampDetails.isForSale ? (
+                                <div className="absolute top-4 left-4">
+                                    <span className="inline-block px-3 py-1 bg-IPCprimary text-white text-[10px] font-bold tracking-widest uppercase">
+                                        For Sale
+                                    </span>
+                                </div>
+                            ) : (
+                                <div className="absolute top-4 left-4">
+                                    <span className="inline-block px-3 py-1 bg-muted border border-border text-muted-foreground text-[10px] font-bold tracking-widest uppercase">
+                                        Not for Sale
+                                    </span>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Quick facts strip */}
+                        <div className="grid grid-cols-4 divide-x divide-border border border-border">
+                            {[
+                                { label: 'Year', value: stampDetails.year },
+                                { label: 'Country', value: stampDetails.country },
+                                { label: 'Condition', value: stampDetails.condition },
+                                { label: 'ID', value: `#${stampDetails._id?.slice(-6).toUpperCase()}` },
+                            ].map(({ label, value }) => (
+                                <div key={label} className="px-3 py-3 text-center">
+                                    <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">{label}</p>
+                                    <p className="text-xs font-semibold text-foreground truncate">{value || '—'}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Right: Details + Purchase */}
+                    <div className="space-y-6">
+
+                        {/* Category tags */}
+                        {stampDetails.category?.length > 0 && (
+                            <div className="flex flex-wrap gap-2">
+                                {stampDetails.category.map((cat, i) => (
+                                    <span key={i} className="px-3 py-1 border border-IPCprimary/40 text-IPCprimary text-[10px] tracking-widest uppercase font-semibold">
+                                        {cat}
+                                    </span>
+                                ))}
+                            </div>
+                        )}
+
+                        {/* Title */}
+                        <div>
+                            <h1 className="text-3xl font-light text-foreground leading-tight">{stampDetails.title}</h1>
+                        </div>
+
+                        {/* Price */}
+                        {stampDetails.isForSale && (
+                            <div className="flex items-baseline gap-3">
+                                <span className="text-4xl font-bold text-IPCprimary">{formatPrice(stampDetails.price)}</span>
+                                {stampDetails.originalPrice && stampDetails.originalPrice > stampDetails.price && (
+                                    <>
+                                        <span className="text-lg text-muted-foreground line-through">{formatPrice(stampDetails.originalPrice)}</span>
+                                        <span className="px-2 py-0.5 bg-IPCsecondary text-white text-xs font-bold">
+                                            -{Math.round(((stampDetails.originalPrice - stampDetails.price) / stampDetails.originalPrice) * 100)}%
+                                        </span>
+                                    </>
+                                )}
+                            </div>
+                        )}
+
+                        {/* Description */}
+                        <div className="space-y-2">
+                            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-IPCprimary">Description</p>
+                            <div className="border-l-2 border-IPCsecondary pl-4">
+                                <p className="text-sm text-muted-foreground leading-relaxed">{stampDetails.description}</p>
+                            </div>
+                        </div>
+
+                        {/* Divider */}
+                        <div className="h-px bg-border" />
+
+                        {/* Purchase block */}
+                        {stampDetails.isForSale ? (
+                            <div className="space-y-4">
+                                {/* Quantity */}
+                                <div className="space-y-2">
+                                    <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground">Quantity</p>
+                                    <div className="inline-flex items-center border border-border">
+                                        <button
+                                            onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                                            className="w-10 h-10 flex items-center justify-center text-muted-foreground hover:text-IPCprimary hover:bg-IPCprimary/5 transition-colors border-r border-border"
+                                        >
+                                            <Minus className="h-3.5 w-3.5" />
+                                        </button>
+                                        <span className="w-12 text-center text-sm font-semibold">{quantity}</span>
+                                        <button
+                                            onClick={() => setQuantity(q => q + 1)}
+                                            className="w-10 h-10 flex items-center justify-center text-muted-foreground hover:text-IPCprimary hover:bg-IPCprimary/5 transition-colors border-l border-border"
+                                        >
+                                            <Plus className="h-3.5 w-3.5" />
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Add to cart */}
+                                <button
+                                    onClick={addToCart}
+                                    disabled={addingToCart}
+                                    className="w-full inline-flex items-center justify-center gap-3 py-4 bg-IPCprimary text-white text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {addingToCart ? (
+                                        <Loader className="h-4 w-4 animate-spin" />
+                                    ) : (
+                                        <ShoppingCart className="h-4 w-4" />
+                                    )}
+                                    {addingToCart ? 'Adding…' : 'Add to Cart'}
+                                </button>
+
+                                {/* Total */}
+                                <div className="flex items-center justify-between text-sm border border-border px-4 py-3 bg-IPCprimary/5">
+                                    <span className="text-muted-foreground text-xs uppercase tracking-wider">Total</span>
+                                    <span className="font-bold text-IPCprimary">{formatPrice(stampDetails.price * quantity)}</span>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="border border-border px-5 py-5 text-center space-y-2">
+                                <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Not Available for Purchase</p>
+                                <p className="text-sm text-muted-foreground">This stamp is part of a private collection.</p>
+                            </div>
+                        )}
+
+                        {/* Mount into Virtual Album */}
+                        <div className="pt-2">
+                            <button
+                                type="button"
+                                onClick={async () => {
+                                    if (mountedInAlbum) {
+                                        toast.info("This stamp is already mounted in your virtual album!");
+                                        return;
+                                    }
+                                    setMountingAlbum(true);
+                                    try {
+                                        await mountStamp(stampId, "Mounted from stamp catalog");
+                                    } catch (err) {
+                                        // toast handled in store
+                                    } finally {
+                                        setMountingAlbum(false);
+                                    }
+                                }}
+                                disabled={mountingAlbum || mountedInAlbum}
+                                className={`w-full inline-flex items-center justify-center gap-2 py-3 border text-xs font-semibold uppercase tracking-widest transition-all ${
+                                    mountedInAlbum
+                                        ? 'border-border text-muted-foreground bg-muted/40 cursor-default'
+                                        : 'border-border hover:border-IPCprimary hover:text-IPCprimary hover:bg-IPCprimary/5'
+                                }`}
+                            >
+                                {mountingAlbum ? (
+                                    <Loader className="h-3.5 w-3.5 animate-spin" />
+                                ) : (
+                                    <BookOpen className="h-3.5 w-3.5" />
+                                )}
+                                {mountedInAlbum ? 'Mounted in Virtual Album' : 'Mount to Virtual Album'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Collector Reviews & Condition Grading */}
+                <StampReviewsSection stampId={stampId} />
+            </main>
+        </div>
     );
-  }
-
-
-  return (
-    stampDetails && <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            {/* <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors">
-              <ArrowLeft size={20} />
-              <span>Back to Marketplace</span>
-            </button> */}
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => setIsWishlisted(!isWishlisted)}
-                className={`p-2 rounded-full transition-colors ${isWishlisted ? 'text-red-500 bg-red-50' : 'text-gray-400 hover:text-red-500'}`}
-              >
-                <Heart size={20} fill={isWishlisted ? 'currentColor' : 'none'} />
-              </button>
-              <button className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
-                <Share2 size={20} />
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-
-          {/* Image */}
-          <div className="space-y-4">
-            <div className="aspect-square bg-white rounded-lg border border-gray-200 overflow-hidden">
-              {!imageError && stampDetails?.imageUrl ? (
-                <img
-                  src={stampDetails?.imageUrl}
-                  alt={stampDetails?.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
-                  onError={handleImageError}
-                  loading="lazy"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center bg-gray-200">
-                  <div className="text-center text-gray-500">
-                    <Tag className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                    <p className="text-sm">No Image</p>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Product Details */}
-          <div className="space-y-6">
-
-            {/* Title and Categories */}
-            <div>
-              <div className="flex flex-wrap gap-2 mb-3">
-                {stampDetails.category.map((cat, index) => (
-                  <span key={index} className="px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full">
-                    {cat}
-                  </span>
-                ))}
-                {!stampDetails.isForSale && (
-                  <span className="px-3 py-1 bg-gray-100 text-gray-800 text-sm font-medium rounded-full">
-                    Not For Sale
-                  </span>
-                )}
-                {stampDetails.isMuseumPiece && (
-                  <span className="px-3 py-1 bg-purple-100 text-purple-800 text-sm font-medium rounded-full">
-                    Museum Piece
-                  </span>
-                )}
-              </div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-4">{stampDetails.title}</h1>
-              {stampDetails.isForSale && (
-                <div className="mb-4">
-                  <span className="text-3xl font-bold text-gray-900">{formatPrice(stampDetails.price)}</span>
-                </div>
-              )}
-            </div>
-
-            {/* Key Details */}
-            <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
-              <div>
-                <span className="text-sm text-gray-600">Year</span>
-                <p className="font-semibold">{stampDetails.year}</p>
-              </div>
-              <div>
-                <span className="text-sm text-gray-600">Country</span>
-                <p className="font-semibold">{stampDetails.country}</p>
-              </div>
-              <div>
-                <span className="text-sm text-gray-600">Category</span>
-                <p className="font-semibold">{stampDetails.category.join(', ')}</p>
-              </div>
-              <div>
-                <span className="text-sm text-gray-600">ID</span>
-                <p className="font-semibold text-xs">{stampDetails._id.slice(-8)}</p>
-              </div>
-            </div>
-
-            {/* Description */}
-            <div className="bg-white p-4 rounded-lg border border-gray-200">
-              <h3 className="font-semibold mb-2">Description</h3>
-              <p className="text-gray-700">{stampDetails.description}</p>
-            </div>
-
-            {/* Purchase Options - Only show if for sale */}
-            {stampDetails.isForSale && (
-              <div className="space-y-4 p-6 bg-white border border-gray-200 rounded-lg">
-                <Button 
-                  className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
-                  onClick={addToCart}
-                >
-                  <ShoppingCart size={20} />
-                  Add to Cart
-                </Button>
-              </div>
-            )}
-
-            {/* Not for sale message */}
-            {!stampDetails.isForSale && (
-              <div className="p-6 bg-gray-100 border border-gray-200 rounded-lg text-center">
-                <p className="text-gray-600 mb-4">This stampDetails is not currently for sale</p>
-                {/* <button className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
-                  Contact Owner
-                </button> */}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Owner Information */}
-        {/* <div className="mt-12 bg-white p-6 rounded-lg border border-gray-200">
-          <h2 className="text-xl font-semibold mb-4">Owner Information</h2>
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-              <span className="text-blue-600 font-semibold">
-                {stampDetails.owner.slice(-4).toUpperCase()}
-              </span>
-            </div>
-            <div>
-              <p className="font-medium">Owner ID: {stampDetails.owner}</p>
-              <p className="text-sm text-gray-600">Verified Member</p>
-            </div>
-          </div>
-        </div> */}
-      </main>
-    </div>
-  );
 }

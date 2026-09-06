@@ -5,7 +5,7 @@ const stampSchema = new mongoose.Schema({
     country: { type: String, required: true },
     year: { type: Number, required: true },
     category: { type: [String], required: true },
-    condition: { type: String, enum: ['Mint', 'Used', 'Damaged'], default: 'Mint' },
+    condition: { type: String, enum: ['Mint', 'Used', 'First Day Cover', 'Damaged'], default: 'Mint' },
     description: { type: String, required: true },
     imageUrl: { type: String, required: true },
     isForSale: { type: Boolean, default: false },

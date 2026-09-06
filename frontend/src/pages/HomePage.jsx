@@ -1,132 +1,174 @@
 import React from 'react'
 import Hero from '../components/Hero'
 import { Link } from 'react-router-dom'
+import { ArrowRight, BookOpen, ShoppingBag, Library, Users, Star, Clock } from 'lucide-react'
+
+// ── Section data ──────────────────────────────────────────────
+const historyCards = [
+  {
+    eyebrow: 'The Penny Black Era',
+    title: 'The World\'s First Stamp',
+    body: 'Issued in 1840 by the United Kingdom, the Penny Black revolutionised postal services and sparked philately as a hobby. A single engraved image of Queen Victoria — no country name needed.',
+    cta: 'Learn More', to: '/learn',
+  },
+  {
+    eyebrow: 'Global Expansion',
+    title: 'Stamp Collecting Goes Global',
+    body: 'By the 1860s, the first stamp albums and specialised catalogues were introduced. Nations competed to issue the most beautiful stamps, turning a postal tool into an art form.',
+    cta: 'Explore History', to: '/learn',
+  },
+]
+
+const facts = [
+  {
+    eyebrow: 'Printing Error',
+    title: 'The Inverted Jenny',
+    body: 'A 1918 U.S. airmail stamp depicting the Curtiss JN-4 biplane printed upside-down. Only 100 exist, making it one of the most valuable stamps ever.',
+    cta: 'Learn More', to: '/learn',
+  },
+  {
+    eyebrow: 'Colonial Rarity',
+    title: 'The Blue Mauritius',
+    body: 'Issued in 1847 by British Mauritius, fewer than 30 examples survive. A single copy has sold for over $2 million at auction.',
+    cta: 'Explore Rare Stamps', to: '/museum',
+  },
+]
+
+const actions = [
+  { icon: ShoppingBag, label: 'Marketplace', desc: 'Browse and buy authenticated stamps from trusted collectors.', cta: 'Browse Stamps', to: '/marketplace', accent: 'bg-IPCprimary' },
+  { icon: Library, label: 'Museum', desc: 'Explore our curated archive of historically significant stamps.', cta: 'Visit Museum', to: '/museum', accent: 'bg-IPCaccent' },
+  { icon: Users, label: 'Community', desc: 'Share discoveries and connect with fellow philatelists.', cta: 'Join Now', to: '/community', accent: 'bg-IPCsecondary' },
+  { icon: BookOpen, label: 'Learn', desc: 'Read the history of stamps and discover stories behind them.', cta: 'Read Guide', to: '/learn', accent: 'bg-IPCprimary' },
+]
+
+// ── Reusable article card ─────────────────────────────────────
+const ArticleCard = ({ eyebrow, title, body, cta, to, index }) => (
+  <article
+    className="group border border-border bg-background hover:border-IPCprimary/40 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md flex flex-col"
+    style={{ animationDelay: `${index * 100}ms` }}
+  >
+    <div className="p-6 flex flex-col flex-1 gap-3">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-IPCsecondary">{eyebrow}</p>
+      <h3 className="text-xl font-semibold text-foreground leading-snug group-hover:text-IPCprimary transition-colors">{title}</h3>
+      <p className="text-sm text-muted-foreground leading-relaxed flex-1">{body}</p>
+      <div className="pt-2 border-t border-border mt-2">
+        <Link
+          to={to}
+          className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-IPCprimary hover:gap-3 transition-all"
+        >
+          {cta} <ArrowRight className="h-3.5 w-3.5" />
+        </Link>
+      </div>
+    </div>
+  </article>
+)
+
+// ── Section wrapper ───────────────────────────────────────────
+const Section = ({ eyebrow, title, children, className = '' }) => (
+  <section className={`max-w-7xl mx-auto px-6 py-16 ${className}`}>
+    <div className="mb-10">
+      <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-IPCsecondary mb-3">{eyebrow}</p>
+      <h2 className="text-3xl font-light text-foreground">{title}</h2>
+      <div className="mt-3 w-12 h-0.5 bg-IPCsecondary" />
+    </div>
+    {children}
+  </section>
+)
 
 const Home = () => {
   return (
-    <div className='flex flex-col items-center h-full bg-gray-100'>
+    <div className="flex flex-col bg-background">
       <Hero />
-      {/* History Section */}
-      <section className="w-full mx-auto p-10 mb-4 mt-4">
-        <h2 className="text-4xl font-bold text-slate-700 mb-6">The History of Stamp Collecting</h2>
-        <p className="text-lg text-gray-600 mb-8">Explore the origins and evolution of philately, the art of stamp collecting.</p>
-        
-        <div className="bg-white rounded-lg shadow-md p-8 mb-8">
-          <h3 className="text-3xl font-semibold text-slate-700 mb-4">The Penny Black</h3>
-          <p className="text-lg text-gray-600 mb-6">
-            The world's first adhesive postage stamp, the Penny Black, was issued in the United
-            Kingdom in 1840. This groundbreaking stamp revolutionized postal services and sparked the beginning of
-            stamp collecting as a hobby.
-          </p>
-          <Link to="/learn" className="inline-block hover:bg-IPCtext bg-IPCsecondary text-white px-6 py-3 rounded transition-colors duration-300">
-            Learn More
-          </Link>
-        </div>
 
-        <div className="bg-white rounded-lg shadow-md p-8 mb-8">
-          <h3 className="text-3xl font-semibold text-slate-700 mb-4">Stamp Collecting Goes Global</h3>
-          <p className="text-lg text-gray-600 mb-6">
-            As postal services expanded worldwide, stamp collecting quickly became a popular
-            pastime among the general public. By the 1860s, the first stamp albums and specialized catalogs were
-            introduced, further fueling the growth of philately.
-          </p>
-          <Link to="/learn" className="inline-block hover:bg-IPCtext bg-IPCsecondary text-white px-6 py-3 rounded transition-colors duration-300">
-            Explore History
-          </Link>
+      {/* ── Stats strip ── */}
+      <div className="border-y border-border bg-IPCprimary text-white">
+        <div className="max-w-7xl mx-auto px-6 py-4 grid grid-cols-2 md:grid-cols-4 divide-x divide-white/10">
+          {[
+            { value: '1840', label: 'Year of First Stamp' },
+            { value: '500+', label: 'Rare Stamps Listed' },
+            { value: '12K+', label: 'Collectors Worldwide' },
+            { value: '98%', label: 'Authenticated Items' },
+          ].map(({ value, label }) => (
+            <div key={label} className="px-6 py-2 text-center">
+              <p className="text-2xl font-bold text-white">{value}</p>
+              <p className="text-[10px] uppercase tracking-widest text-IPCtext mt-0.5">{label}</p>
+            </div>
+          ))}
         </div>
-      </section>
+      </div>
 
-      {/* Fascinating Facts Section */}
-      <section className="w-full mx-auto p-10 mb-4 mt-4">
-        <h2 className="text-4xl font-bold text-slate-700 mb-6">Fascinating Facts About Stamps</h2>
-        <p className="text-lg text-gray-600 mb-8">
-          Discover the unique stories and characteristics behind some of the world's most remarkable stamps.
-        </p>
-        
-        <div className="bg-white rounded-lg shadow-md p-8 mb-8">
-          <h3 className="text-3xl font-semibold text-slate-700 mb-4">The Inverted Jenny</h3>
-          <p className="text-lg text-gray-600 mb-6">
-            The Inverted Jenny is a rare stamp from the United States featuring an inverted
-            picture of a Curtiss JN-4 biplane. This printing error has made it one of the most valuable and
-            sought-after stamps in the world.
-          </p>
-          <Link to="/learn" className="inline-block hover:bg-IPCtext bg-IPCsecondary text-white px-6 py-3 rounded transition-colors duration-300">
-            Learn More
-          </Link>
+      {/* ── History Section ── */}
+      <Section eyebrow="Philately" title="The History of Stamp Collecting">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-border">
+          {historyCards.map((card, i) => (
+            <div key={card.title} className="bg-background">
+              <ArticleCard {...card} index={i} />
+            </div>
+          ))}
         </div>
+      </Section>
 
-        <div className="bg-white rounded-lg shadow-md p-8 mb-8">
-          <h3 className="text-3xl font-semibold text-slate-700 mb-4">The Blue Mauritius</h3>
-          <p className="text-lg text-gray-600 mb-6">
-            The Blue Mauritius, also known as the 'Penny Bordeaux', is a rare stamp issued by
-            the British colony of Mauritius in 1847. It is considered one of the most valuable and famous stamps in
-            the world, with only a few surviving examples.
-          </p>
-          <Link to="/museum" className="inline-block hover:bg-IPCtext bg-IPCsecondary text-white px-6 py-3 rounded transition-colors duration-300">
-            Explore Rare Stamps
-          </Link>
+      {/* ── Facts Section ── */}
+      <Section eyebrow="Did you know?" title="Fascinating Facts About Stamps" className="bg-IPCprimary/3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-border">
+          {facts.map((card, i) => (
+            <div key={card.title} className="bg-background">
+              <ArticleCard {...card} index={i} />
+            </div>
+          ))}
         </div>
-      </section>
+      </Section>
 
-      {/* Start Your Collection Section */}
-      <section className="w-full mx-auto p-10 mb-4 mt-4">
-        <h2 className="text-4xl font-bold text-slate-700 mb-6">Start Your Stamp Collection</h2>
-        <p className="text-lg text-gray-600 mb-8">
-          Begin your journey into the world of philately with these helpful tips and resources.
-        </p>
-        
-        <div className="bg-white rounded-lg shadow-md p-8 mb-8">
-          <h3 className="text-3xl font-semibold text-slate-700 mb-4">Beginner's Guide to Stamp Collecting</h3>
-          <p className="text-lg text-gray-600 mb-6">
-            Learn the basics of stamp collecting, including essential tools, storage techniques,
-            and how to build a collection that suits your interests.
-          </p>
-          <Link to="/learn" className="inline-block hover:bg-IPCtext bg-IPCsecondary text-white px-6 py-3 rounded transition-colors duration-300">
-            Read Guide
-          </Link>
+      {/* ── Action Cards ── */}
+      <Section eyebrow="Explore" title="Dive Into the Hobby">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-border">
+          {actions.map(({ icon: Icon, label, desc, cta, to, accent }) => (
+            <div key={label} className="bg-background group border border-transparent hover:border-IPCprimary/30 transition-all duration-300 hover:-translate-y-0.5 flex flex-col p-6 gap-4">
+              <div className={`w-10 h-10 ${accent} flex items-center justify-center shrink-0`}>
+                <Icon className="h-5 w-5 text-white" />
+              </div>
+              <div className="flex-1">
+                <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground mb-1">{label}</p>
+                <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
+              </div>
+              <Link
+                to={to}
+                className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-IPCprimary hover:gap-3 transition-all group-hover:text-IPCsecondary"
+              >
+                {cta} <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+          ))}
         </div>
+      </Section>
 
-        <div className="bg-white rounded-lg shadow-md p-8 mb-8">
-          <h3 className="text-3xl font-semibold text-slate-700 mb-4">Stamp Collecting Clubs and Museums</h3>
-          <p className="text-lg text-gray-600 mb-6">
-            Connect with fellow philatelists, attend local stamp collecting events, and visit
-            museums to explore the rich history and culture of stamp collecting.
-          </p>
-          <Link to="/community" className="inline-block hover:bg-IPCtext bg-IPCsecondary text-white px-6 py-3 rounded transition-colors duration-300">
-            Find Local Clubs
-          </Link>
+      {/* ── Bottom CTA banner ── */}
+      <div className="relative bg-IPCprimary text-white overflow-hidden">
+        <div className="absolute top-0 right-0 w-80 h-80 opacity-5">
+          <div className="absolute -top-10 -right-10 w-80 h-80 rounded-full border-[50px] border-white" />
         </div>
-      </section>
-
-      {/* Dive into the Hobby Section */}
-      <section className="w-full mx-auto p-10 mb-4 mt-4">
-        <h2 className="text-4xl font-bold text-slate-700 mb-6">Dive into the Hobby</h2>
-        <p className="text-lg text-gray-600 mb-8">
-          Explore the many ways to engage with the world of stamp collecting.
-        </p>
-        
-        <div className="bg-white rounded-lg shadow-md p-8 mb-8">
-          <h3 className="text-3xl font-semibold text-slate-700 mb-4">Start Your Collection</h3>
-          <p className="text-lg text-gray-600 mb-6">
-            Begin your stamp collection by focusing on a specific theme, country, or historical
-            era that interests you. Discover the joy of hunting for rare and unique stamps.
-          </p>
-          <Link to="/marketplace" className="inline-block hover:bg-IPCtext bg-IPCsecondary text-white px-6 py-3 rounded transition-colors duration-300">
-            Browse Stamps
-          </Link>
+        <div className="max-w-7xl mx-auto px-6 py-14 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-IPCtext mb-2">Start Today</p>
+            <h2 className="text-3xl font-light text-white">Begin Your Stamp Collection</h2>
+            <p className="text-white/60 text-sm mt-2 max-w-md">Join thousands of collectors who have found their piece of postal history.</p>
+          </div>
+          <div className="flex gap-3 shrink-0">
+            <Link
+              to="/marketplace"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-IPCsecondary text-white text-xs font-semibold uppercase tracking-widest hover:opacity-90 transition-opacity"
+            >
+              Browse Stamps <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+            <Link
+              to="/community"
+              className="inline-flex items-center gap-2 px-6 py-3 border border-white/30 text-white text-xs font-semibold uppercase tracking-widest hover:bg-white/10 transition-colors"
+            >
+              Join Community
+            </Link>
+          </div>
         </div>
-
-        <div className="bg-white rounded-lg shadow-md p-8 mb-8">
-          <h3 className="text-3xl font-semibold text-slate-700 mb-4">Join the Community</h3>
-          <p className="text-lg text-gray-600 mb-6">
-            Connect with fellow stamp collectors, share knowledge, and trade stamps through our
-            online platform and local meetups.
-          </p>
-          <Link to="/community" className="inline-block hover:bg-IPCtext bg-IPCsecondary text-white px-6 py-3 rounded transition-colors duration-300">
-            Join Now
-          </Link>
-        </div>
-      </section>
+      </div>
     </div>
   )
 }

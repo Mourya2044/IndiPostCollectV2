@@ -22,6 +22,7 @@ import ReturnPage from './pages/ReturnPage'
 import AdminPage from './pages/AdminPage'
 import EventsPage from './pages/EventsPage'
 import AIAssistantPage from './pages/AIAssistantPage'
+import OrderDetailPage from './pages/OrderDetailPage'
 
 
 const AppRoutes = () => {
@@ -53,8 +54,9 @@ const AppRoutes = () => {
 
       <Route path='/cart' element={<CartPage />} />
 
-      <Route path='/checkout' element={<CheckoutPage />} />
+      <Route path='/checkout' element={user ? <CheckoutPage /> : <Navigate to="/login" />} />
       <Route path='/return' element={<ReturnPage />} />
+      <Route path='/order/:id' element={user ? <OrderDetailPage /> : <Navigate to="/login" />} />
 
       <Route path='/payment-success' element={<PaymentSuccess/>}/>
       <Route path='/payment-failed' element={<PaymentFailed/>}/>

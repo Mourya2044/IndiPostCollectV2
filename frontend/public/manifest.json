@@ -1,0 +1,24 @@
+{
+  "name": "IndiPostCollect - National Philatelic Bureau",
+  "short_name": "IndiPostCollect",
+  "description": "Certified Indian Philately Marketplace, Virtual Stamp Binder & Archival Collection Registry",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#244855",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/IndiPostCollect.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/IndiPostCollect.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

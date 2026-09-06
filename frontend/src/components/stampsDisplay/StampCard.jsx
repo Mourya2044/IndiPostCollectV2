@@ -1,193 +1,151 @@
 import { useState } from "react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-    Heart,
-    ShoppingCart,
-    Eye,
-    Tag,
-    Calendar,
-    MapPin,
-    Library
-} from "lucide-react";
+import { Heart, ShoppingCart, Eye, Tag, Calendar, MapPin, Library } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useWishlistStore } from "@/store/useWishlistStore";
 
 export default function StampCard({ stamp }) {
-    const [isLiked, setIsLiked] = useState(false);
+    const { isInWishlist, toggleWishlist } = useWishlistStore();
+    const isLiked = isInWishlist(stamp._id);
     const [imageError, setImageError] = useState(false);
-
-    const handleImageError = () => {
-        setImageError(true);
-    };
 
     const formatPrice = (price) => {
         if (price == null) return null;
-        return new Intl.NumberFormat('en-US', {
+        return new Intl.NumberFormat('en-IN', {
             style: 'currency',
-            currency: 'USD'
+            currency: 'USD',
+            maximumFractionDigits: 0,
         }).format(price);
     };
 
-    // const formatDate = (dateString) => {
-    //     if (!dateString) return null;
-    //     return new Date(dateString).toLocaleDateString();
-    // };
+    const discountPct = stamp.originalPrice && stamp.price && stamp.originalPrice > stamp.price
+        ? Math.round(((stamp.originalPrice - stamp.price) / stamp.originalPrice) * 100)
+        : null;
 
     return (
-        <Card className="group hover:shadow-lg transition-shadow duration-200 relative overflow-hidden">
-            {/* Badge for special items */}
-            {stamp.isMuseumPiece && (
-                <Badge className="absolute top-2 right-2 z-10 bg-purple-100 text-purple-800">
-                    <Library className="h-3 w-3 mr-1" />
-                    Museum
-                </Badge>
-            )}
+        <div className="group relative bg-background border border-border flex flex-col overflow-hidden transition-all duration-300 hover:border-IPCprimary/40 hover:shadow-lg hover:-translate-y-0.5">
 
-            {/* Image Section */}
-            <div className="relative overflow-hidden bg-gray-100 aspect-square">
+            {/* ── Image ── */}
+            <div className="relative aspect-[4/3] overflow-hidden bg-muted">
                 {!imageError && stamp.imageUrl ? (
                     <img
                         src={stamp.imageUrl}
                         alt={stamp.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
-                        onError={handleImageError}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        onError={() => setImageError(true)}
                         loading="lazy"
                     />
                 ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gray-200">
-                        <div className="text-center text-gray-500">
-                            <Tag className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                            <p className="text-sm">No Image</p>
-                        </div>
+                    <div className="w-full h-full flex flex-col items-center justify-center gap-2 bg-muted text-muted-foreground">
+                        <Tag className="h-10 w-10 opacity-30" />
+                        <span className="text-xs">No image</span>
                     </div>
                 )}
 
-                {/* Overlay with quick actions */}
-                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 flex items-center justify-center opacity-0 group-hover:opacity-100">
-                    <div className="flex gap-2">
-                        <Button
-                            size="sm"
-                            variant="secondary"
-                            className="h-8 w-8 p-0 rounded-full"
-                            onClick={() => setIsLiked(!isLiked)}
-                        >
-                            <Heart
-                                className={`h-4 w-4 ${isLiked ? 'fill-red-500 text-red-500' : ''}`}
-                            />
-                        </Button>
-                        {/* <Button
-                            size="sm"
-                            variant="secondary"
-                            className="h-8 w-8 p-0 rounded-full"
-                        >
-                            <Eye className="h-4 w-4" />
-                        </Button> */}
-                    </div>
+                {/* Top-left badges */}
+                <div className="absolute top-3 left-3 flex flex-col gap-1.5">
+                    {stamp.forSale && (
+                        <span className="inline-block px-2 py-0.5 bg-IPCprimary text-white text-[10px] tracking-widest uppercase font-semibold">
+                            For Sale
+                        </span>
+                    )}
+                    {discountPct && (
+                        <span className="inline-block px-2 py-0.5 bg-IPCsecondary text-white text-[10px] tracking-widest uppercase font-semibold">
+                            -{discountPct}%
+                        </span>
+                    )}
+                </div>
+
+                {/* Top-right museum badge */}
+                {stamp.isMuseumPiece && (
+                    <span className="absolute top-3 right-3 inline-flex items-center gap-1 px-2 py-0.5 bg-IPCaccent text-white text-[10px] tracking-widest uppercase font-semibold">
+                        <Library className="h-3 w-3" /> Museum
+                    </span>
+                )}
+
+                {/* Hover overlay: wishlist */}
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/15 transition-all duration-300 flex items-end justify-end p-3 pointer-events-none">
+                    <button
+                        type="button"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            toggleWishlist(stamp);
+                        }}
+                        className={`pointer-events-auto transition-all duration-200 p-2 bg-background/90 backdrop-blur-sm border ${
+                            isLiked ? 'opacity-100 border-IPCsecondary text-IPCsecondary shadow-sm' : 'opacity-0 group-hover:opacity-100 border-border hover:border-IPCsecondary'
+                        }`}
+                        aria-label="Wishlist"
+                    >
+                        <Heart className={`h-4 w-4 transition-transform active:scale-125 ${isLiked ? 'fill-IPCsecondary text-IPCsecondary' : 'text-foreground'}`} />
+                    </button>
                 </div>
             </div>
 
-            <CardHeader className="pb-2">
-                <CardTitle className="text-lg font-semibold line-clamp-2 group-hover:text-blue-600 transition-colors">
-                    {stamp.title}
-                </CardTitle>
+            {/* ── Content ── */}
+            <div className="flex flex-col flex-1 p-4 gap-3">
 
                 {/* Categories */}
-                {stamp.categories && stamp.categories.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-2">
-                        {stamp.categories.map((category, index) => (
-                            <Badge key={index} variant="outline" className="text-xs">
-                                {category}
-                            </Badge>
+                {stamp.categories?.length > 0 && (
+                    <div className="flex flex-wrap gap-1">
+                        {stamp.categories.slice(0, 3).map((cat, i) => (
+                            <span key={i} className="text-[10px] px-2 py-0.5 border border-border text-muted-foreground tracking-wide uppercase">
+                                {cat}
+                            </span>
                         ))}
                     </div>
                 )}
-            </CardHeader>
 
-            <CardContent className="pt-0">
-                {/* Description */}
-                {stamp.description && (
-                    <p className="text-sm text-gray-600 line-clamp-3 mb-3">
-                        {stamp.description}
-                    </p>
-                )}
+                {/* Title */}
+                <h3 className="text-sm font-semibold leading-snug text-foreground group-hover:text-IPCprimary transition-colors line-clamp-2">
+                    {stamp.title}
+                </h3>
 
-                {/* Metadata */}
-                <div className="space-y-1 text-xs text-gray-500">
+                {/* Meta */}
+                <div className="flex items-center gap-4 text-[11px] text-muted-foreground">
                     {stamp.year && (
-                        <div className="flex items-center gap-1">
-                            <Calendar className="h-3 w-3" />
-                            <span>{stamp.year}</span>
-                        </div>
+                        <span className="flex items-center gap-1">
+                            <Calendar className="h-3 w-3" /> {stamp.year}
+                        </span>
                     )}
-
                     {stamp.country && (
-                        <div className="flex items-center gap-1">
-                            <MapPin className="h-3 w-3" />
-                            <span>{stamp.country}</span>
-                        </div>
-                    )}
-
-                    {stamp.condition && (
-                        <div className="flex items-center gap-1">
-                            <span className="font-medium">Condition:</span>
-                            <span>{stamp.condition}</span>
-                        </div>
+                        <span className="flex items-center gap-1">
+                            <MapPin className="h-3 w-3" /> {stamp.country}
+                        </span>
                     )}
                 </div>
 
-                {/* Price */}
-                {stamp.isForSale && (
-                    <div className="mt-3 pt-3 border-t">
-                        <div className="flex items-center justify-between">
-                            <span className="text-lg font-bold text-green-600">
-                                {formatPrice(stamp.price)}
+                {/* Spacer */}
+                <div className="flex-1" />
+
+                {/* Price + CTA row */}
+                <div className="flex items-center justify-between pt-3 border-t border-border mt-1">
+                    <div>
+                        {stamp.isForSale ? (
+                            <div className="flex items-baseline gap-2">
+                                <span className="text-base font-bold text-IPCprimary">{formatPrice(stamp.price)}</span>
+                                {stamp.originalPrice && stamp.originalPrice > stamp.price && (
+                                    <span className="text-xs text-muted-foreground line-through">{formatPrice(stamp.originalPrice)}</span>
+                                )}
+                            </div>
+                        ) : (
+                            <span className="text-[11px] text-muted-foreground uppercase tracking-wider">
+                                {stamp.isMuseumPiece ? 'Museum Piece' : 'Not for Sale'}
                             </span>
-                            {stamp.originalPrice && stamp.originalPrice > stamp.price && (
-                                <span className="text-sm text-gray-500 line-through">
-                                    {formatPrice(stamp.originalPrice)}
-                                </span>
-                            )}
-                        </div>
+                        )}
                     </div>
-                )}
-            </CardContent>
 
-            <CardFooter className="pt-0">
-                <div className="w-full flex gap-2">
-                    {stamp.forSale && (
-                        <Button className="flex-1" size="sm">
-                            <ShoppingCart className="h-4 w-4 mr-2" />
-                            {stamp.price ? 'Buy Now' : 'Contact Seller'}
-                        </Button>
-                    )}
-
-                    <Link to={`/${stamp.isMuseumPiece ? 'museum' : 'marketplace'}/${stamp._id}`} className="flex-1">
-                    <Button variant="outline" size="sm" className={stamp.forSale ? 'flex-1' : 'w-full'}>
-                        <Eye className="h-4 w-4 mr-2" />
-                        View Details
-                    </Button>
+                    <Link
+                        to={`/${stamp.isMuseumPiece ? 'museum' : 'marketplace'}/${stamp._id}`}
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 border border-IPCprimary text-IPCprimary hover:bg-IPCprimary hover:text-white transition-all duration-200"
+                    >
+                        <Eye className="h-3.5 w-3.5" />
+                        View
                     </Link>
                 </div>
-            </CardFooter>
+            </div>
 
-            {/* Sale indicator */}
-            {stamp.forSale && (
-                <div className="absolute top-2 left-2">
-                    <Badge className="bg-green-100 text-green-800">
-                        For Sale
-                    </Badge>
-                </div>
-            )}
-
-            {/* Discount badge */}
-            {stamp.originalPrice && stamp.price && stamp.originalPrice > stamp.price && (
-                <div className="absolute top-2 left-2 mt-6">
-                    <Badge className="bg-red-100 text-red-800">
-                        {Math.round(((stamp.originalPrice - stamp.price) / stamp.originalPrice) * 100)}% OFF
-                    </Badge>
-                </div>
-            )}
-        </Card>
+            {/* Bottom accent line on hover */}
+            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-IPCsecondary scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
+        </div>
     );
 }

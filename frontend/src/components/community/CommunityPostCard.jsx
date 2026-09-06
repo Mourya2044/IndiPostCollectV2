@@ -1,15 +1,9 @@
-import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card'
-import { Avatar } from '@radix-ui/react-avatar'
 import { AvatarFallback, AvatarImage } from '../ui/avatar'
-import { Dot, EllipsisVertical, Heart, MessageCircle, Share2, Trash } from 'lucide-react'
-import { Label } from '../ui/label'
+import { Avatar } from '@radix-ui/react-avatar'
+import { Heart, MessageCircle, Share2, EllipsisVertical, Trash } from 'lucide-react'
 import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
+  Carousel, CarouselContent, CarouselItem,
 } from "@/components/ui/carousel"
-import { Separator } from '../ui/separator'
-import { Badge } from '../ui/badge'
 import { useAuthStore } from '@/store/useAuthStore.js'
 import { Link } from 'react-router-dom'
 import { axiosInstance } from '@/lib/axios.js'
@@ -18,151 +12,149 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { toast } from 'sonner'
 
 const formatTimeAgo = (isoDate) => {
-  const now = new Date();
-  const posted = new Date(isoDate);
-  const diffInSeconds = Math.floor((posted - now) / 1000);
-
-  const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
-
+  const now = new Date()
+  const posted = new Date(isoDate)
+  const diffInSeconds = Math.floor((posted - now) / 1000)
+  const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" })
   const divisions = [
-    { value: 60, name: "second" },
-    { value: 60, name: "minute" },
-    { value: 24, name: "hour" },
-    { value: 7, name: "day" },
-    { value: 4.34524, name: "week" },
-    { value: 12, name: "month" },
+    { value: 60, name: "second" }, { value: 60, name: "minute" },
+    { value: 24, name: "hour" }, { value: 7, name: "day" },
+    { value: 4.34524, name: "week" }, { value: 12, name: "month" },
     { value: Infinity, name: "year" },
-  ];
-
-  let duration = diffInSeconds;
+  ]
+  let duration = diffInSeconds
   for (let i = 0; i < divisions.length; i++) {
-    if (Math.abs(duration) < divisions[i].value) {
-      return rtf.format(Math.round(duration), divisions[i].name);
-    }
-    duration /= divisions[i].value;
+    if (Math.abs(duration) < divisions[i].value) return rtf.format(Math.round(duration), divisions[i].name)
+    duration /= divisions[i].value
   }
-};
+}
 
 const CommunityPostCard = ({ post_ }) => {
-  const { user } = useAuthStore();
+  const { user } = useAuthStore()
+  const [post, setPost] = useState(post_)
 
-  // console.log("Post Card Rendered", post);
-  // console.log("User Details", user);
-
-
-  const [post, setPost] = useState(post_);
-
-  useEffect(() => {
-    setPost(post_);
-  }, [post_]);
+  useEffect(() => { setPost(post_) }, [post_])
 
   const handleLike = async () => {
     try {
-      const response = await axiosInstance.put(`/posts/like/${post._id}`);
-      setPost((prevPost) => ({
-        ...prevPost,
-        likes: response.data.post.likes, // Assuming the response contains the updated likes array
-      }));
-    } catch (error) {
-      console.error("Error liking the post:", error);
+      const response = await axiosInstance.put(`/posts/like/${post._id}`)
+      setPost((prev) => ({ ...prev, likes: response.data.post.likes }))
+    } catch (err) {
+      console.error("Error liking post:", err)
     }
   }
 
   const handleDelete = async () => {
     try {
-      await axiosInstance.delete(`/posts/${post._id}`);
-      toast.success("Post deleted successfully!");
-    } catch (error) {
-      console.error("Error deleting the post:", error);
-      toast.error("Failed to delete post. Please try again.");
+      await axiosInstance.delete(`/posts/${post._id}`)
+      toast.success("Post deleted!")
+    } catch (err) {
+      console.error("Error deleting post:", err)
+      toast.error("Failed to delete post.")
     }
   }
 
-  if (!post) {
-    return <div className="text-center text-muted-foreground">Loading...</div>;
-  }
-
+  if (!post) return null
+  const isLiked = post.likes.includes(user._id)
+  const isOwner = user._id == post.userId._id
 
   return (
-    <Card className="p-4 shadow-md hover:shadow-lg transition-shadow duration-300">
-      <CardHeader className={"flex gap-4 items-center"}>
-        <Avatar className={"shrink-0 size-10"}>
-          <AvatarImage
-            src={post.userId.profilePic}
-            alt={`@${post.userId.fullName}`}
-            className="object-cover rounded-full"
-          />
-          <AvatarFallback>{post.userId.fullName[0]}</AvatarFallback>
+    <article className="group bg-background border border-border hover:border-IPCprimary/30 transition-all duration-200 overflow-hidden">
+
+      {/* ── Header ── */}
+      <div className="flex items-center gap-3 px-4 pt-4 pb-3">
+        <Avatar className="shrink-0 size-9 border border-border overflow-hidden rounded-full">
+          <AvatarImage src={post.userId.profilePic} alt={post.userId.fullName} className="object-cover" />
+          <AvatarFallback className="text-xs bg-IPCprimary/10 text-IPCprimary font-semibold">
+            {post.userId.fullName[0]}
+          </AvatarFallback>
         </Avatar>
-        <div className="flex flex-col gap-2">
-          <CardTitle>{post.userId.fullName}</CardTitle>
-          <CardTitle className="font-medium">
-            {post.title}
-          </CardTitle>
-          <p className="text-xs text-muted-foreground">
-            {`Posted ${formatTimeAgo(post.createdAt)}`}
-          </p>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold text-foreground truncate">{post.userId.fullName}</p>
+          <p className="text-[10px] text-muted-foreground">{formatTimeAgo(post.createdAt)}</p>
         </div>
-        {user._id == post.userId._id && (
-          <DropdownMenu className="flex-1 justify-end ml-auto">
-            <DropdownMenuTrigger asChild className="ml-auto">
-              <EllipsisVertical />
+        {isOwner && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="p-1.5 text-muted-foreground hover:text-foreground transition-colors opacity-0 group-hover:opacity-100">
+                <EllipsisVertical className="h-4 w-4" />
+              </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem onClick={handleDelete}>
-                <Trash className="mr-2" />
-                Delete Post
+            <DropdownMenuContent align="end" className="border-border">
+              <DropdownMenuItem onClick={handleDelete} className="text-IPCsecondary focus:text-IPCsecondary cursor-pointer gap-2">
+                <Trash className="h-3.5 w-3.5" /> Delete Post
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         )}
-      </CardHeader>
-      <Separator />
+      </div>
+
+      {/* ── Title ── */}
+      <div className="px-4 pb-3">
+        <h3 className="text-sm font-semibold text-foreground leading-snug line-clamp-2 group-hover:text-IPCprimary transition-colors">
+          {post.title}
+        </h3>
+      </div>
+
+      {/* ── Images ── */}
       {post.images.length > 0 && (
-        <>
+        <div className="border-t border-b border-border bg-muted/30">
           <Carousel className="w-full">
-            <CarouselContent className={`flex gap-2 w-full h-full items-center ${post.images.length <= 1 ? "justify-center" : ""}`}>
+            <CarouselContent className={`flex gap-px items-center ${post.images.length <= 1 ? "justify-center" : ""}`}>
               {post.images.map((image, index) => (
-                <CarouselItem key={index} className="md:basis-auto lg:basis-auto">
-                  <div className="p-1 h-full w-fit relative flex items-center justify-center bg-gray-200/45 rounded-lg overflow-hidden">
-                    <Badge variant="secondary" className="absolute top-2 right-2 z-10">
-                      {index + 1} / {post.images.length}
-                    </Badge>
-                    <img src={image} className='object-fit rounded-md lg:h-[40vh]' alt={`UI Shot ${index + 1}`} />
+                <CarouselItem key={index} className="basis-auto">
+                  <div className="relative">
+                    <img
+                      src={image}
+                      className="max-h-72 object-cover"
+                      alt={`Image ${index + 1}`}
+                    />
+                    {post.images.length > 1 && (
+                      <span className="absolute bottom-2 right-2 px-1.5 py-0.5 bg-black/60 text-white text-[9px] font-medium">
+                        {index + 1} / {post.images.length}
+                      </span>
+                    )}
                   </div>
                 </CarouselItem>
               ))}
             </CarouselContent>
-            {/* <CarouselPrevious />
-        <CarouselNext /> */}
           </Carousel>
-          <Separator />
-        </>
+        </div>
       )}
-      <CardDescription className="text-sm text-muted-foreground">
-        {post.description}
-      </CardDescription>
-      <CardFooter className="flex justify-between lg:justify-start gap-4 p-0">
-        <div className="flex items-center justify-center my-auto gap-1 rounded-full hover:bg-gray-500/10 px-2 py-1 transition-colors duration-300 cursor-pointer">
-          <Heart
-            className={`text-red-500 size-5 ${post.likes.includes(user._id) ? "fill-red-500" : ""}`}
-            onClick={handleLike}
-          />
-          <Label>Likes {post.likes.length}</Label>
+
+      {/* ── Description ── */}
+      {post.description && (
+        <div className="px-4 py-3">
+          <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">{post.description}</p>
         </div>
-        <Link
-          className="flex items-center justify-center my-auto gap-1 rounded-full hover:bg-gray-500/10 px-2 py-1 transition-colors duration-300 cursor-pointer"
-          to={`/community/${post._id}`}
+      )}
+
+      {/* ── Footer Actions ── */}
+      <div className="flex items-center gap-1 px-3 py-2 border-t border-border">
+        <button
+          onClick={handleLike}
+          className={`inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium transition-colors ${
+            isLiked ? 'text-IPCsecondary' : 'text-muted-foreground hover:text-IPCsecondary'
+          }`}
         >
-          <MessageCircle className="size-5" />
-          <Label>Comments {post.comments}</Label>
+          <Heart className={`h-4 w-4 ${isLiked ? 'fill-IPCsecondary' : ''}`} />
+          <span>{post.likes.length}</span>
+        </button>
+
+        <Link
+          to={`/community/${post._id}`}
+          className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-muted-foreground hover:text-IPCprimary transition-colors"
+        >
+          <MessageCircle className="h-4 w-4" />
+          <span>{post.comments}</span>
         </Link>
-        <div className="flex items-center justify-center my-auto gap-1 rounded-full hover:bg-gray-500/10 px-2 py-1 transition-colors duration-300 cursor-pointer">
-          <Share2 className="size-5" />
-          <Label>Share</Label>
-        </div>
-      </CardFooter>
-    </Card>
+
+        <button className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-muted-foreground hover:text-IPCprimary transition-colors ml-auto">
+          <Share2 className="h-4 w-4" />
+          <span className="hidden sm:inline">Share</span>
+        </button>
+      </div>
+    </article>
   )
 }
 

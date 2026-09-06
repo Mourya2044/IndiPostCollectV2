@@ -131,32 +131,78 @@ export const deleteStamp = async (req, res) => {
     }
 }
 
+export const getStampFilterMeta = async (req, res) => {
+    try {
+        const categoriesRaw = await Stamp.distinct("category");
+        const conditions = await Stamp.distinct("condition");
+        const countries = await Stamp.distinct("country");
+
+        // Flatten in case of nested arrays and deduplicate
+        const flatCategories = Array.from(new Set(categoriesRaw.flat())).filter(Boolean);
+
+        res.status(200).json({
+            categories: flatCategories,
+            conditions: conditions.filter(Boolean),
+            countries: countries.filter(Boolean)
+        });
+    } catch (error) {
+        console.error("Error in getStampFilterMeta controller:", error.message);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
+
 export const getAllStamps = async (req, res) => {
     try {
-        const categories = req.query.categories?.split(",");
+        const categories = req.query.categories ? req.query.categories.split(",").map(c => c.trim()).filter(Boolean) : null;
+        const condition = req.query.condition ? req.query.condition.split(",").map(c => c.trim()).filter(Boolean) : null;
         const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 10;
+        const limit = parseInt(req.query.limit) || 12;
         const sort = req.query.sort || "asc";
-        const sortBy = req.query.sortBy || "createdAt";
+        const sortBy = req.query.sortBy || "title";
         const forSale = req.query.forSale === "true";
         const isMuseumPiece = req.query.isMuseumPiece === "true";
-        const search = req.query.search || "";
-        const regexsearch = req.query.regexsearch || "";
+        const search = req.query.search || req.query.regexsearch || "";
+        const minPrice = req.query.minPrice !== undefined && req.query.minPrice !== "" ? Number(req.query.minPrice) : null;
+        const maxPrice = req.query.maxPrice !== undefined && req.query.maxPrice !== "" ? Number(req.query.maxPrice) : null;
+        const minYear = req.query.minYear !== undefined && req.query.minYear !== "" ? Number(req.query.minYear) : null;
+        const maxYear = req.query.maxYear !== undefined && req.query.maxYear !== "" ? Number(req.query.maxYear) : null;
+        const historicalPeriod = req.query.historicalPeriod || null;
 
+        // Compute effective year boundaries
+        let effectiveMinYear = minYear;
+        let effectiveMaxYear = maxYear;
+        if (historicalPeriod === "pre-independence") {
+            effectiveMaxYear = effectiveMaxYear !== null ? Math.min(effectiveMaxYear, 1947) : 1947;
+        } else if (historicalPeriod === "post-independence") {
+            effectiveMinYear = effectiveMinYear !== null ? Math.max(effectiveMinYear, 1948) : 1948;
+        }
 
         const filter = {
-            ...(!!req.query.categories && { category: { $in: categories } }),
-            ...(!!req.query.forSale && { isForSale: forSale }),
-            ...(!!req.query.isMuseumPiece && { isMuseumPiece: isMuseumPiece }),
-            ...(!!req.query.search && { $text: { $search: search } }),
-            ...(!!req.query.regexsearch && {
+            ...(categories && categories.length > 0 && { category: { $in: categories } }),
+            ...(condition && condition.length > 0 && { condition: { $in: condition } }),
+            ...(req.query.forSale !== undefined && req.query.forSale !== "" && { isForSale: forSale }),
+            ...(req.query.isMuseumPiece !== undefined && req.query.isMuseumPiece !== "" && { isMuseumPiece: isMuseumPiece }),
+            ...(minPrice !== null || maxPrice !== null ? {
+                price: {
+                    ...(minPrice !== null && { $gte: minPrice }),
+                    ...(maxPrice !== null && { $lte: maxPrice })
+                }
+            } : {}),
+            ...(effectiveMinYear !== null || effectiveMaxYear !== null ? {
+                year: {
+                    ...(effectiveMinYear !== null && { $gte: effectiveMinYear }),
+                    ...(effectiveMaxYear !== null && { $lte: effectiveMaxYear })
+                }
+            } : {}),
+            ...(search.trim() && {
                 $or: [
-                    { title: { $regex: regexsearch, $options: "i" } },
-                    { description: { $regex: regexsearch, $options: "i" } },
-                    { country: { $regex: regexsearch, $options: "i" } }
+                    { title: { $regex: search.trim(), $options: "i" } },
+                    { description: { $regex: search.trim(), $options: "i" } },
+                    { country: { $regex: search.trim(), $options: "i" } },
+                    { category: { $regex: search.trim(), $options: "i" } }
                 ]
             })
-        }
+        };
 
         const stamps = await Stamp.find(filter)
             .sort({ [sortBy]: sort === "asc" ? 1 : -1 })
@@ -165,7 +211,13 @@ export const getAllStamps = async (req, res) => {
 
         const total = await Stamp.countDocuments(filter);
 
-        res.status(200).json({ totalItems: total, totalPages: Math.ceil(total / limit), page, stamps });
+        res.status(200).json({
+            total,
+            totalItems: total,
+            totalPages: Math.ceil(total / limit) || 1,
+            page,
+            stamps
+        });
     } catch (error) {
         console.error("Error in getAllStamps controller:", error.message);
         res.status(500).json({ message: "Internal server error" });

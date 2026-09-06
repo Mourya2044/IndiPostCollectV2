@@ -12,20 +12,38 @@
   --color-Postalprimary-bg: #DA1C1C;
   --color-Postalsecondary-bg: #ffd700;
 }
-* {
+h1, h2, h3, h4, h5, h6 {
   @apply font-serif;
+}
+body {
+  @apply font-sans antialiased;
 }
 
 .input-box {
-  @apply w-full flex justify-between gap-3 text-sm text-black bg-slate-100 rounded px-4 py-3 mb-4 mt-3 outline-none border border-slate-300 ;
+  @apply w-full flex justify-between gap-3 text-sm text-foreground bg-background px-4 py-3 mb-4 mt-3 outline-none border border-border focus-within:border-IPCprimary transition-all;
 }
 
 .btn-primary {
-  @apply bg-IPCaccent justify-center flex w-full rounded text-white text-sm p-1.5 hover:bg-IPCtext hover:text-IPCaccent;
+  @apply bg-IPCprimary justify-center flex w-full rounded-md text-white text-sm py-2.5 px-4 hover:opacity-90 transition-all font-medium;
 }
 
 .nav-menu {
-  @apply flex items-center gap-2 transition-all duration-300 ease-in-out hover:text-xl hover:text-white;
+  @apply relative inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-IPCprimary hover:scale-110 transition-all duration-200 origin-center py-1 cursor-pointer;
+}
+
+.nav-menu-active {
+  @apply text-IPCprimary font-semibold;
+}
+
+.nav-menu-active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: var(--color-IPCprimary);
+  border-radius: 9999px;
 }
 
 @theme inline {

@@ -1,6 +1,7 @@
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { useAuthStore } from '../store/useAuthStore.js';
-import { LogOut, LogIn, Menu } from "lucide-react";
+import { useWishlistStore } from '../store/useWishlistStore.js';
+import { LogOut, LogIn, Menu, Heart } from "lucide-react";
 import {
   Sheet,
   SheetClose,
@@ -13,36 +14,50 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar.jsx";
 
 const Navbar = () => {
   const { user, logout, showNav } = useAuthStore();
+  const { wishlist } = useWishlistStore();
 
   return (
     showNav && (
-      <header className="bg-IPCprimary text-IPCtext sticky w-full top-0 z-40">
-        <div className="mx-auto px-6 lg:px-2 h-14 flex items-center justify-between lg:justify-around">
+      <header className="bg-background/90 text-foreground border-b border-border sticky w-full top-0 z-40 backdrop-blur-md">
+        <div className="mx-auto px-6 lg:px-2 h-16 flex items-center justify-between lg:justify-around">
           {/* Logo */}
           <div className="flex items-center gap-2">
-            <Link to="/" className="flex items-center gap-2">
-              <h1 className="font-bold nav-menu">IndiPostCollect</h1>
+            <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+              <h1 className="font-bold text-xl text-IPCprimary">IndiPostCollect<span className="text-IPCsecondary">.</span></h1>
             </Link>
           </div>
 
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center gap-8">
-            <Link to="/learn" className="nav-menu">Learn</Link>
-            <Link to="/ai-assistant" className="nav-menu">AI Assistant</Link>
-            <Link to="/community" className="nav-menu">Community</Link>
-            <Link to="/museum" className="nav-menu">Museum</Link>
-            <Link to="/marketplace" className="nav-menu">Marketplace</Link>
-            <Link to="/events" className="nav-menu">Events</Link>
+            <NavLink to="/learn" className={({ isActive }) => `nav-menu ${isActive ? 'nav-menu-active' : ''}`}>Learn</NavLink>
+            <NavLink to="/ai-assistant" className={({ isActive }) => `nav-menu ${isActive ? 'nav-menu-active' : ''}`}>AI Assistant</NavLink>
+            <NavLink to="/community" className={({ isActive }) => `nav-menu ${isActive ? 'nav-menu-active' : ''}`}>Community</NavLink>
+            <NavLink to="/museum" className={({ isActive }) => `nav-menu ${isActive ? 'nav-menu-active' : ''}`}>Museum</NavLink>
+            <NavLink to="/marketplace" className={({ isActive }) => `nav-menu ${isActive ? 'nav-menu-active' : ''}`}>Marketplace</NavLink>
+            <NavLink to="/events" className={({ isActive }) => `nav-menu ${isActive ? 'nav-menu-active' : ''}`}>Events</NavLink>
           </div>
 
           {/* Desktop Right Side */}
           <div className="hidden lg:flex items-center gap-6">
             {!user ? (
-              <Link to="/login" className="nav-menu">Login</Link>
+              <NavLink to="/login" className={({ isActive }) => `nav-menu ${isActive ? 'nav-menu-active' : ''}`}>Login</NavLink>
             ) : (
-              <div className="flex items-center gap-4">
-                <Link to="/cart" className="nav-menu">Cart</Link>
-                <Link to="/profile" className="nav-menu">Profile</Link>
+              <div className="flex items-center gap-5">
+                <NavLink
+                  to="/profile?tab=wishlist"
+                  className={({ isActive }) => `nav-menu flex items-center gap-1.5 ${isActive ? 'nav-menu-active' : ''}`}
+                  title="Want-List & Saved Stamps"
+                >
+                  <Heart className="h-3.5 w-3.5 text-IPCsecondary" />
+                  <span>Saved</span>
+                  {wishlist.length > 0 && (
+                    <span className="px-1.5 py-0.2 bg-IPCsecondary text-white text-[9px] font-bold">
+                      {wishlist.length}
+                    </span>
+                  )}
+                </NavLink>
+                <NavLink to="/cart" className={({ isActive }) => `nav-menu ${isActive ? 'nav-menu-active' : ''}`}>Cart</NavLink>
+                <NavLink to="/profile" className={({ isActive }) => `nav-menu ${isActive ? 'nav-menu-active' : ''}`}>Profile</NavLink>
                 <button className="nav-menu" onClick={logout}>Logout</button>
               </div>
             )}
@@ -51,12 +66,12 @@ const Navbar = () => {
           {/* Mobile Navigation Sheet */}
           <Sheet className="lg:hidden">
             <SheetTrigger className="lg:hidden"><Menu /></SheetTrigger>
-            <SheetContent className="bg-IPCprimary text-IPCtext lg:hidden [&>button]:hidden">
-              <SheetHeader className="flex justify-center border-b-2 border-IPCtext">
+            <SheetContent className="bg-background text-foreground lg:hidden [&>button]:hidden border-l border-border">
+              <SheetHeader className="flex justify-center border-b border-border pb-4">
                 {!user && (
                   <SheetClose asChild>
-                    <Link to="/login" className="text-IPCtext w-full h-full">
-                      <Button variant="ghost"><LogIn size={32} /> Login</Button>
+                    <Link to="/login" className="text-foreground w-full h-full">
+                      <Button variant="ghost"><LogIn size={24} className="mr-2"/> Login</Button>
                     </Link>
                   </SheetClose>
                 )}
@@ -82,21 +97,33 @@ const Navbar = () => {
 
               {/* Mobile Nav Links */}
               <div className="p-4 flex items-start gap-4 flex-col">
-                <SheetClose asChild><Link to="/" className="nav-menu border-b-2 border-IPCtext w-full">Home</Link></SheetClose>
-                <SheetClose asChild><Link to="/learn" className="nav-menu border-b-2 border-IPCtext w-full">Learn</Link></SheetClose>
-                <SheetClose asChild><Link to="/ai-assistant" className="nav-menu border-b-2 border-IPCtext w-full">AI Assistant</Link></SheetClose>
-                <SheetClose asChild><Link to="/community" className="nav-menu border-b-2 border-IPCtext w-full">Community</Link></SheetClose>
-                <SheetClose asChild><Link to="/museum" className="nav-menu border-b-2 border-IPCtext w-full">Museum</Link></SheetClose>
-                <SheetClose asChild><Link to="/marketplace" className="nav-menu border-b-2 border-IPCtext w-full">Marketplace</Link></SheetClose>
-                <SheetClose asChild><Link to="/events" className="nav-menu border-b-2 border-IPCtext w-full">Events</Link></SheetClose>
+                <SheetClose asChild><NavLink to="/" className={({ isActive }) => `nav-menu border-b border-border pb-2 w-full ${isActive ? 'nav-menu-active' : ''}`}>Home</NavLink></SheetClose>
+                <SheetClose asChild><NavLink to="/learn" className={({ isActive }) => `nav-menu border-b border-border pb-2 w-full ${isActive ? 'nav-menu-active' : ''}`}>Learn</NavLink></SheetClose>
+                <SheetClose asChild><NavLink to="/ai-assistant" className={({ isActive }) => `nav-menu border-b border-border pb-2 w-full ${isActive ? 'nav-menu-active' : ''}`}>AI Assistant</NavLink></SheetClose>
+                <SheetClose asChild><NavLink to="/community" className={({ isActive }) => `nav-menu border-b border-border pb-2 w-full ${isActive ? 'nav-menu-active' : ''}`}>Community</NavLink></SheetClose>
+                <SheetClose asChild><NavLink to="/museum" className={({ isActive }) => `nav-menu border-b border-border pb-2 w-full ${isActive ? 'nav-menu-active' : ''}`}>Museum</NavLink></SheetClose>
+                <SheetClose asChild><NavLink to="/marketplace" className={({ isActive }) => `nav-menu border-b border-border pb-2 w-full ${isActive ? 'nav-menu-active' : ''}`}>Marketplace</NavLink></SheetClose>
+                <SheetClose asChild><NavLink to="/events" className={({ isActive }) => `nav-menu border-b border-border pb-2 w-full ${isActive ? 'nav-menu-active' : ''}`}>Events</NavLink></SheetClose>
 
                 {user && (
                   <>
                     <SheetClose asChild>
-                      <Link to="/cart" className="nav-menu border-b-2 border-IPCtext w-full">Cart</Link>
+                      <NavLink to="/profile?tab=wishlist" className={({ isActive }) => `nav-menu border-b border-border pb-2 w-full flex items-center justify-between ${isActive ? 'nav-menu-active' : ''}`}>
+                        <span className="flex items-center gap-2">
+                          <Heart className="h-3.5 w-3.5 text-IPCsecondary" /> Saved Stamps
+                        </span>
+                        {wishlist.length > 0 && (
+                          <span className="px-1.5 py-0.2 bg-IPCsecondary text-white text-[10px] font-bold">
+                            {wishlist.length}
+                          </span>
+                        )}
+                      </NavLink>
                     </SheetClose>
                     <SheetClose asChild>
-                      <Link to="/profile" className="nav-menu border-b-2 border-IPCtext w-full">Profile</Link>
+                      <NavLink to="/cart" className={({ isActive }) => `nav-menu border-b border-border pb-2 w-full ${isActive ? 'nav-menu-active' : ''}`}>Cart</NavLink>
+                    </SheetClose>
+                    <SheetClose asChild>
+                      <NavLink to="/profile" className={({ isActive }) => `nav-menu border-b border-border pb-2 w-full ${isActive ? 'nav-menu-active' : ''}`}>Profile</NavLink>
                     </SheetClose>
                   </>
                 )}

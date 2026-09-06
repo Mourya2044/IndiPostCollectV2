@@ -20,7 +20,16 @@ const OrderSchema = new mongoose.Schema({
     }
   ],
   totalPrice: { type: Number, required: true },
-  status: { type: String, enum: ['pending', 'complete', 'cancelled'], default: 'pending' }
+  status: { type: String, enum: ['pending', 'complete', 'cancelled'], default: 'pending' },
+  fulfillmentStatus: {
+    type: String,
+    enum: ['unfulfilled', 'processing', 'dispatched', 'delivered'],
+    default: 'unfulfilled'
+  },
+  trackingNumber: { type: String, default: "" },
+  carrier: { type: String, default: "India Post Speed Post" },
+  dispatchDate: { type: Date },
+  confirmationEmailSent: { type: Boolean, default: false }
 }, { timestamps: true });
 
 const Order = mongoose.model("Order", OrderSchema);

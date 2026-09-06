@@ -78,7 +78,7 @@ export const buildEmailHtml = ({
                 <tr>
                   <td>
                     <span style="font-size: 18px; font-weight: 700; color: #111827; letter-spacing: -0.4px; text-decoration: none;">
-                      IndiPostCollect<span style="color: #dc2626;">.</span>
+                      IndiPostCollect<span style="color: #e64833;">.</span>
                     </span>
                   </td>
                 </tr>
@@ -111,13 +111,13 @@ export const buildEmailHtml = ({
               ${ctaButton ? `
                 <div style="margin: 28px 0 24px;">
                   <!--[if mso]>
-                  <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="${ctaButton.url}" style="height:44px;v-text-anchor:middle;width:200px;" arcsize="12%" stroke="f" fillcolor="${ctaButton.color || '#111827'}">
+                  <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="${ctaButton.url}" style="height:44px;v-text-anchor:middle;width:200px;" arcsize="12%" stroke="f" fillcolor="${ctaButton.color || '#244855'}">
                     <w:anchorlock/>
                     <center style="color:#ffffff;font-family:sans-serif;font-size:14px;font-weight:600;">${ctaButton.text}</center>
                   </v:roundrect>
                   <![endif]-->
                   <!--[if !mso]><!-->
-                  <a href="${ctaButton.url}" target="_blank" class="btn-cta" style="background-color: ${ctaButton.color || '#111827'}; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: 500; font-size: 14px; display: inline-block; letter-spacing: 0.1px;">
+                  <a href="${ctaButton.url}" target="_blank" class="btn-cta" style="background-color: ${ctaButton.color || '#244855'}; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: 500; font-size: 14px; display: inline-block; letter-spacing: 0.1px;">
                     ${ctaButton.text} &rarr;
                   </a>
                   <!--<![endif]-->

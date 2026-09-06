@@ -1,23 +1,13 @@
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { axiosInstance } from "@/lib/axios.js";
-import { useAuthStore } from "@/store/useAuthStore.js";
 import React, { useEffect, useState } from "react";
+import { axiosInstance } from "@/lib/axios.js";
 import { toast } from "sonner";
-import { Tag, Minus, Plus, ShoppingCart, Trash2 } from "lucide-react";
+import { Tag, Minus, Plus, ShoppingCart, Trash2, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
-import StripeCheckout from "react-stripe-checkout";
 
 const CartPage = () => {
-  const { user } = useAuthStore();
   const [cartItems, setCartItems] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
 
   const fetchCart = async () => {
     try {
@@ -27,6 +17,8 @@ const CartPage = () => {
     } catch (error) {
       console.error("Error fetching cart:", error);
       toast.error("Failed to fetch cart. Please try again later.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -34,69 +26,43 @@ const CartPage = () => {
     try {
       await axiosInstance.post("/cart/add", { stampId, quantity });
       fetchCart();
-      toast.success("Added to cart successfully!");
+      toast.success("Cart updated");
     } catch (error) {
-      console.error("Error adding to cart:", error);
-      toast.error("Failed to add to cart. Please try again later.");
+      toast.error("Failed to update cart.");
     }
   };
 
   const handleRemoveFromCart = async (stampId, quantity = 0) => {
-    if (cartItems.length === 0) {
-      toast.error("Cart is empty. Add items before checkout.");
-      return;
-    }
-
+    if (cartItems.length === 0) return;
     try {
       await axiosInstance.post("/cart/remove", { stampId, quantity });
       fetchCart();
-      toast.success("Removed from cart successfully!");
+      toast.success("Item removed");
     } catch (error) {
-      console.error("Error removing from cart:", error);
-      toast.error("Failed to remove from cart. Please try again later.");
+      toast.error("Failed to remove item.");
     }
   };
 
-  const handleCheckout = async () => {
-    try {
-      for(const item of cartItems) {
-        if (item.quantity <= 0) {
-          toast.error("Invalid item quantity.");
-          return;
-        }
-      }
-      const res = await axiosInstance.post("/stripe/create-checkout-session", {
-        cartItems: cartItems.map(item => ({
-          name: item.stamp.title,
-          price: item.stamp.price,
-          quantity: item.quantity
-        })),
-      });
 
-      if (res.data.url) {
-        window.location.href = res.data.url; // Redirect to Stripe Checkout
-      } else {
-        toast.error("Failed to get checkout URL.");
-      }
-    } catch (err) {
-      console.error("Checkout failed:", err);
-      toast.error("Checkout failed.");
-    }
-  };
 
   useEffect(() => {
     fetchCart();
   }, []);
 
+  if (isLoading) return <div className="min-h-screen bg-background" />;
+
   if (cartItems.length === 0) {
     return (
-      <div className="container mx-auto p-6 max-w-4xl">
-        <div className="text-center py-12">
-          <ShoppingCart className="h-24 w-24 mx-auto mb-4 text-gray-400" />
-          <h1 className="text-3xl font-bold mb-2">Your Cart is Empty</h1>
-          <p className="text-gray-600 mb-6">Add some stamps to get started!</p>
-          <Link to="/marketplace">
-            <Button className="px-6 py-3">Browse Stamps</Button>
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
+        <div className="max-w-md w-full flex flex-col items-center text-center p-8 border border-border bg-muted/10">
+          <ShoppingCart className="h-12 w-12 text-muted-foreground/50 mb-4" />
+          <h1 className="text-2xl font-light text-foreground mb-2">Your Cart is Empty</h1>
+          <p className="text-sm text-muted-foreground mb-6">Discover rare stamps and add them to your collection.</p>
+          <Link
+            to="/marketplace"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-IPCprimary text-white text-xs font-semibold uppercase tracking-widest hover:opacity-90 transition-opacity"
+          >
+            Browse Stamps <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
       </div>
@@ -104,137 +70,110 @@ const CartPage = () => {
   }
 
   return (
-    <div className="container mx-auto p-6 max-w-6xl">
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold mb-2">Shopping Cart</h1>
-        <p className="text-gray-600">{cartItems.length} item{cartItems.length !== 1 ? 's' : ''} in your cart</p>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Cart Items */}
-        <div className="lg:col-span-2 space-y-4">
-          {cartItems.map((item) => (
-            <Card key={item.stamp._id} className="overflow-hidden">
-              <CardContent className="p-6">
-                <div className="flex gap-4">
-                  {/* Image */}
-                  <div className="flex-shrink-0">
-                    {item.stamp.imageUrl ? (
-                      <img
-                        src={item.stamp.imageUrl}
-                        alt={item.stamp.title}
-                        className="w-32 h-32 object-cover rounded-lg border"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <div className="w-32 h-32 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-50">
-                        <div className="text-center text-gray-400">
-                          <Tag className="h-8 w-8 mx-auto mb-2" />
-                          <p className="text-xs">No Image</p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Item Details */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <h3 className="text-xl font-semibold truncate">{item.stamp.title}</h3>
-                        <p className="text-gray-600 text-sm mt-1 line-clamp-2">{item.stamp.description}</p>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleRemoveFromCart(item.stamp._id, item.quantity)}
-                        className="ml-2 text-red-600 hover:text-red-700 hover:bg-red-50"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-
-                    <div className="flex items-center justify-between mt-4">
-                      <div className="text-lg font-bold">
-                        ₹{item.stamp.price.toFixed(2)}
-                      </div>
-
-                      {/* Quantity Controls */}
-                      <div className="flex items-center gap-3">
-                        <span className="text-sm text-gray-600 mr-2">Qty:</span>
-                        <div className="flex items-center border rounded-md">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 w-8 p-0 hover:bg-gray-100"
-                            onClick={() => handleRemoveFromCart(item.stamp._id, 1)}
-                            disabled={item.quantity <= 1}
-                          >
-                            <Minus className="h-3 w-3" />
-                          </Button>
-                          <span className="px-3 py-1 text-sm font-medium min-w-[40px] text-center">
-                            {item.quantity}
-                          </span>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 w-8 p-0 hover:bg-gray-100"
-                            onClick={() => handleAddToCart(item.stamp._id, 1)}
-                          >
-                            <Plus className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </div>
-
-                      <div className="text-lg font-bold">
-                        ₹{(item.stamp.price * item.quantity).toFixed(2)}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+    <div className="min-h-[calc(100vh-4rem)] bg-background">
+      <div className="max-w-6xl mx-auto px-6 py-12">
+        <div className="mb-8">
+          <h1 className="text-3xl font-light text-foreground mb-2">Shopping Cart</h1>
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+            {cartItems.length} Item{cartItems.length !== 1 ? 's' : ''}
+          </p>
         </div>
 
-        {/* Order Summary */}
-        <div className="lg:col-span-1">
-          <Card className="sticky top-6">
-            <CardHeader>
-              <CardTitle className="text-xl">Order Summary</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex justify-between text-sm">
-                <span>Items ({cartItems.length})</span>
-                <span>₹{totalPrice.toFixed(2)}</span>
-              </div>
-              
-              <div className="flex justify-between text-sm">
-                <span>Shipping</span>
-                <span className="text-green-600">Free</span>
-              </div>
-              
-              <div className="border-t pt-4">
-                <div className="flex justify-between font-bold text-lg">
-                  <span>Total</span>
-                  <span>₹{totalPrice.toFixed(2)}</span>
+        <div className="flex flex-col lg:flex-row gap-8 items-start">
+          {/* ── Cart Items ── */}
+          <div className="w-full lg:flex-1 border border-border bg-background divide-y divide-border">
+            {cartItems.map((item, i) => (
+              <div
+                key={item.stamp._id}
+                className="flex gap-4 p-4 animate-in slide-in-from-bottom-2 fade-in duration-500"
+                style={{ animationDelay: `${i * 50}ms`, animationFillMode: 'both' }}
+              >
+                {/* Image */}
+                <div className="w-24 h-24 shrink-0 bg-muted/20 border border-border flex items-center justify-center overflow-hidden">
+                  {item.stamp.imageUrl ? (
+                    <img src={item.stamp.imageUrl} alt={item.stamp.title} className="w-full h-full object-cover" />
+                  ) : (
+                    <Tag className="h-6 w-6 text-muted-foreground/30" />
+                  )}
+                </div>
+
+                {/* Details */}
+                <div className="flex-1 flex flex-col justify-between py-1 min-w-0">
+                  <div className="flex justify-between items-start gap-4">
+                    <div>
+                      <h3 className="text-sm font-semibold text-foreground truncate">{item.stamp.title}</h3>
+                      <p className="text-xs text-muted-foreground line-clamp-1 mt-1">{item.stamp.description}</p>
+                    </div>
+                    <p className="text-sm font-semibold text-foreground whitespace-nowrap">₹{item.stamp.price.toFixed(2)}</p>
+                  </div>
+
+                  <div className="flex items-center justify-between mt-4">
+                    {/* Qty controls */}
+                    <div className="flex items-center border border-border">
+                      <button
+                        onClick={() => handleRemoveFromCart(item.stamp._id, 1)}
+                        disabled={item.quantity <= 1}
+                        className="px-2 py-1 text-muted-foreground hover:bg-muted transition-colors disabled:opacity-30"
+                      >
+                        <Minus className="h-3 w-3" />
+                      </button>
+                      <span className="px-3 py-1 text-xs font-medium border-x border-border min-w-[32px] text-center">
+                        {item.quantity}
+                      </span>
+                      <button
+                        onClick={() => handleAddToCart(item.stamp._id, 1)}
+                        className="px-2 py-1 text-muted-foreground hover:bg-muted transition-colors"
+                      >
+                        <Plus className="h-3 w-3" />
+                      </button>
+                    </div>
+                    
+                    <button
+                      onClick={() => handleRemoveFromCart(item.stamp._id, item.quantity)}
+                      className="text-muted-foreground hover:text-IPCsecondary transition-colors text-xs flex items-center gap-1 uppercase tracking-widest font-semibold"
+                    >
+                      <Trash2 className="h-3 w-3" /> Remove
+                    </button>
+                  </div>
                 </div>
               </div>
-              
-              <div className="space-y-3 mt-6">
-                <Link to="/checkout" className="block">
-                  <Button className="w-full py-3 text-base font-medium">
-                    Proceed to Checkout
-                  </Button>
-                </Link>
-                
-                <Link to="/marketplace" className="block">
-                  <Button variant="outline" className="w-full py-3 text-base">
-                    Continue Shopping
-                  </Button>
-                </Link>
+            ))}
+          </div>
+
+          {/* ── Order Summary ── */}
+          <div className="w-full lg:w-80 border border-border bg-background p-6 sticky top-24">
+            <h2 className="text-sm font-bold uppercase tracking-widest text-foreground mb-6">Order Summary</h2>
+            
+            <div className="space-y-4 text-sm mb-6">
+              <div className="flex justify-between text-muted-foreground">
+                <span>Subtotal</span>
+                <span>₹{totalPrice.toFixed(2)}</span>
               </div>
-            </CardContent>
-          </Card>
+              <div className="flex justify-between text-muted-foreground">
+                <span>Shipping</span>
+                <span className="text-IPCprimary font-semibold uppercase tracking-widest text-[10px] self-center">Free</span>
+              </div>
+              <div className="pt-4 border-t border-border flex justify-between font-semibold text-foreground text-base">
+                <span>Total</span>
+                <span>₹{totalPrice.toFixed(2)}</span>
+              </div>
+            </div>
+            
+            <div className="space-y-3">
+              <Link
+                to="/checkout"
+                className="w-full flex items-center justify-center gap-2 py-3 bg-IPCprimary text-white text-xs font-semibold uppercase tracking-widest hover:opacity-90 transition-opacity"
+              >
+                Checkout <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+              <Link
+                to="/marketplace"
+                className="flex items-center justify-center py-3 border border-border text-foreground text-xs font-semibold uppercase tracking-widest hover:border-IPCprimary hover:text-IPCprimary transition-all"
+              >
+                Continue Shopping
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     </div>
