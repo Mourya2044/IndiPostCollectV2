@@ -32,6 +32,7 @@ export default function StampCard({ stamp }) {
                         alt={stamp.title}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         onError={() => setImageError(true)}
+                        referrerPolicy="no-referrer"
                         loading="lazy"
                     />
                 ) : (

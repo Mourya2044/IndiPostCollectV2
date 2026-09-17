@@ -207,6 +207,7 @@ const ProfileAlbum = () => {
                           <img
                             src={stamp.imageUrl}
                             alt={stamp.title}
+                            referrerPolicy="no-referrer"
                             className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
                           />
                         ) : (

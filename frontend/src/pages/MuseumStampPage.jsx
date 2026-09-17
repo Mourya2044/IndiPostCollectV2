@@ -119,6 +119,7 @@ export default function MuseumStampPage() {
                                     alt={stamp.title}
                                     className="w-full h-full object-cover"
                                     onError={() => setImageError(true)}
+                                    referrerPolicy="no-referrer"
                                     loading="lazy"
                                 />
                             ) : (

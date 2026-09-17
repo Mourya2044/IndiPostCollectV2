@@ -25,7 +25,7 @@ export const createCheckoutSession = async (req, res) => {
           product_data: {
             name: item.stamp.title,
             description: item.stamp.description,
-            images: item.stamp.imagesUrl,
+            images: item.stamp.imageUrl ? [item.stamp.imageUrl] : [],
           },
           unit_amount: item.stamp.price * 100,
         },
@@ -128,7 +128,7 @@ export const payExistingOrder = async (req, res) => {
           product_data: {
             name: item.productId.title,
             description: item.productId.description,
-            images: item.productId.imagesUrl,
+            images: item.productId.imageUrl ? [item.productId.imageUrl] : [],
           },
           unit_amount: item.productId.price * 100,
         },

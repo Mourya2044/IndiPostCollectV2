@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { axiosInstance } from "@/lib/axios.js";
 import { toast } from "sonner";
-import { Tag, Minus, Plus, ShoppingCart, Trash2, ArrowRight } from "lucide-react";
+import { Tag, Minus, Plus, ShoppingCart, Trash2, ArrowRight, AlertTriangle } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const CartPage = () => {
@@ -91,7 +91,7 @@ const CartPage = () => {
                 {/* Image */}
                 <div className="w-24 h-24 shrink-0 bg-muted/20 border border-border flex items-center justify-center overflow-hidden">
                   {item.stamp.imageUrl ? (
-                    <img src={item.stamp.imageUrl} alt={item.stamp.title} className="w-full h-full object-cover" />
+                    <img src={item.stamp.imageUrl} alt={item.stamp.title} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                   ) : (
                     <Tag className="h-6 w-6 text-muted-foreground/30" />
                   )}
@@ -172,6 +172,16 @@ const CartPage = () => {
               >
                 Continue Shopping
               </Link>
+            </div>
+
+            {/* ── Demo Notice ── */}
+            <div className="mt-4 p-3 bg-amber-500/10 border border-amber-500/20 text-amber-900 dark:text-amber-200 text-xs rounded-sm space-y-1">
+              <div className="font-bold flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-amber-950 dark:text-amber-300">
+                <AlertTriangle className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400 shrink-0" /> Project Demonstration
+              </div>
+              <p className="text-[11px] leading-relaxed text-amber-800 dark:text-amber-300/90 font-normal">
+                Stamps listed are archival items for demonstration and <strong>not for real sale or delivery</strong>. Checkout uses mock sandbox payments.
+              </p>
             </div>
           </div>
         </div>
