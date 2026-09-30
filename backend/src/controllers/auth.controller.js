@@ -16,7 +16,7 @@ const generateToken = (id, res) => {
 
   res.cookie("jwt", token, {
     httpOnly: true,
-    sameSite: process.env.NODE_ENV !== "development" ? "None" : "Strict",
+    sameSite: "None",
     secure: process.env.NODE_ENV !== "development",
     maxAge: 24 * 60 * 60 * 1000
   });
@@ -392,4 +392,4 @@ export const resendVerification = async (req, res) => {
       error: err.message,
     });
   }
-};
+};
