@@ -77,6 +77,10 @@ app.get("/api/ip-location", async (req, res) => {
     }
 });
 
+app.get("/", (req, res) => {
+    res.send("Welcome to the backend API!");
+});
+
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
     connectDB();
